@@ -1,0 +1,81 @@
+{
+  "id": "demo-lightning",
+  "title": "Why does lightning happen?",
+  "createdAt": "2026-11-05T15:22:17.913Z",
+  "updatedAt": "2026-11-05T15:30:40.557Z",
+  "status": "rendered",
+  "request": {
+    "prompt": "Why does lightning happen?",
+    "durationSeconds": 35,
+    "aspectRatio": "9:16",
+    "fps": 30,
+    "style": "educational",
+    "tone": "auto",
+    "audience": "auto",
+    "language": "en",
+    "narration": true,
+    "captions": true,
+    "captionStyle": "word-highlight",
+    "music": "auto",
+    "musicVolume": 0.18,
+    "visualMode": "auto",
+    "quality": "economy",
+    "platform": "shorts",
+    "offline": true,
+    "soundEffects": false
+  },
+  "mode": "offline-demo",
+  "providers": {
+    "llm": "predefined storyboard (no API call)",
+    "images": "procedural (local)",
+    "video": "none",
+    "stock": "none",
+    "tts": "silent demo (estimated timing)",
+    "music": "procedural (local)"
+  },
+  "direction": {
+    "title": "Why does lightning happen?",
+    "objective": "Explain, step by step, how a thundercloud produces lightning and thunder.",
+    "audience": "Curious teens and adults",
+    "tone": "Clear, curious, quietly dramatic",
+    "format": "explainer",
+    "contentKind": "factual",
+    "pacing": "measured",
+    "narrationStyle": "Friendly science teacher, short sentences, one idea per scene",
+    "visualStyle": {
+      "name": "Storm lab",
+      "description": "Dark storm palette, glowing electric accents, clean animated diagrams",
+      "imageStylePrompt": "dramatic night thunderstorm, deep blue and violet palette, high contrast, photographic, no text",
+      "theme": "storm",
+      "fontPairing": "tech-grotesk",
+      "palette": {
+        "background": "#070b18",
+        "primary": "#8ab4ff",
+        "accent": "#ffe066",
+        "text": "#f4f7ff"
+      }
+    },
+    "captionStyle": "word-highlight",
+    "transitionStyle": "crossfade",
+    "musicMood": "suspenseful",
+    "targetSceneCount": 7,
+    "hookIdea": "Open on the surprising temperature fact",
+    "ending": "Practical tip: count from flash to thunder",
+    "needsFactCheck": true,
+    "timeSensitive": false
+  },
+  "durationSeconds": 36.2,
+  "width": 1080,
+  "height": 1920,
+  "fps": 30,
+  "disclosure": {
+    "containsAiGeneratedMedia": false,
+    "containsAiVoice": false,
+    "containsAiScript": false,
+    "label": "Offline demo: procedural visuals, hand-written script, no AI services called"
+  },
+  "contentFlags": [],
+  "requiresReview": false,
+  "storyboardVersion": 1,
+  "tags": []
+}

@@ -1,0 +1,216 @@
+{
+  "version": 1,
+  "createdAt": "2026-11-05T15:22:18.295Z",
+  "source": "demo",
+  "title": "Why does lightning happen?",
+  "hook": "Lightning is about five times hotter than the surface of the Sun.",
+  "scenes": [
+    {
+      "id": "s01",
+      "purpose": "hook",
+      "title": "Hotter than the *Sun*",
+      "narration": "Lightning is about five times hotter than the surface of the Sun.",
+      "visual": {
+        "type": "motion_graphics",
+        "description": "Storm clouds with flickering light",
+        "art": "storm-clouds",
+        "motion": "static",
+        "wantsMotionClip": false
+      },
+      "animationPreset": "word-stagger",
+      "transitionIn": "cut",
+      "estimatedDurationSeconds": 3.5,
+      "sfx": "thunder",
+      "claims": [
+        {
+          "text": "Lightning can heat air to about 30,000 K, roughly five times the Sun's surface temperature.",
+          "kind": "fact",
+          "sourceUrl": "https://www.weather.gov/safety/lightning-science-overview",
+          "confidence": 0.9
+        }
+      ],
+      "layout": "text_reveal"
+    },
+    {
+      "id": "s02",
+      "purpose": "context",
+      "title": "Charge separates",
+      "narration": "Inside a storm cloud, ice crystals and soft hail collide, separating electric charge.",
+      "visual": {
+        "type": "diagram",
+        "description": "Cloud with positive top, negative base, positive ground",
+        "art": "charge-separation",
+        "motion": "static",
+        "wantsMotionClip": false
+      },
+      "animationPreset": "fade-up",
+      "transitionIn": "crossfade",
+      "estimatedDurationSeconds": 6,
+      "claims": [
+        {
+          "text": "Collisions between ice crystals and graupel separate charge in thunderclouds.",
+          "kind": "fact",
+          "sourceUrl": "https://www.nssl.noaa.gov/education/svrwx101/lightning/",
+          "confidence": 0.85
+        }
+      ],
+      "layout": "diagram",
+      "labels": [
+        "Positive charge rises",
+        "Negative charge sinks",
+        "Ground turns positive"
+      ]
+    },
+    {
+      "id": "s03",
+      "purpose": "point",
+      "title": "The leader descends",
+      "narration": "When the imbalance grows, a faint stepped leader zigzags toward the ground.",
+      "visual": {
+        "type": "diagram",
+        "description": "Stepped leader descending and upward streamer rising",
+        "art": "stepped-leader",
+        "motion": "static",
+        "wantsMotionClip": false
+      },
+      "animationPreset": "fade-up",
+      "transitionIn": "wipe",
+      "estimatedDurationSeconds": 5,
+      "claims": [
+        {
+          "text": "A stepped leader propagates downward in discrete steps.",
+          "kind": "fact",
+          "sourceUrl": "https://www.weather.gov/safety/lightning-science-overview",
+          "confidence": 0.85
+        }
+      ],
+      "layout": "diagram",
+      "labels": [
+        "Stepped leader",
+        "Upward streamer",
+        "Connection"
+      ]
+    },
+    {
+      "id": "s04",
+      "purpose": "climax",
+      "title": "The return stroke",
+      "narration": "It meets a streamer rising up, and a huge current flashes back up the channel.",
+      "visual": {
+        "type": "generated_image",
+        "prompt": "a single branching lightning bolt striking a dark field at night",
+        "description": "Branching lightning bolt striking the ground",
+        "art": "lightning-bolt",
+        "motion": "push-in",
+        "wantsMotionClip": true
+      },
+      "animationPreset": "blur-in",
+      "transitionIn": "flash",
+      "estimatedDurationSeconds": 5,
+      "claims": [
+        {
+          "text": "The visible flash is the return stroke travelling up the channel.",
+          "kind": "fact",
+          "sourceUrl": "https://www.nssl.noaa.gov/education/svrwx101/lightning/",
+          "confidence": 0.85
+        }
+      ],
+      "layout": "cinematic_image"
+    },
+    {
+      "id": "s05",
+      "purpose": "evidence",
+      "title": "Peak temperature",
+      "narration": "That heats the air to around thirty thousand kelvin.",
+      "visual": {
+        "type": "motion_graphics",
+        "description": "Glowing heat rings",
+        "art": "thunder-wave",
+        "motion": "static",
+        "wantsMotionClip": false
+      },
+      "animationPreset": "fade-up",
+      "transitionIn": "zoom-through",
+      "estimatedDurationSeconds": 4.5,
+      "claims": [
+        {
+          "text": "Lightning channel temperature reaches about 30,000 K.",
+          "kind": "statistic",
+          "sourceUrl": "https://www.weather.gov/safety/lightning-science-overview",
+          "confidence": 0.9
+        }
+      ],
+      "layout": "number_counter",
+      "value": 30000,
+      "prefix": "",
+      "suffix": " K",
+      "label": "Air temperature inside the channel",
+      "decimals": 0
+    },
+    {
+      "id": "s06",
+      "purpose": "point",
+      "title": "Then comes thunder",
+      "narration": "The air explodes outward. That shock wave is thunder.",
+      "visual": {
+        "type": "diagram",
+        "description": "Hot channel emitting shock wave rings",
+        "art": "thunder-wave",
+        "motion": "static",
+        "wantsMotionClip": false
+      },
+      "animationPreset": "fade-up",
+      "transitionIn": "crossfade",
+      "estimatedDurationSeconds": 4.5,
+      "sfx": "thunder",
+      "claims": [
+        {
+          "text": "Rapid expansion of heated air produces thunder.",
+          "kind": "fact",
+          "sourceUrl": "https://www.weather.gov/safety/lightning-science-overview",
+          "confidence": 0.9
+        }
+      ],
+      "layout": "diagram",
+      "labels": [
+        "Superheated air",
+        "Shock wave becomes thunder"
+      ]
+    },
+    {
+      "id": "s07",
+      "purpose": "cta",
+      "title": "Try it next storm",
+      "narration": "Count from flash to thunder: every three seconds is about one kilometre.",
+      "visual": {
+        "type": "motion_graphics",
+        "description": "Calm storm sky",
+        "art": "storm-clouds",
+        "motion": "static",
+        "wantsMotionClip": false
+      },
+      "animationPreset": "fade-up",
+      "transitionIn": "slide-up",
+      "estimatedDurationSeconds": 5,
+      "claims": [
+        {
+          "text": "Sound travels about 1 km in 3 seconds.",
+          "kind": "fact",
+          "confidence": 0.9
+        }
+      ],
+      "layout": "outro",
+      "cta": "Flash to thunder: 3 seconds ≈ 1 km"
+    }
+  ],
+  "sources": [
+    {
+      "title": "NOAA National Severe Storms Laboratory: Lightning Basics",
+      "url": "https://www.nssl.noaa.gov/education/svrwx101/lightning/"
+    },
+    {
+      "title": "NOAA National Weather Service: Understanding Lightning",
+      "url": "https://www.weather.gov/safety/lightning-science-overview"
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+/**
+ * Generation cost controls: quality presets, spend estimates, and the
+ * approval gate that stops expensive batches from starting silently.
+ */
+import type { QualityPreset, VideoRequest } from "../schemas/options";
+import type { CostEntry, PipelineManifest } from "../schemas/project";
+import { env } from "../config/env";
+
+export type PresetRules = {
+  imageQuality: "low" | "medium" | "high";
+  maxVideoClips: number;
+  /** Prefer generated imagery on this share of non-diagram scenes (rest use motion graphics). */
+  generatedImageShare: number;
+  soundEffects: boolean;
+};
+
+export const PRESETS: Record<QualityPreset, PresetRules> = {
+  economy: { imageQuality: "low", maxVideoClips: 0, generatedImageShare: 0.6, soundEffects: false },
+  balanced: { imageQuality: "medium", maxVideoClips: 2, generatedImageShare: 0.8, soundEffects: true },
+  premium: { imageQuality: "high", maxVideoClips: 5, generatedImageShare: 1, soundEffects: true },
+};
+
+export type PlannedCost = { category: CostEntry["category"]; provider: string; description: string; estimatedUsd: number };
+
+export class BudgetApprovalRequired extends Error {
+  constructor(
+    public estimateUsd: number,
+    public budgetUsd: number,
+    public breakdown: PlannedCost[],
+  ) {
+    super(
+      `Estimated spend $${estimateUsd.toFixed(2)} exceeds the $${budgetUsd.toFixed(2)} limit. Re-run with approval (CLI: --approve-spend ${Math.ceil(estimateUsd * 100) / 100}; UI: confirm the estimate) or choose a cheaper preset.`,
+    );
+    this.name = "BudgetApprovalRequired";
+  }
+}
+
+export const budgetFor = (req: VideoRequest) => req.budgetUsd ?? env().MAX_GENERATION_BUDGET_USD;
+
+export const spentSoFar = (m: PipelineManifest) => m.costs.filter((c) => !c.cached).reduce((a, c) => a + (c.actualUsd ?? c.estimatedUsd), 0);
+
+/**
+ * Throws BudgetApprovalRequired when (already spent + planned) exceeds the
+ * budget and the user has not approved at least that amount.
+ */
+export const enforceBudget = (req: VideoRequest, manifest: PipelineManifest, planned: PlannedCost[]) => {
+  const budget = budgetFor(req);
+  const total = spentSoFar(manifest) + planned.reduce((a, p) => a + p.estimatedUsd, 0);
+  const approved = req.approveSpendUsd ?? 0;
+  if (total > budget + 1e-9 && total > approved + 1e-9) throw new BudgetApprovalRequired(total, budget, planned);
+  return { total, budget };
+};
+
+export const recordCost = (m: PipelineManifest, entry: Omit<CostEntry, "at" | "cached"> & { cached?: boolean }) => {
+  m.costs.push({ at: new Date().toISOString(), cached: false, ...entry });
+};
+
+export const costSummary = (m: PipelineManifest) => {
+  const by: Record<string, number> = {};
+  for (const c of m.costs) by[c.category] = (by[c.category] ?? 0) + (c.cached ? 0 : c.actualUsd ?? c.estimatedUsd);
+  return { totalUsd: Object.values(by).reduce((a, b) => a + b, 0), byCategory: by, cachedHits: m.costs.filter((c) => c.cached).length };
+};

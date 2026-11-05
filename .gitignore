@@ -1,0 +1,22 @@
+node_modules/
+.next/
+out/
+.cache/
+*.tsbuildinfo
+next-env.d.ts
+.env
+.env.local
+.claude/
+.agents/
+skills-lock.json
+# Generated projects are local user data. Demo projects are committed (see README).
+projects/*
+!projects/.gitkeep
+!projects/demo-*/
+projects/demo-*/output/
+projects/demo-*/progress.json
+projects/demo-*/editable/*.backup-*
+projects/demo-*/.cache/
+music/*
+!music/README.md
+!music/demo/

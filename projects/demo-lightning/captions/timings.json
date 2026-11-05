@@ -1,0 +1,543 @@
+{
+  "fps": 30,
+  "words": [
+    {
+      "text": "Lightning",
+      "startMs": 300,
+      "endMs": 1061
+    },
+    {
+      "text": "is",
+      "startMs": 1061,
+      "endMs": 1230
+    },
+    {
+      "text": "about",
+      "startMs": 1230,
+      "endMs": 1653
+    },
+    {
+      "text": "five",
+      "startMs": 1653,
+      "endMs": 1991
+    },
+    {
+      "text": "times",
+      "startMs": 1991,
+      "endMs": 2414
+    },
+    {
+      "text": "hotter",
+      "startMs": 2414,
+      "endMs": 2921
+    },
+    {
+      "text": "than",
+      "startMs": 2921,
+      "endMs": 3260
+    },
+    {
+      "text": "the",
+      "startMs": 3260,
+      "endMs": 3513
+    },
+    {
+      "text": "surface",
+      "startMs": 3513,
+      "endMs": 4105
+    },
+    {
+      "text": "of",
+      "startMs": 4105,
+      "endMs": 4274
+    },
+    {
+      "text": "the",
+      "startMs": 4274,
+      "endMs": 4528
+    },
+    {
+      "text": "Sun.",
+      "startMs": 4528,
+      "endMs": 4858
+    },
+    {
+      "text": "Inside",
+      "startMs": 5333,
+      "endMs": 5735
+    },
+    {
+      "text": "a",
+      "startMs": 5735,
+      "endMs": 5869
+    },
+    {
+      "text": "storm",
+      "startMs": 5869,
+      "endMs": 6204
+    },
+    {
+      "text": "cloud,",
+      "startMs": 6204,
+      "endMs": 6552
+    },
+    {
+      "text": "ice",
+      "startMs": 6740,
+      "endMs": 6941
+    },
+    {
+      "text": "crystals",
+      "startMs": 6941,
+      "endMs": 7477
+    },
+    {
+      "text": "and",
+      "startMs": 7477,
+      "endMs": 7678
+    },
+    {
+      "text": "soft",
+      "startMs": 7678,
+      "endMs": 7946
+    },
+    {
+      "text": "hail",
+      "startMs": 7946,
+      "endMs": 8214
+    },
+    {
+      "text": "collide,",
+      "startMs": 8214,
+      "endMs": 8664
+    },
+    {
+      "text": "separating",
+      "startMs": 8884,
+      "endMs": 9554
+    },
+    {
+      "text": "electric",
+      "startMs": 9554,
+      "endMs": 10090
+    },
+    {
+      "text": "charge.",
+      "startMs": 10090,
+      "endMs": 10482
+    },
+    {
+      "text": "When",
+      "startMs": 11000,
+      "endMs": 11281
+    },
+    {
+      "text": "the",
+      "startMs": 11281,
+      "endMs": 11493
+    },
+    {
+      "text": "imbalance",
+      "startMs": 11493,
+      "endMs": 12126
+    },
+    {
+      "text": "grows,",
+      "startMs": 12126,
+      "endMs": 12492
+    },
+    {
+      "text": "a",
+      "startMs": 12689,
+      "endMs": 12830
+    },
+    {
+      "text": "faint",
+      "startMs": 12830,
+      "endMs": 13181
+    },
+    {
+      "text": "stepped",
+      "startMs": 13181,
+      "endMs": 13674
+    },
+    {
+      "text": "leader",
+      "startMs": 13674,
+      "endMs": 14096
+    },
+    {
+      "text": "zigzags",
+      "startMs": 14096,
+      "endMs": 14589
+    },
+    {
+      "text": "toward",
+      "startMs": 14589,
+      "endMs": 15011
+    },
+    {
+      "text": "the",
+      "startMs": 15011,
+      "endMs": 15222
+    },
+    {
+      "text": "ground.",
+      "startMs": 15222,
+      "endMs": 15635
+    },
+    {
+      "text": "It",
+      "startMs": 16167,
+      "endMs": 16339
+    },
+    {
+      "text": "meets",
+      "startMs": 16339,
+      "endMs": 16768
+    },
+    {
+      "text": "a",
+      "startMs": 16768,
+      "endMs": 16940
+    },
+    {
+      "text": "streamer",
+      "startMs": 16940,
+      "endMs": 17626
+    },
+    {
+      "text": "rising",
+      "startMs": 17626,
+      "endMs": 18141
+    },
+    {
+      "text": "up,",
+      "startMs": 18141,
+      "endMs": 18420
+    },
+    {
+      "text": "and",
+      "startMs": 18571,
+      "endMs": 18828
+    },
+    {
+      "text": "a",
+      "startMs": 18828,
+      "endMs": 19000
+    },
+    {
+      "text": "huge",
+      "startMs": 19000,
+      "endMs": 19343
+    },
+    {
+      "text": "current",
+      "startMs": 19343,
+      "endMs": 19944
+    },
+    {
+      "text": "flashes",
+      "startMs": 19944,
+      "endMs": 20545
+    },
+    {
+      "text": "back",
+      "startMs": 20545,
+      "endMs": 20889
+    },
+    {
+      "text": "up",
+      "startMs": 20889,
+      "endMs": 21060
+    },
+    {
+      "text": "the",
+      "startMs": 21060,
+      "endMs": 21318
+    },
+    {
+      "text": "channel.",
+      "startMs": 21318,
+      "endMs": 21956
+    },
+    {
+      "text": "That",
+      "startMs": 22467,
+      "endMs": 22778
+    },
+    {
+      "text": "heats",
+      "startMs": 22778,
+      "endMs": 23168
+    },
+    {
+      "text": "the",
+      "startMs": 23168,
+      "endMs": 23401
+    },
+    {
+      "text": "air",
+      "startMs": 23401,
+      "endMs": 23635
+    },
+    {
+      "text": "to",
+      "startMs": 23635,
+      "endMs": 23791
+    },
+    {
+      "text": "around",
+      "startMs": 23791,
+      "endMs": 24258
+    },
+    {
+      "text": "thirty",
+      "startMs": 24258,
+      "endMs": 24725
+    },
+    {
+      "text": "thousand",
+      "startMs": 24725,
+      "endMs": 25348
+    },
+    {
+      "text": "kelvin.",
+      "startMs": 25348,
+      "endMs": 25829
+    },
+    {
+      "text": "The",
+      "startMs": 26333,
+      "endMs": 26560
+    },
+    {
+      "text": "air",
+      "startMs": 26560,
+      "endMs": 26786
+    },
+    {
+      "text": "explodes",
+      "startMs": 26786,
+      "endMs": 27391
+    },
+    {
+      "text": "outward.",
+      "startMs": 27391,
+      "endMs": 27926
+    },
+    {
+      "text": "That",
+      "startMs": 28146,
+      "endMs": 28448
+    },
+    {
+      "text": "shock",
+      "startMs": 28448,
+      "endMs": 28826
+    },
+    {
+      "text": "wave",
+      "startMs": 28826,
+      "endMs": 29128
+    },
+    {
+      "text": "is",
+      "startMs": 29128,
+      "endMs": 29279
+    },
+    {
+      "text": "thunder.",
+      "startMs": 29279,
+      "endMs": 29815
+    },
+    {
+      "text": "Count",
+      "startMs": 30333,
+      "endMs": 30706
+    },
+    {
+      "text": "from",
+      "startMs": 30706,
+      "endMs": 31005
+    },
+    {
+      "text": "flash",
+      "startMs": 31005,
+      "endMs": 31379
+    },
+    {
+      "text": "to",
+      "startMs": 31379,
+      "endMs": 31528
+    },
+    {
+      "text": "thunder:",
+      "startMs": 31528,
+      "endMs": 32055
+    },
+    {
+      "text": "every",
+      "startMs": 32275,
+      "endMs": 32649
+    },
+    {
+      "text": "three",
+      "startMs": 32649,
+      "endMs": 33022
+    },
+    {
+      "text": "seconds",
+      "startMs": 33022,
+      "endMs": 33545
+    },
+    {
+      "text": "is",
+      "startMs": 33545,
+      "endMs": 33694
+    },
+    {
+      "text": "about",
+      "startMs": 33694,
+      "endMs": 34068
+    },
+    {
+      "text": "one",
+      "startMs": 34068,
+      "endMs": 34292
+    },
+    {
+      "text": "kilometre.",
+      "startMs": 34292,
+      "endMs": 34968
+    }
+  ],
+  "cues": [
+    {
+      "startMs": 300,
+      "endMs": 3240,
+      "text": "Lightning is about five times hotter than"
+    },
+    {
+      "startMs": 3260,
+      "endMs": 4858,
+      "text": "the surface of the Sun."
+    },
+    {
+      "startMs": 5333,
+      "endMs": 7658,
+      "text": "Inside a storm cloud, ice crystals and"
+    },
+    {
+      "startMs": 7678,
+      "endMs": 10070,
+      "text": "soft hail collide, separating electric"
+    },
+    {
+      "startMs": 10090,
+      "endMs": 10790,
+      "text": "charge."
+    },
+    {
+      "startMs": 11000,
+      "endMs": 13654,
+      "text": "When the imbalance grows, a faint stepped"
+    },
+    {
+      "startMs": 13674,
+      "endMs": 15635,
+      "text": "leader zigzags toward the ground."
+    },
+    {
+      "startMs": 16167,
+      "endMs": 19323,
+      "text": "It meets a streamer rising up, and a huge"
+    },
+    {
+      "startMs": 19343,
+      "endMs": 21956,
+      "text": "current flashes back up the channel."
+    },
+    {
+      "startMs": 22467,
+      "endMs": 24705,
+      "text": "That heats the air to around thirty"
+    },
+    {
+      "startMs": 24725,
+      "endMs": 25829,
+      "text": "thousand kelvin."
+    },
+    {
+      "startMs": 26333,
+      "endMs": 27926,
+      "text": "The air explodes outward."
+    },
+    {
+      "startMs": 28146,
+      "endMs": 29815,
+      "text": "That shock wave is thunder."
+    },
+    {
+      "startMs": 30333,
+      "endMs": 33002,
+      "text": "Count from flash to thunder: every three"
+    },
+    {
+      "startMs": 33022,
+      "endMs": 34968,
+      "text": "seconds is about one kilometre."
+    }
+  ],
+  "scenes": [
+    {
+      "sceneId": "s01",
+      "name": "s01 · Hotter than the *Sun*",
+      "startFrame": 0,
+      "durationInFrames": 156,
+      "transitionInFrames": 0
+    },
+    {
+      "sceneId": "s02",
+      "name": "s02 · Charge separates",
+      "startFrame": 144,
+      "durationInFrames": 182,
+      "transitionInFrames": 12
+    },
+    {
+      "sceneId": "s03",
+      "name": "s03 · The leader descends",
+      "startFrame": 312,
+      "durationInFrames": 169,
+      "transitionInFrames": 14
+    },
+    {
+      "sceneId": "s04",
+      "name": "s04 · The return stroke",
+      "startFrame": 473,
+      "durationInFrames": 197,
+      "transitionInFrames": 8
+    },
+    {
+      "sceneId": "s05",
+      "name": "s05 · Peak temperature",
+      "startFrame": 656,
+      "durationInFrames": 130,
+      "transitionInFrames": 14
+    },
+    {
+      "sceneId": "s06",
+      "name": "s06 · Then comes thunder",
+      "startFrame": 774,
+      "durationInFrames": 132,
+      "transitionInFrames": 12
+    },
+    {
+      "sceneId": "s07",
+      "name": "s07 · Try it next storm",
+      "startFrame": 892,
+      "durationInFrames": 194,
+      "transitionInFrames": 14
+    }
+  ]
+}

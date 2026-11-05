@@ -1,0 +1,51 @@
+{
+  "title": "Why does lightning happen?",
+  "hook": "Lightning is about five times hotter than the surface of the Sun.",
+  "beats": [
+    {
+      "purpose": "hook",
+      "narration": "Lightning is about five times hotter than the surface of the Sun.",
+      "intent": "Hotter than the *Sun*"
+    },
+    {
+      "purpose": "context",
+      "narration": "Inside a storm cloud, ice crystals and soft hail collide, separating electric charge.",
+      "intent": "Charge separates"
+    },
+    {
+      "purpose": "point",
+      "narration": "When the imbalance grows, a faint stepped leader zigzags toward the ground.",
+      "intent": "The leader descends"
+    },
+    {
+      "purpose": "climax",
+      "narration": "It meets a streamer rising up, and a huge current flashes back up the channel.",
+      "intent": "The return stroke"
+    },
+    {
+      "purpose": "evidence",
+      "narration": "That heats the air to around thirty thousand kelvin.",
+      "intent": "Peak temperature"
+    },
+    {
+      "purpose": "point",
+      "narration": "The air explodes outward. That shock wave is thunder.",
+      "intent": "Then comes thunder"
+    },
+    {
+      "purpose": "cta",
+      "narration": "Count from flash to thunder: every three seconds is about one kilometre.",
+      "intent": "Try it next storm"
+    }
+  ],
+  "sources": [
+    {
+      "title": "NOAA National Severe Storms Laboratory: Lightning Basics",
+      "url": "https://www.nssl.noaa.gov/education/svrwx101/lightning/"
+    },
+    {
+      "title": "NOAA National Weather Service: Understanding Lightning",
+      "url": "https://www.weather.gov/safety/lightning-science-overview"
+    }
+  ]
+}

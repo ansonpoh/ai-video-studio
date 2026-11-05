@@ -1,0 +1,572 @@
+{
+  "scenes": [
+    {
+      "sceneId": "s01",
+      "currentAssetId": null,
+      "history": []
+    },
+    {
+      "sceneId": "s02",
+      "currentAssetId": null,
+      "history": []
+    },
+    {
+      "sceneId": "s03",
+      "currentAssetId": null,
+      "history": []
+    },
+    {
+      "sceneId": "s04",
+      "currentAssetId": "s04-s04-still-v1.png",
+      "history": [
+        {
+          "id": "s04-s04-still-v1.png",
+          "sceneId": "s04",
+          "file": "assets/s04-still-v1.png",
+          "createdAt": "2026-11-05T15:22:18.327Z",
+          "width": 1080,
+          "height": 1920,
+          "costUsd": 0,
+          "cacheKey": "c05f239e22450a92c1e7344ad85273e94cbe45f18097920adc93ed99a02abc91",
+          "kind": "procedural_image",
+          "provider": "procedural",
+          "art": "lightning-bolt",
+          "seed": 4
+        }
+      ]
+    },
+    {
+      "sceneId": "s05",
+      "currentAssetId": null,
+      "history": []
+    },
+    {
+      "sceneId": "s06",
+      "currentAssetId": null,
+      "history": []
+    },
+    {
+      "sceneId": "s07",
+      "currentAssetId": null,
+      "history": []
+    }
+  ],
+  "narration": [
+    {
+      "sceneId": "s01",
+      "file": null,
+      "text": "Lightning is about five times hotter than the surface of the Sun.",
+      "durationSeconds": 4.735384615384615,
+      "timing": "estimated",
+      "provider": "silent",
+      "version": 1,
+      "costUsd": 0,
+      "words": [
+        {
+          "text": "Lightning",
+          "startMs": 0,
+          "endMs": 761
+        },
+        {
+          "text": "is",
+          "startMs": 761,
+          "endMs": 930
+        },
+        {
+          "text": "about",
+          "startMs": 930,
+          "endMs": 1353
+        },
+        {
+          "text": "five",
+          "startMs": 1353,
+          "endMs": 1691
+        },
+        {
+          "text": "times",
+          "startMs": 1691,
+          "endMs": 2114
+        },
+        {
+          "text": "hotter",
+          "startMs": 2114,
+          "endMs": 2621
+        },
+        {
+          "text": "than",
+          "startMs": 2621,
+          "endMs": 2960
+        },
+        {
+          "text": "the",
+          "startMs": 2960,
+          "endMs": 3213
+        },
+        {
+          "text": "surface",
+          "startMs": 3213,
+          "endMs": 3805
+        },
+        {
+          "text": "of",
+          "startMs": 3805,
+          "endMs": 3974
+        },
+        {
+          "text": "the",
+          "startMs": 3974,
+          "endMs": 4228
+        },
+        {
+          "text": "Sun.",
+          "startMs": 4228,
+          "endMs": 4558
+        }
+      ]
+    },
+    {
+      "sceneId": "s02",
+      "file": null,
+      "text": "Inside a storm cloud, ice crystals and soft hail collide, separating electric charge.",
+      "durationSeconds": 5.36,
+      "timing": "estimated",
+      "provider": "silent",
+      "version": 1,
+      "costUsd": 0,
+      "words": [
+        {
+          "text": "Inside",
+          "startMs": 0,
+          "endMs": 402
+        },
+        {
+          "text": "a",
+          "startMs": 402,
+          "endMs": 536
+        },
+        {
+          "text": "storm",
+          "startMs": 536,
+          "endMs": 871
+        },
+        {
+          "text": "cloud,",
+          "startMs": 871,
+          "endMs": 1219
+        },
+        {
+          "text": "ice",
+          "startMs": 1407,
+          "endMs": 1608
+        },
+        {
+          "text": "crystals",
+          "startMs": 1608,
+          "endMs": 2144
+        },
+        {
+          "text": "and",
+          "startMs": 2144,
+          "endMs": 2345
+        },
+        {
+          "text": "soft",
+          "startMs": 2345,
+          "endMs": 2613
+        },
+        {
+          "text": "hail",
+          "startMs": 2613,
+          "endMs": 2881
+        },
+        {
+          "text": "collide,",
+          "startMs": 2881,
+          "endMs": 3331
+        },
+        {
+          "text": "separating",
+          "startMs": 3551,
+          "endMs": 4221
+        },
+        {
+          "text": "electric",
+          "startMs": 4221,
+          "endMs": 4757
+        },
+        {
+          "text": "charge.",
+          "startMs": 4757,
+          "endMs": 5149
+        }
+      ]
+    },
+    {
+      "sceneId": "s03",
+      "file": null,
+      "text": "When the imbalance grows, a faint stepped leader zigzags toward the ground.",
+      "durationSeconds": 4.855384615384615,
+      "timing": "estimated",
+      "provider": "silent",
+      "version": 1,
+      "costUsd": 0,
+      "words": [
+        {
+          "text": "When",
+          "startMs": 0,
+          "endMs": 281
+        },
+        {
+          "text": "the",
+          "startMs": 281,
+          "endMs": 493
+        },
+        {
+          "text": "imbalance",
+          "startMs": 493,
+          "endMs": 1126
+        },
+        {
+          "text": "grows,",
+          "startMs": 1126,
+          "endMs": 1492
+        },
+        {
+          "text": "a",
+          "startMs": 1689,
+          "endMs": 1830
+        },
+        {
+          "text": "faint",
+          "startMs": 1830,
+          "endMs": 2181
+        },
+        {
+          "text": "stepped",
+          "startMs": 2181,
+          "endMs": 2674
+        },
+        {
+          "text": "leader",
+          "startMs": 2674,
+          "endMs": 3096
+        },
+        {
+          "text": "zigzags",
+          "startMs": 3096,
+          "endMs": 3589
+        },
+        {
+          "text": "toward",
+          "startMs": 3589,
+          "endMs": 4011
+        },
+        {
+          "text": "the",
+          "startMs": 4011,
+          "endMs": 4222
+        },
+        {
+          "text": "ground.",
+          "startMs": 4222,
+          "endMs": 4635
+        }
+      ]
+    },
+    {
+      "sceneId": "s04",
+      "file": null,
+      "text": "It meets a streamer rising up, and a huge current flashes back up the channel.",
+      "durationSeconds": 6.009230769230769,
+      "timing": "estimated",
+      "provider": "silent",
+      "version": 1,
+      "costUsd": 0,
+      "words": [
+        {
+          "text": "It",
+          "startMs": 0,
+          "endMs": 172
+        },
+        {
+          "text": "meets",
+          "startMs": 172,
+          "endMs": 601
+        },
+        {
+          "text": "a",
+          "startMs": 601,
+          "endMs": 773
+        },
+        {
+          "text": "streamer",
+          "startMs": 773,
+          "endMs": 1459
+        },
+        {
+          "text": "rising",
+          "startMs": 1459,
+          "endMs": 1974
+        },
+        {
+          "text": "up,",
+          "startMs": 1974,
+          "endMs": 2253
+        },
+        {
+          "text": "and",
+          "startMs": 2404,
+          "endMs": 2661
+        },
+        {
+          "text": "a",
+          "startMs": 2661,
+          "endMs": 2833
+        },
+        {
+          "text": "huge",
+          "startMs": 2833,
+          "endMs": 3176
+        },
+        {
+          "text": "current",
+          "startMs": 3176,
+          "endMs": 3777
+        },
+        {
+          "text": "flashes",
+          "startMs": 3777,
+          "endMs": 4378
+        },
+        {
+          "text": "back",
+          "startMs": 4378,
+          "endMs": 4722
+        },
+        {
+          "text": "up",
+          "startMs": 4722,
+          "endMs": 4893
+        },
+        {
+          "text": "the",
+          "startMs": 4893,
+          "endMs": 5151
+        },
+        {
+          "text": "channel.",
+          "startMs": 5151,
+          "endMs": 5789
+        }
+      ]
+    },
+    {
+      "sceneId": "s05",
+      "file": null,
+      "text": "That heats the air to around thirty thousand kelvin.",
+      "durationSeconds": 3.5815384615384613,
+      "timing": "estimated",
+      "provider": "silent",
+      "version": 1,
+      "costUsd": 0,
+      "words": [
+        {
+          "text": "That",
+          "startMs": 0,
+          "endMs": 311
+        },
+        {
+          "text": "heats",
+          "startMs": 311,
+          "endMs": 701
+        },
+        {
+          "text": "the",
+          "startMs": 701,
+          "endMs": 934
+        },
+        {
+          "text": "air",
+          "startMs": 934,
+          "endMs": 1168
+        },
+        {
+          "text": "to",
+          "startMs": 1168,
+          "endMs": 1324
+        },
+        {
+          "text": "around",
+          "startMs": 1324,
+          "endMs": 1791
+        },
+        {
+          "text": "thirty",
+          "startMs": 1791,
+          "endMs": 2258
+        },
+        {
+          "text": "thousand",
+          "startMs": 2258,
+          "endMs": 2881
+        },
+        {
+          "text": "kelvin.",
+          "startMs": 2881,
+          "endMs": 3362
+        }
+      ]
+    },
+    {
+      "sceneId": "s06",
+      "file": null,
+      "text": "The air explodes outward. That shock wave is thunder.",
+      "durationSeconds": 3.701538461538461,
+      "timing": "estimated",
+      "provider": "silent",
+      "version": 1,
+      "costUsd": 0,
+      "words": [
+        {
+          "text": "The",
+          "startMs": 0,
+          "endMs": 227
+        },
+        {
+          "text": "air",
+          "startMs": 227,
+          "endMs": 453
+        },
+        {
+          "text": "explodes",
+          "startMs": 453,
+          "endMs": 1058
+        },
+        {
+          "text": "outward.",
+          "startMs": 1058,
+          "endMs": 1593
+        },
+        {
+          "text": "That",
+          "startMs": 1813,
+          "endMs": 2115
+        },
+        {
+          "text": "shock",
+          "startMs": 2115,
+          "endMs": 2493
+        },
+        {
+          "text": "wave",
+          "startMs": 2493,
+          "endMs": 2795
+        },
+        {
+          "text": "is",
+          "startMs": 2795,
+          "endMs": 2946
+        },
+        {
+          "text": "thunder.",
+          "startMs": 2946,
+          "endMs": 3482
+        }
+      ]
+    },
+    {
+      "sceneId": "s07",
+      "file": null,
+      "text": "Count from flash to thunder: every three seconds is about one kilometre.",
+      "durationSeconds": 4.855384615384615,
+      "timing": "estimated",
+      "provider": "silent",
+      "version": 1,
+      "costUsd": 0,
+      "words": [
+        {
+          "text": "Count",
+          "startMs": 0,
+          "endMs": 373
+        },
+        {
+          "text": "from",
+          "startMs": 373,
+          "endMs": 672
+        },
+        {
+          "text": "flash",
+          "startMs": 672,
+          "endMs": 1046
+        },
+        {
+          "text": "to",
+          "startMs": 1046,
+          "endMs": 1195
+        },
+        {
+          "text": "thunder:",
+          "startMs": 1195,
+          "endMs": 1722
+        },
+        {
+          "text": "every",
+          "startMs": 1942,
+          "endMs": 2316
+        },
+        {
+          "text": "three",
+          "startMs": 2316,
+          "endMs": 2689
+        },
+        {
+          "text": "seconds",
+          "startMs": 2689,
+          "endMs": 3212
+        },
+        {
+          "text": "is",
+          "startMs": 3212,
+          "endMs": 3361
+        },
+        {
+          "text": "about",
+          "startMs": 3361,
+          "endMs": 3735
+        },
+        {
+          "text": "one",
+          "startMs": 3735,
+          "endMs": 3959
+        },
+        {
+          "text": "kilometre.",
+          "startMs": 3959,
+          "endMs": 4635
+        }
+      ]
+    }
+  ],
+  "music": {
+    "file": "audio/background-music.mp3",
+    "source": "procedural-demo",
+    "license": "Synthesised locally by the studio (no third-party rights)",
+    "mood": "suspenseful"
+  },
+  "sfx": [
+    {
+      "sceneId": "s01",
+      "kind": "thunder",
+      "file": "audio/sfx-s01-thunder.mp3",
+      "provider": "procedural",
+      "costUsd": 0
+    },
+    {
+      "sceneId": "s06",
+      "kind": "thunder",
+      "file": "audio/sfx-s06-thunder.mp3",
+      "provider": "procedural",
+      "costUsd": 0
+    }
+  ]
+}
