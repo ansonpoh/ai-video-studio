@@ -1,0 +1,37 @@
+{
+  "title": "3 habits for a more focused day",
+  "hook": "Three habits for a more focused day.",
+  "beats": [
+    {
+      "purpose": "hook",
+      "narration": "Three tiny habits for a far more focused day.",
+      "intent": "3 habits for a *focused* day"
+    },
+    {
+      "purpose": "point",
+      "narration": "One: plan tomorrow tonight. Pick your top three tasks before bed.",
+      "intent": ""
+    },
+    {
+      "purpose": "point",
+      "narration": "Two: work in focus sprints, twenty five to fifty minutes, then rest.",
+      "intent": ""
+    },
+    {
+      "purpose": "point",
+      "narration": "Three: silence your phone and put it out of reach.",
+      "intent": ""
+    },
+    {
+      "purpose": "summary",
+      "narration": "Stack all three, and your best hours go to what matters.",
+      "intent": "Stack all three"
+    },
+    {
+      "purpose": "cta",
+      "narration": "Save this and try one habit tomorrow.",
+      "intent": "Try one tomorrow"
+    }
+  ],
+  "sources": []
+}

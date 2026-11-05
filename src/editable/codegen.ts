@@ -129,7 +129,7 @@ export const sceneVisualCode = (x: SceneCodeInput, indent: string) => {
     lines.push(`${indent}<Backdrop name=${str(`${id} backdrop`)} colorA=${str(theme.background)} colorB=${str(theme.backgroundAlt)} angle={160} style=${styleObj({})} />`);
   }
   if (useArtOnly) {
-    lines.push(artNode(`${id} visual`, cardLayout ? { opacity: 0.3 } : {}));
+    lines.push(artNode(`${id} visual`, cardLayout ? { opacity: 0.22, filter: "blur(10px)" } : {}));
   } else {
     const src = `staticFile(${str(`${projectId}/${asset.file}`)})`;
     lines.push(

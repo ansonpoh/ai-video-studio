@@ -1,0 +1,134 @@
+{
+  "version": 1,
+  "createdAt": "2026-11-05T16:29:51.953Z",
+  "source": "demo",
+  "title": "3 habits for a more focused day",
+  "hook": "Three habits for a more focused day.",
+  "scenes": [
+    {
+      "id": "s01",
+      "purpose": "hook",
+      "title": "3 habits for a *focused* day",
+      "narration": "Three tiny habits for a far more focused day.",
+      "visual": {
+        "type": "motion_graphics",
+        "description": "Flowing colour fields",
+        "art": "aurora-gradient",
+        "motion": "static",
+        "wantsMotionClip": false
+      },
+      "animationPreset": "scale-pop",
+      "transitionIn": "cut",
+      "estimatedDurationSeconds": 3,
+      "sfx": "whoosh",
+      "claims": [],
+      "layout": "text_reveal"
+    },
+    {
+      "id": "s02",
+      "purpose": "point",
+      "narration": "One: plan tomorrow tonight. Pick your top three tasks before bed.",
+      "visual": {
+        "type": "motion_graphics",
+        "description": "Calendar filling with blocks",
+        "art": "calendar-blocks",
+        "motion": "static",
+        "wantsMotionClip": false
+      },
+      "animationPreset": "slide-left",
+      "transitionIn": "slide-left",
+      "estimatedDurationSeconds": 5,
+      "sfx": "pop",
+      "claims": [],
+      "layout": "listicle",
+      "number": 1,
+      "heading": "Plan tomorrow tonight",
+      "body": "Pick your top three tasks before bed."
+    },
+    {
+      "id": "s03",
+      "purpose": "point",
+      "narration": "Two: work in focus sprints, twenty five to fifty minutes, then rest.",
+      "visual": {
+        "type": "motion_graphics",
+        "description": "Countdown timer ring",
+        "art": "focus-timer",
+        "motion": "static",
+        "wantsMotionClip": false
+      },
+      "animationPreset": "slide-left",
+      "transitionIn": "slide-left",
+      "estimatedDurationSeconds": 5,
+      "sfx": "pop",
+      "claims": [],
+      "layout": "listicle",
+      "number": 2,
+      "heading": "Work in focus sprints",
+      "body": "25 to 50 minutes on, short break off."
+    },
+    {
+      "id": "s04",
+      "purpose": "point",
+      "narration": "Three: silence your phone and put it out of reach.",
+      "visual": {
+        "type": "motion_graphics",
+        "description": "Phone notifications being silenced",
+        "art": "phone-focus",
+        "motion": "static",
+        "wantsMotionClip": false
+      },
+      "animationPreset": "slide-left",
+      "transitionIn": "slide-left",
+      "estimatedDurationSeconds": 4,
+      "sfx": "pop",
+      "claims": [],
+      "layout": "listicle",
+      "number": 3,
+      "heading": "Silence your phone",
+      "body": "Out of sight, out of reach."
+    },
+    {
+      "id": "s05",
+      "purpose": "summary",
+      "title": "Stack all three",
+      "narration": "Stack all three, and your best hours go to what matters.",
+      "visual": {
+        "type": "diagram",
+        "description": "Checklist ticking off",
+        "art": "checklist",
+        "motion": "static",
+        "wantsMotionClip": false
+      },
+      "animationPreset": "slide-left",
+      "transitionIn": "zoom-through",
+      "estimatedDurationSeconds": 4,
+      "claims": [],
+      "layout": "diagram",
+      "labels": [
+        "Plan tonight",
+        "Focus sprints",
+        "Phone away"
+      ]
+    },
+    {
+      "id": "s06",
+      "purpose": "cta",
+      "title": "Try one tomorrow",
+      "narration": "Save this and try one habit tomorrow.",
+      "visual": {
+        "type": "motion_graphics",
+        "description": "Colour fields",
+        "art": "aurora-gradient",
+        "motion": "static",
+        "wantsMotionClip": false
+      },
+      "animationPreset": "scale-pop",
+      "transitionIn": "slide-up",
+      "estimatedDurationSeconds": 3,
+      "claims": [],
+      "layout": "outro",
+      "cta": "Save this. Try one habit tomorrow."
+    }
+  ],
+  "sources": []
+}

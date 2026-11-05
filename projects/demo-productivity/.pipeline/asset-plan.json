@@ -1,0 +1,41 @@
+{
+  "plans": [
+    {
+      "sceneId": "s01",
+      "source": "live-art",
+      "reason": "programmatic motion graphics",
+      "estimatedUsd": 0
+    },
+    {
+      "sceneId": "s02",
+      "source": "live-art",
+      "reason": "programmatic motion graphics",
+      "estimatedUsd": 0
+    },
+    {
+      "sceneId": "s03",
+      "source": "live-art",
+      "reason": "programmatic motion graphics",
+      "estimatedUsd": 0
+    },
+    {
+      "sceneId": "s04",
+      "source": "live-art",
+      "reason": "programmatic motion graphics",
+      "estimatedUsd": 0
+    },
+    {
+      "sceneId": "s05",
+      "source": "live-art",
+      "reason": "programmatic motion graphics",
+      "estimatedUsd": 0
+    },
+    {
+      "sceneId": "s06",
+      "source": "live-art",
+      "reason": "programmatic motion graphics",
+      "estimatedUsd": 0
+    }
+  ],
+  "planned": []
+}

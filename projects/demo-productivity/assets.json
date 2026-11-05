@@ -1,0 +1,444 @@
+{
+  "scenes": [
+    {
+      "sceneId": "s01",
+      "currentAssetId": null,
+      "history": []
+    },
+    {
+      "sceneId": "s02",
+      "currentAssetId": null,
+      "history": []
+    },
+    {
+      "sceneId": "s03",
+      "currentAssetId": null,
+      "history": []
+    },
+    {
+      "sceneId": "s04",
+      "currentAssetId": null,
+      "history": []
+    },
+    {
+      "sceneId": "s05",
+      "currentAssetId": null,
+      "history": []
+    },
+    {
+      "sceneId": "s06",
+      "currentAssetId": null,
+      "history": []
+    }
+  ],
+  "narration": [
+    {
+      "sceneId": "s01",
+      "file": null,
+      "text": "Three tiny habits for a far more focused day.",
+      "durationSeconds": 3.5815384615384613,
+      "timing": "estimated",
+      "provider": "silent",
+      "version": 1,
+      "costUsd": 0,
+      "words": [
+        {
+          "text": "Three",
+          "startMs": 0,
+          "endMs": 448
+        },
+        {
+          "text": "tiny",
+          "startMs": 448,
+          "endMs": 806
+        },
+        {
+          "text": "habits",
+          "startMs": 806,
+          "endMs": 1343
+        },
+        {
+          "text": "for",
+          "startMs": 1343,
+          "endMs": 1612
+        },
+        {
+          "text": "a",
+          "startMs": 1612,
+          "endMs": 1791
+        },
+        {
+          "text": "far",
+          "startMs": 1791,
+          "endMs": 2059
+        },
+        {
+          "text": "more",
+          "startMs": 2059,
+          "endMs": 2418
+        },
+        {
+          "text": "focused",
+          "startMs": 2418,
+          "endMs": 3044
+        },
+        {
+          "text": "day.",
+          "startMs": 3044,
+          "endMs": 3394
+        }
+      ]
+    },
+    {
+      "sceneId": "s02",
+      "file": null,
+      "text": "One: plan tomorrow tonight. Pick your top three tasks before bed.",
+      "durationSeconds": 4.590769230769231,
+      "timing": "estimated",
+      "provider": "silent",
+      "version": 1,
+      "costUsd": 0,
+      "words": [
+        {
+          "text": "One:",
+          "startMs": 0,
+          "endMs": 294
+        },
+        {
+          "text": "plan",
+          "startMs": 452,
+          "endMs": 753
+        },
+        {
+          "text": "tomorrow",
+          "startMs": 753,
+          "endMs": 1355
+        },
+        {
+          "text": "tonight.",
+          "startMs": 1355,
+          "endMs": 1887
+        },
+        {
+          "text": "Pick",
+          "startMs": 2107,
+          "endMs": 2408
+        },
+        {
+          "text": "your",
+          "startMs": 2408,
+          "endMs": 2709
+        },
+        {
+          "text": "top",
+          "startMs": 2709,
+          "endMs": 2935
+        },
+        {
+          "text": "three",
+          "startMs": 2935,
+          "endMs": 3311
+        },
+        {
+          "text": "tasks",
+          "startMs": 3311,
+          "endMs": 3688
+        },
+        {
+          "text": "before",
+          "startMs": 3688,
+          "endMs": 4139
+        },
+        {
+          "text": "bed.",
+          "startMs": 4139,
+          "endMs": 4433
+        }
+      ]
+    },
+    {
+      "sceneId": "s03",
+      "file": null,
+      "text": "Two: work in focus sprints, twenty five to fifty minutes, then rest.",
+      "durationSeconds": 5.095384615384615,
+      "timing": "estimated",
+      "provider": "silent",
+      "version": 1,
+      "costUsd": 0,
+      "words": [
+        {
+          "text": "Two:",
+          "startMs": 0,
+          "endMs": 306
+        },
+        {
+          "text": "work",
+          "startMs": 470,
+          "endMs": 784
+        },
+        {
+          "text": "in",
+          "startMs": 784,
+          "endMs": 941
+        },
+        {
+          "text": "focus",
+          "startMs": 941,
+          "endMs": 1333
+        },
+        {
+          "text": "sprints,",
+          "startMs": 1333,
+          "endMs": 1897
+        },
+        {
+          "text": "twenty",
+          "startMs": 2117,
+          "endMs": 2587
+        },
+        {
+          "text": "five",
+          "startMs": 2587,
+          "endMs": 2900
+        },
+        {
+          "text": "to",
+          "startMs": 2900,
+          "endMs": 3057
+        },
+        {
+          "text": "fifty",
+          "startMs": 3057,
+          "endMs": 3449
+        },
+        {
+          "text": "minutes,",
+          "startMs": 3449,
+          "endMs": 4013
+        },
+        {
+          "text": "then",
+          "startMs": 4233,
+          "endMs": 4547
+        },
+        {
+          "text": "rest.",
+          "startMs": 4547,
+          "endMs": 4903
+        }
+      ]
+    },
+    {
+      "sceneId": "s04",
+      "file": null,
+      "text": "Three: silence your phone and put it out of reach.",
+      "durationSeconds": 4.086153846153846,
+      "timing": "estimated",
+      "provider": "silent",
+      "version": 1,
+      "costUsd": 0,
+      "words": [
+        {
+          "text": "Three:",
+          "startMs": 0,
+          "endMs": 506
+        },
+        {
+          "text": "silence",
+          "startMs": 726,
+          "endMs": 1362
+        },
+        {
+          "text": "your",
+          "startMs": 1362,
+          "endMs": 1725
+        },
+        {
+          "text": "phone",
+          "startMs": 1725,
+          "endMs": 2179
+        },
+        {
+          "text": "and",
+          "startMs": 2179,
+          "endMs": 2452
+        },
+        {
+          "text": "put",
+          "startMs": 2452,
+          "endMs": 2724
+        },
+        {
+          "text": "it",
+          "startMs": 2724,
+          "endMs": 2906
+        },
+        {
+          "text": "out",
+          "startMs": 2906,
+          "endMs": 3178
+        },
+        {
+          "text": "of",
+          "startMs": 3178,
+          "endMs": 3360
+        },
+        {
+          "text": "reach.",
+          "startMs": 3360,
+          "endMs": 3866
+        }
+      ]
+    },
+    {
+      "sceneId": "s05",
+      "file": null,
+      "text": "Stack all three, and your best hours go to what matters.",
+      "durationSeconds": 4.470769230769231,
+      "timing": "estimated",
+      "provider": "silent",
+      "version": 1,
+      "costUsd": 0,
+      "words": [
+        {
+          "text": "Stack",
+          "startMs": 0,
+          "endMs": 447
+        },
+        {
+          "text": "all",
+          "startMs": 447,
+          "endMs": 715
+        },
+        {
+          "text": "three,",
+          "startMs": 715,
+          "endMs": 1211
+        },
+        {
+          "text": "and",
+          "startMs": 1431,
+          "endMs": 1699
+        },
+        {
+          "text": "your",
+          "startMs": 1699,
+          "endMs": 2057
+        },
+        {
+          "text": "best",
+          "startMs": 2057,
+          "endMs": 2414
+        },
+        {
+          "text": "hours",
+          "startMs": 2414,
+          "endMs": 2861
+        },
+        {
+          "text": "go",
+          "startMs": 2861,
+          "endMs": 3040
+        },
+        {
+          "text": "to",
+          "startMs": 3040,
+          "endMs": 3219
+        },
+        {
+          "text": "what",
+          "startMs": 3219,
+          "endMs": 3577
+        },
+        {
+          "text": "matters.",
+          "startMs": 3577,
+          "endMs": 4251
+        }
+      ]
+    },
+    {
+      "sceneId": "s06",
+      "file": null,
+      "text": "Save this and try one habit tomorrow.",
+      "durationSeconds": 2.812307692307692,
+      "timing": "estimated",
+      "provider": "silent",
+      "version": 1,
+      "costUsd": 0,
+      "words": [
+        {
+          "text": "Save",
+          "startMs": 0,
+          "endMs": 341
+        },
+        {
+          "text": "this",
+          "startMs": 341,
+          "endMs": 682
+        },
+        {
+          "text": "and",
+          "startMs": 682,
+          "endMs": 937
+        },
+        {
+          "text": "try",
+          "startMs": 937,
+          "endMs": 1193
+        },
+        {
+          "text": "one",
+          "startMs": 1193,
+          "endMs": 1449
+        },
+        {
+          "text": "habit",
+          "startMs": 1449,
+          "endMs": 1875
+        },
+        {
+          "text": "tomorrow.",
+          "startMs": 1875,
+          "endMs": 2592
+        }
+      ]
+    }
+  ],
+  "music": {
+    "file": "audio/background-music.mp3",
+    "source": "procedural-demo",
+    "license": "Synthesised locally by the studio (no third-party rights)",
+    "mood": "energetic"
+  },
+  "sfx": [
+    {
+      "sceneId": "s01",
+      "kind": "whoosh",
+      "file": "audio/sfx-s01-whoosh.mp3",
+      "provider": "procedural",
+      "costUsd": 0
+    },
+    {
+      "sceneId": "s02",
+      "kind": "pop",
+      "file": "audio/sfx-s02-pop.mp3",
+      "provider": "procedural",
+      "costUsd": 0
+    },
+    {
+      "sceneId": "s03",
+      "kind": "pop",
+      "file": "audio/sfx-s03-pop.mp3",
+      "provider": "procedural",
+      "costUsd": 0
+    },
+    {
+      "sceneId": "s04",
+      "kind": "pop",
+      "file": "audio/sfx-s04-pop.mp3",
+      "provider": "procedural",
+      "costUsd": 0
+    }
+  ]
+}

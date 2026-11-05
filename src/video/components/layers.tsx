@@ -281,6 +281,10 @@ const CaptionLayerInner: React.FC<CaptionLayerProps> = ({ captions, captionStyle
           padding: s === "minimal" ? "10px 22px" : undefined,
           borderRadius: 18,
           backgroundColor: s === "minimal" ? boxColor : undefined,
+          // outline + shadow keep captions readable on bright footage
+          WebkitTextStroke: s === "bold" ? "4px rgba(0,0,0,0.7)" : undefined,
+          paintOrder: s === "bold" ? "stroke fill" : undefined,
+          textShadow: s === "bold" ? "0 5px 0 rgba(0,0,0,0.45), 0 0 22px rgba(0,0,0,0.4)" : s === "karaoke" ? undefined : "0 2px 14px rgba(0,0,0,0.55)",
           ...style,
           fontSize,
           scale: s === "bold" || s === "word-highlight" ? `${0.85 + 0.15 * pop}` : undefined,

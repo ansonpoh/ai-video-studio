@@ -1,0 +1,55 @@
+{
+  "totalFrames": 786,
+  "scenes": [
+    {
+      "id": "s01",
+      "startFrame": 0,
+      "durationInFrames": 116,
+      "transitionInFrames": 0,
+      "narrationOffsetFrames": 9,
+      "narrationFrames": 107
+    },
+    {
+      "id": "s02",
+      "startFrame": 102,
+      "durationInFrames": 156,
+      "transitionInFrames": 14,
+      "narrationOffsetFrames": 18,
+      "narrationFrames": 138
+    },
+    {
+      "id": "s03",
+      "startFrame": 244,
+      "durationInFrames": 171,
+      "transitionInFrames": 14,
+      "narrationOffsetFrames": 18,
+      "narrationFrames": 153
+    },
+    {
+      "id": "s04",
+      "startFrame": 401,
+      "durationInFrames": 141,
+      "transitionInFrames": 14,
+      "narrationOffsetFrames": 18,
+      "narrationFrames": 123
+    },
+    {
+      "id": "s05",
+      "startFrame": 528,
+      "durationInFrames": 152,
+      "transitionInFrames": 14,
+      "narrationOffsetFrames": 18,
+      "narrationFrames": 134
+    },
+    {
+      "id": "s06",
+      "startFrame": 666,
+      "durationInFrames": 120,
+      "transitionInFrames": 14,
+      "narrationOffsetFrames": 18,
+      "narrationFrames": 84
+    }
+  ],
+  "naturalSeconds": 26.2,
+  "warnings": []
+}

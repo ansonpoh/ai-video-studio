@@ -1,0 +1,406 @@
+{
+  "fps": 30,
+  "words": [
+    {
+      "text": "Three",
+      "startMs": 300,
+      "endMs": 748
+    },
+    {
+      "text": "tiny",
+      "startMs": 748,
+      "endMs": 1106
+    },
+    {
+      "text": "habits",
+      "startMs": 1106,
+      "endMs": 1643
+    },
+    {
+      "text": "for",
+      "startMs": 1643,
+      "endMs": 1912
+    },
+    {
+      "text": "a",
+      "startMs": 1912,
+      "endMs": 2091
+    },
+    {
+      "text": "far",
+      "startMs": 2091,
+      "endMs": 2359
+    },
+    {
+      "text": "more",
+      "startMs": 2359,
+      "endMs": 2718
+    },
+    {
+      "text": "focused",
+      "startMs": 2718,
+      "endMs": 3344
+    },
+    {
+      "text": "day.",
+      "startMs": 3344,
+      "endMs": 3694
+    },
+    {
+      "text": "One:",
+      "startMs": 4000,
+      "endMs": 4294
+    },
+    {
+      "text": "plan",
+      "startMs": 4452,
+      "endMs": 4753
+    },
+    {
+      "text": "tomorrow",
+      "startMs": 4753,
+      "endMs": 5355
+    },
+    {
+      "text": "tonight.",
+      "startMs": 5355,
+      "endMs": 5887
+    },
+    {
+      "text": "Pick",
+      "startMs": 6107,
+      "endMs": 6408
+    },
+    {
+      "text": "your",
+      "startMs": 6408,
+      "endMs": 6709
+    },
+    {
+      "text": "top",
+      "startMs": 6709,
+      "endMs": 6935
+    },
+    {
+      "text": "three",
+      "startMs": 6935,
+      "endMs": 7311
+    },
+    {
+      "text": "tasks",
+      "startMs": 7311,
+      "endMs": 7688
+    },
+    {
+      "text": "before",
+      "startMs": 7688,
+      "endMs": 8139
+    },
+    {
+      "text": "bed.",
+      "startMs": 8139,
+      "endMs": 8433
+    },
+    {
+      "text": "Two:",
+      "startMs": 8733,
+      "endMs": 9039
+    },
+    {
+      "text": "work",
+      "startMs": 9203,
+      "endMs": 9517
+    },
+    {
+      "text": "in",
+      "startMs": 9517,
+      "endMs": 9674
+    },
+    {
+      "text": "focus",
+      "startMs": 9674,
+      "endMs": 10066
+    },
+    {
+      "text": "sprints,",
+      "startMs": 10066,
+      "endMs": 10630
+    },
+    {
+      "text": "twenty",
+      "startMs": 10850,
+      "endMs": 11320
+    },
+    {
+      "text": "five",
+      "startMs": 11320,
+      "endMs": 11633
+    },
+    {
+      "text": "to",
+      "startMs": 11633,
+      "endMs": 11790
+    },
+    {
+      "text": "fifty",
+      "startMs": 11790,
+      "endMs": 12182
+    },
+    {
+      "text": "minutes,",
+      "startMs": 12182,
+      "endMs": 12746
+    },
+    {
+      "text": "then",
+      "startMs": 12966,
+      "endMs": 13280
+    },
+    {
+      "text": "rest.",
+      "startMs": 13280,
+      "endMs": 13636
+    },
+    {
+      "text": "Three:",
+      "startMs": 13967,
+      "endMs": 14473
+    },
+    {
+      "text": "silence",
+      "startMs": 14693,
+      "endMs": 15329
+    },
+    {
+      "text": "your",
+      "startMs": 15329,
+      "endMs": 15692
+    },
+    {
+      "text": "phone",
+      "startMs": 15692,
+      "endMs": 16146
+    },
+    {
+      "text": "and",
+      "startMs": 16146,
+      "endMs": 16419
+    },
+    {
+      "text": "put",
+      "startMs": 16419,
+      "endMs": 16691
+    },
+    {
+      "text": "it",
+      "startMs": 16691,
+      "endMs": 16873
+    },
+    {
+      "text": "out",
+      "startMs": 16873,
+      "endMs": 17145
+    },
+    {
+      "text": "of",
+      "startMs": 17145,
+      "endMs": 17327
+    },
+    {
+      "text": "reach.",
+      "startMs": 17327,
+      "endMs": 17833
+    },
+    {
+      "text": "Stack",
+      "startMs": 18200,
+      "endMs": 18647
+    },
+    {
+      "text": "all",
+      "startMs": 18647,
+      "endMs": 18915
+    },
+    {
+      "text": "three,",
+      "startMs": 18915,
+      "endMs": 19411
+    },
+    {
+      "text": "and",
+      "startMs": 19631,
+      "endMs": 19899
+    },
+    {
+      "text": "your",
+      "startMs": 19899,
+      "endMs": 20257
+    },
+    {
+      "text": "best",
+      "startMs": 20257,
+      "endMs": 20614
+    },
+    {
+      "text": "hours",
+      "startMs": 20614,
+      "endMs": 21061
+    },
+    {
+      "text": "go",
+      "startMs": 21061,
+      "endMs": 21240
+    },
+    {
+      "text": "to",
+      "startMs": 21240,
+      "endMs": 21419
+    },
+    {
+      "text": "what",
+      "startMs": 21419,
+      "endMs": 21777
+    },
+    {
+      "text": "matters.",
+      "startMs": 21777,
+      "endMs": 22451
+    },
+    {
+      "text": "Save",
+      "startMs": 22800,
+      "endMs": 23141
+    },
+    {
+      "text": "this",
+      "startMs": 23141,
+      "endMs": 23482
+    },
+    {
+      "text": "and",
+      "startMs": 23482,
+      "endMs": 23737
+    },
+    {
+      "text": "try",
+      "startMs": 23737,
+      "endMs": 23993
+    },
+    {
+      "text": "one",
+      "startMs": 23993,
+      "endMs": 24249
+    },
+    {
+      "text": "habit",
+      "startMs": 24249,
+      "endMs": 24675
+    },
+    {
+      "text": "tomorrow.",
+      "startMs": 24675,
+      "endMs": 25392
+    }
+  ],
+  "cues": [
+    {
+      "startMs": 300,
+      "endMs": 3324,
+      "text": "Three tiny habits for a far more focused"
+    },
+    {
+      "startMs": 3344,
+      "endMs": 3980,
+      "text": "day."
+    },
+    {
+      "startMs": 4000,
+      "endMs": 5887,
+      "text": "One: plan tomorrow tonight."
+    },
+    {
+      "startMs": 6107,
+      "endMs": 8433,
+      "text": "Pick your top three tasks before bed."
+    },
+    {
+      "startMs": 8733,
+      "endMs": 11770,
+      "text": "Two: work in focus sprints, twenty five to"
+    },
+    {
+      "startMs": 11790,
+      "endMs": 13636,
+      "text": "fifty minutes, then rest."
+    },
+    {
+      "startMs": 13967,
+      "endMs": 17125,
+      "text": "Three: silence your phone and put it out"
+    },
+    {
+      "startMs": 17145,
+      "endMs": 17845,
+      "text": "of reach."
+    },
+    {
+      "startMs": 18200,
+      "endMs": 21220,
+      "text": "Stack all three, and your best hours go"
+    },
+    {
+      "startMs": 21240,
+      "endMs": 22451,
+      "text": "to what matters."
+    },
+    {
+      "startMs": 22800,
+      "endMs": 25392,
+      "text": "Save this and try one habit tomorrow."
+    }
+  ],
+  "scenes": [
+    {
+      "sceneId": "s01",
+      "name": "s01 · 3 habits for a *focused* day",
+      "startFrame": 0,
+      "durationInFrames": 116,
+      "transitionInFrames": 0
+    },
+    {
+      "sceneId": "s02",
+      "name": "s02 · point",
+      "startFrame": 102,
+      "durationInFrames": 156,
+      "transitionInFrames": 14
+    },
+    {
+      "sceneId": "s03",
+      "name": "s03 · point",
+      "startFrame": 244,
+      "durationInFrames": 171,
+      "transitionInFrames": 14
+    },
+    {
+      "sceneId": "s04",
+      "name": "s04 · point",
+      "startFrame": 401,
+      "durationInFrames": 141,
+      "transitionInFrames": 14
+    },
+    {
+      "sceneId": "s05",
+      "name": "s05 · Stack all three",
+      "startFrame": 528,
+      "durationInFrames": 152,
+      "transitionInFrames": 14
+    },
+    {
+      "sceneId": "s06",
+      "name": "s06 · Try one tomorrow",
+      "startFrame": 666,
+      "durationInFrames": 120,
+      "transitionInFrames": 14
+    }
+  ]
+}
