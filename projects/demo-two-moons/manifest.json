@@ -1,0 +1,219 @@
+{
+  "stages": [
+    {
+      "name": "interpret",
+      "status": "done",
+      "attempts": 1,
+      "startedAt": "2026-11-05T15:49:23.599Z",
+      "note": "format hint: cinematic; list: -; duration 40s",
+      "finishedAt": "2026-11-05T15:49:23.610Z"
+    },
+    {
+      "name": "direction",
+      "status": "done",
+      "attempts": 1,
+      "startedAt": "2026-11-05T15:49:23.611Z",
+      "note": "cinematic_story · Twin moonlight · slow",
+      "finishedAt": "2026-11-05T15:49:23.618Z"
+    },
+    {
+      "name": "script",
+      "status": "done",
+      "attempts": 1,
+      "startedAt": "2026-11-05T15:49:23.619Z",
+      "note": "predefined script",
+      "finishedAt": "2026-11-05T15:49:23.620Z"
+    },
+    {
+      "name": "storyboard",
+      "status": "done",
+      "attempts": 1,
+      "startedAt": "2026-11-05T15:49:23.621Z",
+      "note": "7 scenes (v1)",
+      "finishedAt": "2026-11-05T15:49:23.631Z"
+    },
+    {
+      "name": "validate",
+      "status": "done",
+      "attempts": 1,
+      "startedAt": "2026-11-05T15:49:23.632Z",
+      "note": "7 scenes valid; 6 content notes",
+      "finishedAt": "2026-11-05T15:49:23.637Z"
+    },
+    {
+      "name": "plan-assets",
+      "status": "done",
+      "attempts": 1,
+      "startedAt": "2026-11-05T15:49:23.638Z",
+      "note": "est. $0.00 of $5.00 budget; s01:procedural-still s02:live-art s03:live-art s04:procedural-still s05:live-art s06:live-art s07:live-art",
+      "finishedAt": "2026-11-05T15:49:23.644Z"
+    },
+    {
+      "name": "assets",
+      "status": "done",
+      "attempts": 1,
+      "startedAt": "2026-11-05T15:49:23.645Z",
+      "note": "2 media assets; 0 fell back to motion graphics",
+      "finishedAt": "2026-11-05T15:49:30.152Z"
+    },
+    {
+      "name": "narration",
+      "status": "done",
+      "attempts": 1,
+      "startedAt": "2026-11-05T15:49:30.155Z",
+      "note": "silent mode: estimated timing (no narration audio)",
+      "finishedAt": "2026-11-05T15:49:30.169Z"
+    },
+    {
+      "name": "timing",
+      "status": "done",
+      "attempts": 1,
+      "startedAt": "2026-11-05T15:49:30.170Z",
+      "note": "39.9s total (target 40s)",
+      "finishedAt": "2026-11-05T15:49:30.178Z"
+    },
+    {
+      "name": "captions",
+      "status": "done",
+      "attempts": 1,
+      "startedAt": "2026-11-05T15:49:30.180Z",
+      "note": "87 timed words (estimated timing)",
+      "finishedAt": "2026-11-05T15:49:30.181Z"
+    },
+    {
+      "name": "animation",
+      "status": "done",
+      "attempts": 1,
+      "startedAt": "2026-11-05T15:49:30.182Z",
+      "note": "transitions: cut, blur-dissolve, crossfade, blur-dissolve, crossfade, dip-to-black, blur-dissolve",
+      "finishedAt": "2026-11-05T15:49:37.899Z"
+    },
+    {
+      "name": "compose",
+      "status": "done",
+      "attempts": 1,
+      "startedAt": "2026-11-05T15:49:37.904Z",
+      "note": "created: editable/Video.tsx",
+      "finishedAt": "2026-11-05T15:49:38.121Z"
+    },
+    {
+      "name": "preview",
+      "status": "done",
+      "attempts": 1,
+      "startedAt": "2026-11-05T15:49:38.123Z",
+      "note": "output/draft.mp4",
+      "finishedAt": "2026-11-05T15:50:50.228Z"
+    },
+    {
+      "name": "quality",
+      "status": "done",
+      "attempts": 1,
+      "startedAt": "2026-11-05T15:50:50.236Z",
+      "note": "13/13 checks passed",
+      "finishedAt": "2026-11-05T15:50:54.028Z"
+    },
+    {
+      "name": "save",
+      "status": "done",
+      "attempts": 1,
+      "startedAt": "2026-11-05T15:50:54.034Z",
+      "note": "captions: 16 cues; Offline demo: procedural visuals, hand-written script, no AI services called",
+      "finishedAt": "2026-11-05T15:50:54.065Z"
+    },
+    {
+      "name": "export",
+      "status": "done",
+      "attempts": 1,
+      "startedAt": "2026-11-05T15:50:54.066Z",
+      "note": "final.mp4, clean.mp4, thumbnail.png, captions.srt",
+      "finishedAt": "2026-11-05T16:00:14.304Z"
+    }
+  ],
+  "costs": [
+    {
+      "at": "2026-11-05T15:49:30.161Z",
+      "cached": false,
+      "category": "voice",
+      "provider": "silent",
+      "description": "s01 narration (62 chars)",
+      "estimatedUsd": 0
+    },
+    {
+      "at": "2026-11-05T15:49:30.164Z",
+      "cached": false,
+      "category": "voice",
+      "provider": "silent",
+      "description": "s02 narration (70 chars)",
+      "estimatedUsd": 0
+    },
+    {
+      "at": "2026-11-05T15:49:30.165Z",
+      "cached": false,
+      "category": "voice",
+      "provider": "silent",
+      "description": "s03 narration (87 chars)",
+      "estimatedUsd": 0
+    },
+    {
+      "at": "2026-11-05T15:49:30.166Z",
+      "cached": false,
+      "category": "voice",
+      "provider": "silent",
+      "description": "s04 narration (74 chars)",
+      "estimatedUsd": 0
+    },
+    {
+      "at": "2026-11-05T15:49:30.167Z",
+      "cached": false,
+      "category": "voice",
+      "provider": "silent",
+      "description": "s05 narration (88 chars)",
+      "estimatedUsd": 0
+    },
+    {
+      "at": "2026-11-05T15:49:30.168Z",
+      "cached": false,
+      "category": "voice",
+      "provider": "silent",
+      "description": "s06 narration (57 chars)",
+      "estimatedUsd": 0
+    },
+    {
+      "at": "2026-11-05T15:49:30.169Z",
+      "cached": false,
+      "category": "voice",
+      "provider": "silent",
+      "description": "s07 narration (64 chars)",
+      "estimatedUsd": 0
+    }
+  ],
+  "log": [
+    {
+      "at": "2026-11-05T15:49:37.893Z",
+      "level": "info",
+      "stage": "animation",
+      "message": "No licensed track for this mood in music/; using locally synthesised placeholder music."
+    }
+  ],
+  "editableHash": "6f80723fe213e23bb1ab198fa78c718b8fe91c9d4323a76f66eb1862af042dfb",
+  "renders": [
+    {
+      "kind": "draft",
+      "file": "output/draft.mp4",
+      "at": "2026-11-05T15:50:50.205Z",
+      "sourceHash": "6f80723fe213e23bb1ab198fa78c718b8fe91c9d4323a76f66eb1862af042dfb"
+    },
+    {
+      "kind": "final",
+      "file": "output/final.mp4",
+      "at": "2026-11-05T15:54:59.974Z",
+      "sourceHash": "6f80723fe213e23bb1ab198fa78c718b8fe91c9d4323a76f66eb1862af042dfb"
+    },
+    {
+      "kind": "clean",
+      "file": "output/clean.mp4",
+      "at": "2026-11-05T15:59:01.004Z",
+      "sourceHash": "6f80723fe213e23bb1ab198fa78c718b8fe91c9d4323a76f66eb1862af042dfb"
+    }
+  ]
+}

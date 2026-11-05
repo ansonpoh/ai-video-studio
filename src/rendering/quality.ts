@@ -25,7 +25,7 @@ const frameStats = async (file: string, times: number[]) => {
   for (const t of times) {
     const { stderr } = await run("ffmpeg", ["-hide_banner", "-ss", t.toFixed(3), "-i", file, "-frames:v", "1", "-vf", "signalstats,metadata=print", "-f", "null", "-"]);
     const g = (k: string) => Number(stderr.match(new RegExp(`lavfi\\.signalstats\\.${k}=([\\d.]+)`))?.[1] ?? NaN);
-    out.push({ t, yavg: g("YAVG"), ymin: g("YLOW"), ymax: g("YHIGH") });
+    out.push({ t, yavg: g("YAVG"), ymin: g("YMIN"), ymax: g("YMAX") });
   }
   return out;
 };
@@ -108,7 +108,7 @@ export const checkRender = async (id: string, file: string, opts: { expectCaptio
   // blank frame detection at each scene midpoint
   const times = spans.map((s) => (s.startFrame + s.durationInFrames / 2) / meta.fps).filter((t) => t < duration - 0.05);
   const stats = await frameStats(file, times);
-  const blank = stats.filter((s) => Number.isFinite(s.ymax) && s.ymax - s.ymin < 6);
+  const blank = stats.filter((s) => Number.isFinite(s.ymax) && s.ymax - s.ymin < 12);
   add("blank frames", blank.length === 0, blank.length ? `flat frames at ${blank.map((b) => b.t.toFixed(1) + "s").join(", ")}` : `${stats.length} scene midpoints have visible content`);
 
   // contact sheet for human inspection

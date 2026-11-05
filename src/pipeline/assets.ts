@@ -141,6 +141,8 @@ export type ResolveContext = {
   cost: (category: "image" | "video" | "stock", provider: string, description: string, usd: number, cached: boolean) => void;
   renderProceduralStill: (props: { art: string; primaryColor: string; accentColor: string; backgroundColor: string; labels: string; seed: number }, output: string, size: { width: number; height: number }) => Promise<string>;
   size: { width: number; height: number };
+  /** Set to request a fresh variant: bypasses the media cache for this call. */
+  variant?: string;
 };
 
 const stylePrompt = (s: Scene, d: CreativeDirection, override?: string) =>
@@ -157,7 +159,7 @@ export const resolveSceneAsset = async (ctx: ResolveContext, scene: Scene, plan:
     if (!providers.images) throw new Error("no image provider");
     const prompt = stylePrompt(scene, direction, styleOverride);
     const req = { prompt, width: 1024, height: portrait(request) === "landscape" ? 1024 : 1536, quality: rules.imageQuality };
-    const key = sha256(`${providers.images.name}|${providers.images.model}|${prompt}|${req.width}x${req.height}|${req.quality}`);
+    const key = sha256(`${providers.images.name}|${providers.images.model}|${prompt}|${req.width}x${req.height}|${req.quality}${ctx.variant ? `|${ctx.variant}` : ""}`);
     let file: string;
     let usd = 0;
     let model = providers.images.model;
@@ -206,7 +208,7 @@ export const resolveSceneAsset = async (ctx: ResolveContext, scene: Scene, plan:
       if (!providers.video) return still;
       const prompt = `${scene.visual.prompt ?? scene.visual.description}. Subtle, cinematic camera motion. ${direction.visualStyle.imageStylePrompt}`;
       const req = { prompt, imageFile: dirOf(still.file), durationSeconds: 5, aspectRatio: request.aspectRatio, resolution: "720p" as const };
-      const key = sha256(`${providers.video.name}|${providers.video.model}|${prompt}|${still.cacheKey}|${req.durationSeconds}`);
+      const key = sha256(`${providers.video.name}|${providers.video.model}|${prompt}|${still.cacheKey}|${req.durationSeconds}${ctx.variant ? `|${ctx.variant}` : ""}`);
       const hit = cached(key, "mp4");
       const file = nextVersionFile(projectId, scene.id, "clip", "mp4");
       let usd = 0;

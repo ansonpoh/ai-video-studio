@@ -1,0 +1,195 @@
+{
+  "version": 1,
+  "createdAt": "2026-11-05T15:49:23.623Z",
+  "source": "demo",
+  "title": "What if Earth had two moons?",
+  "hook": "Imagine looking up one night and seeing two moons.",
+  "scenes": [
+    {
+      "id": "s01",
+      "purpose": "hook",
+      "title": "What if Earth had *two* moons?",
+      "narration": "Imagine looking up one night and seeing not one moon, but two.",
+      "visual": {
+        "type": "generated_image",
+        "prompt": "night landscape with two moons rising over mountains",
+        "description": "Two moons over a mountain horizon",
+        "art": "two-moons-horizon",
+        "motion": "pull-out",
+        "wantsMotionClip": true
+      },
+      "animationPreset": "blur-in",
+      "transitionIn": "cut",
+      "estimatedDurationSeconds": 5,
+      "claims": [
+        {
+          "text": "Earth having two moons",
+          "kind": "speculation",
+          "confidence": 1
+        }
+      ],
+      "layout": "cinematic_image"
+    },
+    {
+      "id": "s02",
+      "purpose": "context",
+      "title": "A second companion",
+      "narration": "In this thought experiment, a smaller second moon circles beside ours.",
+      "visual": {
+        "type": "motion_graphics",
+        "description": "Earth from space with two moons orbiting",
+        "art": "earth-two-moons",
+        "motion": "static",
+        "wantsMotionClip": false
+      },
+      "animationPreset": "fade-up",
+      "transitionIn": "blur-dissolve",
+      "estimatedDurationSeconds": 5,
+      "claims": [
+        {
+          "text": "A second moon orbiting Earth",
+          "kind": "speculation",
+          "confidence": 1
+        }
+      ],
+      "layout": "cinematic_image"
+    },
+    {
+      "id": "s03",
+      "purpose": "point",
+      "title": "Tides in conflict",
+      "narration": "Pulled from two directions, the oceans could swell into higher, less predictable tides.",
+      "visual": {
+        "type": "diagram",
+        "description": "Ocean bulge pulled by a moon",
+        "art": "tides",
+        "motion": "static",
+        "wantsMotionClip": false
+      },
+      "animationPreset": "fade-up",
+      "transitionIn": "crossfade",
+      "estimatedDurationSeconds": 6,
+      "claims": [
+        {
+          "text": "The Moon's gravity is the main driver of Earth's tides.",
+          "kind": "fact",
+          "sourceUrl": "https://science.nasa.gov/moon/tides/",
+          "confidence": 0.9
+        },
+        {
+          "text": "Two moons would make tides higher and less predictable.",
+          "kind": "speculation",
+          "confidence": 0.6
+        }
+      ],
+      "layout": "diagram",
+      "labels": [
+        "Extra gravitational pull",
+        "Higher, irregular tides"
+      ]
+    },
+    {
+      "id": "s04",
+      "purpose": "example",
+      "title": "Restless seas",
+      "narration": "Coastlines would reshape, and shore life would adapt to a restless rhythm.",
+      "visual": {
+        "type": "generated_image",
+        "prompt": "deep ocean light rays from the surface",
+        "description": "Sunlight fading into deep ocean",
+        "art": "ocean-depths",
+        "motion": "pan-down",
+        "wantsMotionClip": false
+      },
+      "animationPreset": "fade-up",
+      "transitionIn": "blur-dissolve",
+      "estimatedDurationSeconds": 5,
+      "claims": [
+        {
+          "text": "Coastal ecosystems would adapt to a chaotic tidal rhythm.",
+          "kind": "speculation",
+          "confidence": 0.5
+        }
+      ],
+      "layout": "cinematic_image"
+    },
+    {
+      "id": "s05",
+      "purpose": "twist",
+      "title": "A fragile dance",
+      "narration": "But two moons rarely stay in harmony. Their gravity could slowly unbalance their orbits.",
+      "visual": {
+        "type": "diagram",
+        "description": "Interacting orbits around a planet",
+        "art": "orbit-diagram",
+        "motion": "static",
+        "wantsMotionClip": false
+      },
+      "animationPreset": "fade-up",
+      "transitionIn": "crossfade",
+      "estimatedDurationSeconds": 6,
+      "claims": [
+        {
+          "text": "Multiple large moons can destabilise each other's orbits.",
+          "kind": "speculation",
+          "confidence": 0.6
+        }
+      ],
+      "layout": "diagram",
+      "labels": [
+        "Orbits interact",
+        "Unstable over time"
+      ]
+    },
+    {
+      "id": "s06",
+      "purpose": "climax",
+      "title": "Collision course",
+      "narration": "One might collide with the other, or be flung into space.",
+      "visual": {
+        "type": "motion_graphics",
+        "description": "A dark moon sliding across a bright glow",
+        "art": "eclipse",
+        "motion": "static",
+        "wantsMotionClip": false
+      },
+      "animationPreset": "blur-in",
+      "transitionIn": "dip-to-black",
+      "estimatedDurationSeconds": 4.5,
+      "claims": [
+        {
+          "text": "One moon could collide with the other or be ejected.",
+          "kind": "speculation",
+          "confidence": 0.5
+        }
+      ],
+      "layout": "cinematic_image"
+    },
+    {
+      "id": "s07",
+      "purpose": "outro",
+      "title": "One moon",
+      "narration": "Only a what if, but it shows how much one Moon shapes our world.",
+      "visual": {
+        "type": "motion_graphics",
+        "description": "Starfield",
+        "art": "starfield",
+        "motion": "static",
+        "wantsMotionClip": false
+      },
+      "animationPreset": "fade-up",
+      "transitionIn": "blur-dissolve",
+      "estimatedDurationSeconds": 5,
+      "claims": [],
+      "layout": "outro",
+      "cta": "One moon. One delicate balance."
+    }
+  ],
+  "sources": [
+    {
+      "title": "NASA Science: Earth's Moon",
+      "url": "https://science.nasa.gov/moon/"
+    }
+  ],
+  "disclaimer": "Speculative thought experiment. The scenarios shown are not predictions."
+}

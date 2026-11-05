@@ -120,7 +120,7 @@ export const sceneVisualCode = (x: SceneCodeInput, indent: string) => {
   const labels = scene.layout === "diagram" ? scene.labels.join(" | ") : "";
   const art = scene.visual.art ?? (scene.layout === "mixed_media" ? scene.overlayArt : undefined) ?? DEFAULT_ART[d.visualStyle.theme];
   const artNode = (name: string, extraStyle: Record<string, string | number> = {}) =>
-    `${indent}<ArtLayer name=${str(name)} art=${str(art)} primaryColor=${str(pal.primary)} accentColor=${str(pal.accent)} backgroundColor=${str(pal.background)} labels=${str(labels)} seed={${x.index + 1}} labelFont=${str(fonts.body)}${scene.onScreenText ?? scene.title ? " titleSafe" : ""} style=${styleObj({ translate: "0px 0px", scale: 1, ...extraStyle })} />`;
+    `${indent}<ArtLayer name=${str(name)} art=${str(art)} primaryColor=${str(pal.primary)} accentColor=${str(pal.accent)} backgroundColor=${str(pal.background)} labels=${str(labels)} seed={${x.index + 1}} labelFont=${str(fonts.body)}${scene.onScreenText ?? scene.title ? " titleSafe" : ""}${x.captionsEnabled && scene.narration.trim() ? " captionSafe" : ""} style=${styleObj({ translate: "0px 0px", scale: 1, ...extraStyle })} />`;
   const darken = ["cinematic_image", "video_clip", "mixed_media"].includes(scene.layout) ? 0.35 : 0.55;
   const lines: string[] = [];
   const useArtOnly = !asset || (scene.layout === "diagram" && asset.kind !== "uploaded");
@@ -207,7 +207,7 @@ export const sceneLayoutCode = (x: SceneCodeInput, indent: string): string[] => 
   const speculative = scene.claims.some((c) => c.kind === "speculation") || (x.index === 0 && x.speculativeLabel);
   if (speculative) {
     out.push(
-      `${indent}<Chip name=${str(`${id} label`)} color=${str(pal.accent)} textColor=${str(pal.background)} fontFamily=${str(fonts.body)} style=${styleObj({ translate: `0px ${Math.round(height * 0.1)}px` })}>${jsxText(x.speculativeLabel ?? "Speculative")}</Chip>`,
+      `${indent}<Chip name=${str(`${id} label`)} color=${str(pal.accent)} textColor=${str(pal.background)} fontFamily=${str(fonts.body)} style=${styleObj({ translate: `0px ${Math.round(height * 0.06)}px` })}>${jsxText(x.speculativeLabel ?? "Speculative")}</Chip>`,
     );
   }
   if (x.index === 0 && x.notice) {

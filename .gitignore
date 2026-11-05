@@ -20,3 +20,4 @@ projects/demo-*/.cache/
 music/*
 !music/README.md
 !music/demo/
+projects/demo-*/.pipeline/jobs/

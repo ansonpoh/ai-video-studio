@@ -1,0 +1,118 @@
+{
+  "id": "demo-two-moons",
+  "title": "What if Earth had two moons?",
+  "createdAt": "2026-11-05T15:49:23.230Z",
+  "updatedAt": "2026-11-05T16:00:14.309Z",
+  "status": "rendered",
+  "request": {
+    "prompt": "What if Earth had two moons?",
+    "durationSeconds": 40,
+    "aspectRatio": "9:16",
+    "fps": 30,
+    "style": "cinematic",
+    "tone": "auto",
+    "audience": "auto",
+    "language": "en",
+    "narration": true,
+    "captions": true,
+    "captionStyle": "cinematic",
+    "music": "auto",
+    "musicVolume": 0.18,
+    "visualMode": "auto",
+    "quality": "economy",
+    "platform": "shorts",
+    "offline": true,
+    "soundEffects": false
+  },
+  "mode": "offline-demo",
+  "providers": {
+    "llm": "predefined storyboard (no API call)",
+    "images": "procedural (local)",
+    "video": "none",
+    "stock": "none",
+    "tts": "silent demo (estimated timing)",
+    "music": "procedural (local)"
+  },
+  "direction": {
+    "title": "What if Earth had two moons?",
+    "objective": "Tell an atmospheric what-if story while staying clear that it is speculation.",
+    "audience": "Space and science fans",
+    "tone": "Cinematic, awed, contemplative",
+    "format": "cinematic_story",
+    "contentKind": "speculative",
+    "pacing": "slow",
+    "narrationStyle": "Calm documentary narrator, evocative imagery, unhurried",
+    "visualStyle": {
+      "name": "Twin moonlight",
+      "description": "Deep space blacks, moonlit violets, warm amber accents, slow camera drifts",
+      "imageStylePrompt": "cinematic science-fiction matte painting, moonlit violet and amber palette, volumetric light, no text",
+      "theme": "cosmic",
+      "fontPairing": "cinematic-serif",
+      "palette": {
+        "background": "#04030c",
+        "primary": "#c9b6ff",
+        "accent": "#ffb86b",
+        "text": "#fbf8ff"
+      }
+    },
+    "captionStyle": "cinematic",
+    "transitionStyle": "blur-dissolve",
+    "musicMood": "cinematic",
+    "targetSceneCount": 7,
+    "hookIdea": "A night sky with two moons",
+    "ending": "Return to the real Moon and how much it shapes us",
+    "needsFactCheck": true,
+    "timeSensitive": false
+  },
+  "durationSeconds": 39.86666666666667,
+  "width": 1080,
+  "height": 1920,
+  "fps": 30,
+  "disclosure": {
+    "containsAiGeneratedMedia": false,
+    "containsAiVoice": false,
+    "containsAiScript": false,
+    "label": "Offline demo: procedural visuals, hand-written script, no AI services called"
+  },
+  "contentFlags": [
+    {
+      "severity": "info",
+      "kind": "speculation",
+      "sceneId": "s01",
+      "message": "Speculative: \"Earth having two moons\" (labelled on screen)"
+    },
+    {
+      "severity": "info",
+      "kind": "speculation",
+      "sceneId": "s02",
+      "message": "Speculative: \"A second moon orbiting Earth\" (labelled on screen)"
+    },
+    {
+      "severity": "info",
+      "kind": "speculation",
+      "sceneId": "s03",
+      "message": "Speculative: \"Two moons would make tides higher and less predictable.\" (labelled on screen)"
+    },
+    {
+      "severity": "info",
+      "kind": "speculation",
+      "sceneId": "s04",
+      "message": "Speculative: \"Coastal ecosystems would adapt to a chaotic tidal rhythm.\" (labelled on screen)"
+    },
+    {
+      "severity": "info",
+      "kind": "speculation",
+      "sceneId": "s05",
+      "message": "Speculative: \"Multiple large moons can destabilise each other's orbits.\" (labelled on screen)"
+    },
+    {
+      "severity": "info",
+      "kind": "speculation",
+      "sceneId": "s06",
+      "message": "Speculative: \"One moon could collide with the other or be ejected.\" (labelled on screen)"
+    }
+  ],
+  "requiresReview": false,
+  "storyboardVersion": 1,
+  "tags": []
+}

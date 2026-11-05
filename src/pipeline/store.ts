@@ -13,7 +13,7 @@ import { Storyboard } from "../schemas/storyboard";
 export const ROOT = process.env.VIDEO_STUDIO_ROOT ? path.resolve(process.env.VIDEO_STUDIO_ROOT) : process.cwd();
 export const projectsDir = () => path.resolve(process.env.PROJECTS_DIR ?? path.join(ROOT, "projects"));
 export const musicDir = () => path.resolve(process.env.MUSIC_DIR ?? path.join(ROOT, "music"));
-export const cacheDir = () => path.join(ROOT, ".cache");
+export const cacheDir = () => path.resolve(process.env.CACHE_DIR ?? path.join(ROOT, ".cache"));
 
 export const projectDir = (id: string) => {
   if (!/^[a-z0-9][a-z0-9-]{1,80}$/.test(id)) throw new Error(`Invalid project id "${id}"`);

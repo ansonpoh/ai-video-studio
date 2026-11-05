@@ -22,6 +22,8 @@ export type ArtProps = {
   labelFont: string;
   /** Fraction of the height at the top kept clear for the scene title (labels there are skipped). */
   reserveTop?: number;
+  /** Band (fractions of the height) kept clear for captions; labels inside it are skipped. */
+  reserveBand?: [number, number];
 };
 
 const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
@@ -54,6 +56,7 @@ const Label: React.FC<{ p: ArtProps; x: number; y: number; text?: string; delay:
 }) => {
   if (!text) return null;
   if (p.reserveTop && y < p.height * p.reserveTop) return null;
+  if (p.reserveBand && y > p.height * p.reserveBand[0] && y < p.height * p.reserveBand[1]) return null;
   const t = interpolate(p.frame, [delay, delay + p.fps * 0.5], [0, 1], { ...clamp, easing: ease });
   const fs = size ?? Math.round(p.width * 0.045);
   return (
@@ -415,8 +418,8 @@ const TwoMoonsHorizon: React.FC<{ p: ArtProps }> = ({ p }) => {
       <SkyGradient id="tmh-sky" stops={[[0, "#050414"], [0.55, "#1d1640"], [0.78, "#5a3a6b"], [1, "#22152f"]]} />
       <rect width={W} height={H} fill="url(#tmh-sky)" />
       <Stars p={p} count={220} maxY={0.6} />
-      <Moon cx={W * 0.36} cy={H * (0.36 - 0.06 * rise)} rad={W * 0.17} tint="#ece6d6" seed={3} />
-      <Moon cx={W * 0.74} cy={H * (0.22 - 0.04 * rise)} rad={W * 0.075} tint="#f0b48a" seed={4} />
+      <Moon cx={W * 0.36} cy={H * (0.45 - 0.06 * rise)} rad={W * 0.17} tint="#ece6d6" seed={3} />
+      <Moon cx={W * 0.76} cy={H * (0.42 - 0.04 * rise)} rad={W * 0.075} tint="#f0b48a" seed={4} />
       <rect x={0} y={H * 0.62} width={W} height={H * 0.2} fill="#ffcf9e" opacity={0.08} filter="url(#blur-lg)" />
       {ridge(0, H * 0.05, H * 0.68, "#2b1d3d", 0.1, "a")}
       {ridge(3, H * 0.06, H * 0.74, "#1a1128", 0.25, "b")}
@@ -444,7 +447,7 @@ const Tides: React.FC<{ p: ArtProps }> = ({ p }) => {
       <SkyGradient id="tide-sky" stops={[[0, "#05061a"], [1, "#16235a"]]} />
       <rect width={W} height={H} fill="url(#tide-sky)" />
       <Stars p={p} count={120} maxY={0.4} />
-      <Moon cx={W * 0.5} cy={H * 0.16} rad={W * 0.09} tint="#e8e2d0" seed={5} />
+      <Moon cx={W * 0.5} cy={H * 0.27} rad={W * 0.09} tint="#e8e2d0" seed={5} />
       <g stroke={p.accent} strokeWidth={6} opacity={interpolate(frame, [fps, fps * 1.6], [0, 0.9], clamp)}>
         {[-1, 0, 1].map((d) => {
           const x = W * 0.5 + d * W * 0.15;

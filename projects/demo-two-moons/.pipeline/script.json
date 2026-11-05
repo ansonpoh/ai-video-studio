@@ -1,0 +1,47 @@
+{
+  "title": "What if Earth had two moons?",
+  "hook": "Imagine looking up one night and seeing two moons.",
+  "beats": [
+    {
+      "purpose": "hook",
+      "narration": "Imagine looking up one night and seeing not one moon, but two.",
+      "intent": "What if Earth had *two* moons?"
+    },
+    {
+      "purpose": "context",
+      "narration": "In this thought experiment, a smaller second moon circles beside ours.",
+      "intent": "A second companion"
+    },
+    {
+      "purpose": "point",
+      "narration": "Pulled from two directions, the oceans could swell into higher, less predictable tides.",
+      "intent": "Tides in conflict"
+    },
+    {
+      "purpose": "example",
+      "narration": "Coastlines would reshape, and shore life would adapt to a restless rhythm.",
+      "intent": "Restless seas"
+    },
+    {
+      "purpose": "twist",
+      "narration": "But two moons rarely stay in harmony. Their gravity could slowly unbalance their orbits.",
+      "intent": "A fragile dance"
+    },
+    {
+      "purpose": "climax",
+      "narration": "One might collide with the other, or be flung into space.",
+      "intent": "Collision course"
+    },
+    {
+      "purpose": "outro",
+      "narration": "Only a what if, but it shows how much one Moon shapes our world.",
+      "intent": "One moon"
+    }
+  ],
+  "sources": [
+    {
+      "title": "NASA Science: Earth's Moon",
+      "url": "https://science.nasa.gov/moon/"
+    }
+  ]
+}

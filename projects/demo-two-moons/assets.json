@@ -1,0 +1,597 @@
+{
+  "scenes": [
+    {
+      "sceneId": "s01",
+      "currentAssetId": "s01-s01-still-v1.png",
+      "history": [
+        {
+          "id": "s01-s01-still-v1.png",
+          "sceneId": "s01",
+          "file": "assets/s01-still-v1.png",
+          "createdAt": "2026-11-05T15:49:23.647Z",
+          "width": 1080,
+          "height": 1920,
+          "costUsd": 0,
+          "cacheKey": "93c3aa25a5f4d686b982c889dc00d77a36870221efe4489cfc2dca2f96b6f7cd",
+          "kind": "procedural_image",
+          "provider": "procedural",
+          "art": "two-moons-horizon",
+          "seed": 1
+        }
+      ]
+    },
+    {
+      "sceneId": "s02",
+      "currentAssetId": null,
+      "history": []
+    },
+    {
+      "sceneId": "s03",
+      "currentAssetId": null,
+      "history": []
+    },
+    {
+      "sceneId": "s04",
+      "currentAssetId": "s04-s04-still-v1.png",
+      "history": [
+        {
+          "id": "s04-s04-still-v1.png",
+          "sceneId": "s04",
+          "file": "assets/s04-still-v1.png",
+          "createdAt": "2026-11-05T15:49:28.854Z",
+          "width": 1080,
+          "height": 1920,
+          "costUsd": 0,
+          "cacheKey": "95293853e2958cc5be570797efcd7275d41fad842df193e7612bd0a15fa8117d",
+          "kind": "procedural_image",
+          "provider": "procedural",
+          "art": "ocean-depths",
+          "seed": 4
+        }
+      ]
+    },
+    {
+      "sceneId": "s05",
+      "currentAssetId": null,
+      "history": []
+    },
+    {
+      "sceneId": "s06",
+      "currentAssetId": null,
+      "history": []
+    },
+    {
+      "sceneId": "s07",
+      "currentAssetId": null,
+      "history": []
+    }
+  ],
+  "narration": [
+    {
+      "sceneId": "s01",
+      "file": null,
+      "text": "Imagine looking up one night and seeing not one moon, but two.",
+      "durationSeconds": 4.855384615384615,
+      "timing": "estimated",
+      "provider": "silent",
+      "version": 1,
+      "costUsd": 0,
+      "words": [
+        {
+          "text": "Imagine",
+          "startMs": 0,
+          "endMs": 618
+        },
+        {
+          "text": "looking",
+          "startMs": 618,
+          "endMs": 1236
+        },
+        {
+          "text": "up",
+          "startMs": 1236,
+          "endMs": 1412
+        },
+        {
+          "text": "one",
+          "startMs": 1412,
+          "endMs": 1677
+        },
+        {
+          "text": "night",
+          "startMs": 1677,
+          "endMs": 2119
+        },
+        {
+          "text": "and",
+          "startMs": 2119,
+          "endMs": 2384
+        },
+        {
+          "text": "seeing",
+          "startMs": 2384,
+          "endMs": 2913
+        },
+        {
+          "text": "not",
+          "startMs": 2913,
+          "endMs": 3178
+        },
+        {
+          "text": "one",
+          "startMs": 3178,
+          "endMs": 3443
+        },
+        {
+          "text": "moon,",
+          "startMs": 3443,
+          "endMs": 3845
+        },
+        {
+          "text": "but",
+          "startMs": 4061,
+          "endMs": 4326
+        },
+        {
+          "text": "two.",
+          "startMs": 4326,
+          "endMs": 4670
+        }
+      ]
+    },
+    {
+      "sceneId": "s02",
+      "file": null,
+      "text": "In this thought experiment, a smaller second moon circles beside ours.",
+      "durationSeconds": 4.470769230769231,
+      "timing": "estimated",
+      "provider": "silent",
+      "version": 1,
+      "costUsd": 0,
+      "words": [
+        {
+          "text": "In",
+          "startMs": 0,
+          "endMs": 138
+        },
+        {
+          "text": "this",
+          "startMs": 138,
+          "endMs": 413
+        },
+        {
+          "text": "thought",
+          "startMs": 413,
+          "endMs": 894
+        },
+        {
+          "text": "experiment,",
+          "startMs": 894,
+          "endMs": 1568
+        },
+        {
+          "text": "a",
+          "startMs": 1788,
+          "endMs": 1926
+        },
+        {
+          "text": "smaller",
+          "startMs": 1926,
+          "endMs": 2407
+        },
+        {
+          "text": "second",
+          "startMs": 2407,
+          "endMs": 2820
+        },
+        {
+          "text": "moon",
+          "startMs": 2820,
+          "endMs": 3095
+        },
+        {
+          "text": "circles",
+          "startMs": 3095,
+          "endMs": 3577
+        },
+        {
+          "text": "beside",
+          "startMs": 3577,
+          "endMs": 3989
+        },
+        {
+          "text": "ours.",
+          "startMs": 3989,
+          "endMs": 4302
+        }
+      ]
+    },
+    {
+      "sceneId": "s03",
+      "file": null,
+      "text": "Pulled from two directions, the oceans could swell into higher, less predictable tides.",
+      "durationSeconds": 5.36,
+      "timing": "estimated",
+      "provider": "silent",
+      "version": 1,
+      "costUsd": 0,
+      "words": [
+        {
+          "text": "Pulled",
+          "startMs": 0,
+          "endMs": 397
+        },
+        {
+          "text": "from",
+          "startMs": 397,
+          "endMs": 662
+        },
+        {
+          "text": "two",
+          "startMs": 662,
+          "endMs": 860
+        },
+        {
+          "text": "directions,",
+          "startMs": 860,
+          "endMs": 1500
+        },
+        {
+          "text": "the",
+          "startMs": 1720,
+          "endMs": 1919
+        },
+        {
+          "text": "oceans",
+          "startMs": 1919,
+          "endMs": 2316
+        },
+        {
+          "text": "could",
+          "startMs": 2316,
+          "endMs": 2647
+        },
+        {
+          "text": "swell",
+          "startMs": 2647,
+          "endMs": 2978
+        },
+        {
+          "text": "into",
+          "startMs": 2978,
+          "endMs": 3242
+        },
+        {
+          "text": "higher,",
+          "startMs": 3242,
+          "endMs": 3630
+        },
+        {
+          "text": "less",
+          "startMs": 3838,
+          "endMs": 4103
+        },
+        {
+          "text": "predictable",
+          "startMs": 4103,
+          "endMs": 4831
+        },
+        {
+          "text": "tides.",
+          "startMs": 4831,
+          "endMs": 5175
+        }
+      ]
+    },
+    {
+      "sceneId": "s04",
+      "file": null,
+      "text": "Coastlines would reshape, and shore life would adapt to a restless rhythm.",
+      "durationSeconds": 4.855384615384615,
+      "timing": "estimated",
+      "provider": "silent",
+      "version": 1,
+      "costUsd": 0,
+      "words": [
+        {
+          "text": "Coastlines",
+          "startMs": 0,
+          "endMs": 714
+        },
+        {
+          "text": "would",
+          "startMs": 714,
+          "endMs": 1071
+        },
+        {
+          "text": "reshape,",
+          "startMs": 1071,
+          "endMs": 1565
+        },
+        {
+          "text": "and",
+          "startMs": 1785,
+          "endMs": 1999
+        },
+        {
+          "text": "shore",
+          "startMs": 1999,
+          "endMs": 2356
+        },
+        {
+          "text": "life",
+          "startMs": 2356,
+          "endMs": 2642
+        },
+        {
+          "text": "would",
+          "startMs": 2642,
+          "endMs": 2999
+        },
+        {
+          "text": "adapt",
+          "startMs": 2999,
+          "endMs": 3356
+        },
+        {
+          "text": "to",
+          "startMs": 3356,
+          "endMs": 3499
+        },
+        {
+          "text": "a",
+          "startMs": 3499,
+          "endMs": 3642
+        },
+        {
+          "text": "restless",
+          "startMs": 3642,
+          "endMs": 4213
+        },
+        {
+          "text": "rhythm.",
+          "startMs": 4213,
+          "endMs": 4635
+        }
+      ]
+    },
+    {
+      "sceneId": "s05",
+      "file": null,
+      "text": "But two moons rarely stay in harmony. Their gravity could slowly unbalance their orbits.",
+      "durationSeconds": 5.624615384615384,
+      "timing": "estimated",
+      "provider": "silent",
+      "version": 1,
+      "costUsd": 0,
+      "words": [
+        {
+          "text": "But",
+          "startMs": 0,
+          "endMs": 214
+        },
+        {
+          "text": "two",
+          "startMs": 214,
+          "endMs": 427
+        },
+        {
+          "text": "moons",
+          "startMs": 427,
+          "endMs": 783
+        },
+        {
+          "text": "rarely",
+          "startMs": 783,
+          "endMs": 1210
+        },
+        {
+          "text": "stay",
+          "startMs": 1210,
+          "endMs": 1495
+        },
+        {
+          "text": "in",
+          "startMs": 1495,
+          "endMs": 1638
+        },
+        {
+          "text": "harmony.",
+          "startMs": 1638,
+          "endMs": 2130
+        },
+        {
+          "text": "Their",
+          "startMs": 2350,
+          "endMs": 2706
+        },
+        {
+          "text": "gravity",
+          "startMs": 2706,
+          "endMs": 3204
+        },
+        {
+          "text": "could",
+          "startMs": 3204,
+          "endMs": 3560
+        },
+        {
+          "text": "slowly",
+          "startMs": 3560,
+          "endMs": 3987
+        },
+        {
+          "text": "unbalance",
+          "startMs": 3987,
+          "endMs": 4628
+        },
+        {
+          "text": "their",
+          "startMs": 4628,
+          "endMs": 4984
+        },
+        {
+          "text": "orbits.",
+          "startMs": 4984,
+          "endMs": 5405
+        }
+      ]
+    },
+    {
+      "sceneId": "s06",
+      "file": null,
+      "text": "One might collide with the other, or be flung into space.",
+      "durationSeconds": 4.470769230769231,
+      "timing": "estimated",
+      "provider": "silent",
+      "version": 1,
+      "costUsd": 0,
+      "words": [
+        {
+          "text": "One",
+          "startMs": 0,
+          "endMs": 263
+        },
+        {
+          "text": "might",
+          "startMs": 263,
+          "endMs": 701
+        },
+        {
+          "text": "collide",
+          "startMs": 701,
+          "endMs": 1315
+        },
+        {
+          "text": "with",
+          "startMs": 1315,
+          "endMs": 1666
+        },
+        {
+          "text": "the",
+          "startMs": 1666,
+          "endMs": 1929
+        },
+        {
+          "text": "other,",
+          "startMs": 1929,
+          "endMs": 2410
+        },
+        {
+          "text": "or",
+          "startMs": 2630,
+          "endMs": 2805
+        },
+        {
+          "text": "be",
+          "startMs": 2805,
+          "endMs": 2981
+        },
+        {
+          "text": "flung",
+          "startMs": 2981,
+          "endMs": 3419
+        },
+        {
+          "text": "into",
+          "startMs": 3419,
+          "endMs": 3769
+        },
+        {
+          "text": "space.",
+          "startMs": 3769,
+          "endMs": 4251
+        }
+      ]
+    },
+    {
+      "sceneId": "s07",
+      "file": null,
+      "text": "Only a what if, but it shows how much one Moon shapes our world.",
+      "durationSeconds": 5.624615384615384,
+      "timing": "estimated",
+      "provider": "silent",
+      "version": 1,
+      "costUsd": 0,
+      "words": [
+        {
+          "text": "Only",
+          "startMs": 0,
+          "endMs": 402
+        },
+        {
+          "text": "a",
+          "startMs": 402,
+          "endMs": 603
+        },
+        {
+          "text": "what",
+          "startMs": 603,
+          "endMs": 1004
+        },
+        {
+          "text": "if,",
+          "startMs": 1004,
+          "endMs": 1331
+        },
+        {
+          "text": "but",
+          "startMs": 1507,
+          "endMs": 1808
+        },
+        {
+          "text": "it",
+          "startMs": 1808,
+          "endMs": 2009
+        },
+        {
+          "text": "shows",
+          "startMs": 2009,
+          "endMs": 2511
+        },
+        {
+          "text": "how",
+          "startMs": 2511,
+          "endMs": 2812
+        },
+        {
+          "text": "much",
+          "startMs": 2812,
+          "endMs": 3214
+        },
+        {
+          "text": "one",
+          "startMs": 3214,
+          "endMs": 3515
+        },
+        {
+          "text": "Moon",
+          "startMs": 3515,
+          "endMs": 3917
+        },
+        {
+          "text": "shapes",
+          "startMs": 3917,
+          "endMs": 4520
+        },
+        {
+          "text": "our",
+          "startMs": 4520,
+          "endMs": 4821
+        },
+        {
+          "text": "world.",
+          "startMs": 4821,
+          "endMs": 5405
+        }
+      ]
+    }
+  ],
+  "music": {
+    "file": "audio/background-music.mp3",
+    "source": "procedural-demo",
+    "license": "Synthesised locally by the studio (no third-party rights)",
+    "mood": "cinematic"
+  },
+  "sfx": []
+}

@@ -67,7 +67,10 @@ export const setAttr = (src: string, elName: string, attr: string, valueCode: st
   if (!el) throw new Error(`Element "${elName}" not found in editable composition`);
   const a = el.attrs.get(attr);
   if (a) return src.slice(0, a.start) + `${attr}=${valueCode}` + src.slice(a.end);
-  return src.slice(0, el.openingEnd).replace(/\s*$/, "") + ` ${attr}=${valueCode}` + src.slice(el.openingEnd).replace(/^\s*/, (m) => (m.includes("\n") ? m : " "));
+  const rest = src.slice(el.openingEnd);
+  const ws = /^\s*/.exec(rest)![0];
+  const sep = ws.includes("\n") ? ws : rest.slice(ws.length).startsWith("/") ? " " : "";
+  return src.slice(0, el.openingEnd).replace(/\s*$/, "") + ` ${attr}=${valueCode}` + sep + rest.slice(ws.length);
 };
 
 export const replaceElement = (src: string, elName: string, code: string) => {

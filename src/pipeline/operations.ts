@@ -29,11 +29,11 @@ export type OpResult = { ok: boolean; message: string; patched?: string[] };
 
 /* ------------------------------------------------------------ make/resume */
 
-export type MakeOptions = { llm?: "anthropic" | "mock"; skipExport?: boolean; outputDir?: string; onEvent?: (e: PipelineEvent) => void; providers?: Providers };
+export type MakeOptions = { id?: string; llm?: "anthropic" | "mock"; skipExport?: boolean; outputDir?: string; onEvent?: (e: PipelineEvent) => void; providers?: Providers };
 
 export const makeVideo = async (input: VideoRequestInput, opts: MakeOptions = {}) => {
   const providers = opts.providers ?? createProviders({ offline: Boolean(input.offline), llm: opts.llm });
-  const id = createProject(input, { mode: input.offline ? "mixed" : "live", providers: providerSummary(providers) });
+  const id = createProject(input, { id: opts.id, mode: input.offline ? "mixed" : "live", providers: providerSummary(providers) });
   const meta = await runPipeline(id, { providers, onEvent: opts.onEvent, skipExport: opts.skipExport });
   if (opts.outputDir) copyOutputs(id, opts.outputDir);
   return { id, status: meta.status, dir: P(id).dir };
@@ -215,7 +215,8 @@ const patchDuckRanges = (src: string, id: string, fps: number, timeline: ReturnT
       return [s.startFrame + t.narrationOffsetFrames, s.startFrame + t.narrationOffsetFrames + t.narrationFrames];
     })
     .filter(Boolean);
-  return setAttr(src, music.name, "duckRanges", `{${JSON.stringify(ranges)}}`);
+  // target the MusicBed itself: its wrapping <Track> carries the same name
+  return setAttr(src, music.name, "duckRanges", `{${JSON.stringify(ranges)}}`, (s) => listElements(s).find((e) => e.tag === "MusicBed"));
 };
 
 /**
@@ -299,7 +300,7 @@ const requireScene = (id: string, sceneId: string | undefined, what: string) => 
   return sceneId;
 };
 
-const resolveVisuals = async (id: string, providers: Providers, sceneIds: string[], override: (plan: AssetPlan) => AssetPlan, styleOverride?: string) => {
+const resolveVisuals = async (id: string, providers: Providers, sceneIds: string[], override: (plan: AssetPlan) => AssetPlan, styleOverride?: string, variant?: string) => {
   const meta = store.metadata(id);
   const scenes = effectiveScenes(store.storyboard(id), store.edits(id));
   const manifest = store.assets(id);
@@ -323,6 +324,7 @@ const resolveVisuals = async (id: string, providers: Providers, sceneIds: string
           providers,
           size: { width: meta.width, height: meta.height },
           renderProceduralStill: renderer.renderProceduralStill,
+          variant,
           log: (level, message) => pm.log.push({ at: new Date().toISOString(), level, stage: "regenerate", message }),
           cost: (category, provider, description, usd, cached) => recordCost(pm, { category, provider, description, estimatedUsd: usd, cached }),
         },
@@ -413,7 +415,7 @@ export const regenerate = async (id: string, o: RegenerateOptions): Promise<OpRe
       const wantVideo = o.what === "clip";
       if (wantVideo && !providers.video) throw new MissingCredentialsError("Video clip generation", ["FAL_KEY"]);
       if (!wantVideo && !providers.images) throw new MissingCredentialsError("Image generation", ["OPENAI_API_KEY"]);
-      const { changed, failures } = await resolveVisuals(id, providers, [sid], (p) => ({ ...p, source: wantVideo ? "ai-video" : "ai-image", reason: `regenerate ${o.what}` }), o.style);
+      const { changed, failures } = await resolveVisuals(id, providers, [sid], (p) => ({ ...p, source: wantVideo ? "ai-video" : "ai-image", reason: `regenerate ${o.what}` }), o.style, o.what === "scene-style" ? undefined : `regen-${Date.now()}`);
       if (!changed.length) return { ok: false, message: `Regeneration failed; the scene keeps its previous media. ${failures.join("; ")}` };
       const patched = patchScenes(id, changed, ["visual"]);
       afterPatch(id);

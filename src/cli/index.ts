@@ -68,6 +68,7 @@ program
   .option("--offline", "never call paid providers (procedural visuals, silent narration)")
   .option("--skip-export", "stop after the draft preview")
   .option("-o, --output <dir>", "also copy final outputs to this directory")
+  .option("--id <id>", "project id to create (default: derived from the prompt)")
   .action(async (o) => {
     try {
       const { makeVideo } = await import("../pipeline/operations");
@@ -89,7 +90,7 @@ program
           soundEffects: Boolean(o.sfx),
           offline: Boolean(o.offline),
         },
-        { llm: o.llm, skipExport: Boolean(o.skipExport), outputDir: o.output, onEvent: printer },
+        { id: o.id, llm: o.llm, skipExport: Boolean(o.skipExport), outputDir: o.output, onEvent: printer },
       );
       console.log(`\nProject ${res.id} [${res.status}]\n  ${res.dir}`);
     } catch (e) {
@@ -103,10 +104,11 @@ program
   .requiredOption("--id <id>")
   .option("--approve-spend <usd>", "approve spending up to this amount", (v) => Number(v))
   .option("--llm <provider>")
+  .option("--skip-export", "stop after the draft preview")
   .action(async (o) => {
     try {
       const { resumeProject } = await import("../pipeline/operations");
-      const r = await resumeProject(o.id, { approveSpendUsd: o.approveSpend, llm: o.llm, onEvent: printer });
+      const r = await resumeProject(o.id, { approveSpendUsd: o.approveSpend, llm: o.llm, onEvent: printer, skipExport: Boolean(o.skipExport) });
       console.log(`\n${r.id} [${r.status}]`);
     } catch (e) {
       fail(e);
@@ -137,11 +139,12 @@ program
   .option("--style <text>", "new visual style for scene-style")
   .option("--instruction <text>", "instruction for script rewrites")
   .option("--approve-spend <usd>", "approve spending up to this amount", (v) => Number(v))
+  .option("--llm <provider>", "anthropic | mock")
   .option("--render", "render final outputs afterwards")
   .action(async (o) => {
     try {
       const ops = await import("../pipeline/operations");
-      const r = await ops.regenerate(o.id, { what: o.what, sceneId: o.scene, style: o.style, instruction: o.instruction, approveSpendUsd: o.approveSpend });
+      const r = await ops.regenerate(o.id, { what: o.what, sceneId: o.scene, style: o.style, instruction: o.instruction, approveSpendUsd: o.approveSpend, llm: o.llm });
       console.log(r.message);
       if (o.render) await ops.renderOutputs(o.id, ["final", "clean", "thumbnail", "captions"]);
     } catch (e) {
@@ -233,4 +236,11 @@ program
     console.log(`Studio registry: ${entries.length} project(s)`);
   });
 
-program.parseAsync(process.argv);
+// Renderer/browser handles can keep the event loop alive after a command finishes; exit explicitly.
+program
+  .parseAsync(process.argv)
+  .then(() => process.exit(process.exitCode ?? 0))
+  .catch((e) => {
+    fail(e);
+    process.exit(1);
+  });

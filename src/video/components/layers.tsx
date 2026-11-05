@@ -79,10 +79,11 @@ type ArtLayerProps = {
   seed: number;
   labelFont: string;
   titleSafe?: boolean;
+  captionSafe?: boolean;
   style?: CSSProperties;
 };
 
-const ArtLayerInner: React.FC<ArtLayerProps> = ({ art, primaryColor, accentColor, backgroundColor, labels, seed, labelFont, titleSafe, style }) => {
+const ArtLayerInner: React.FC<ArtLayerProps> = ({ art, primaryColor, accentColor, backgroundColor, labels, seed, labelFont, titleSafe, captionSafe, style }) => {
   const frame = useCurrentFrame();
   const { fps, width, height, durationInFrames } = useVideoConfig();
   const Comp = ART_COMPONENTS[art as ProceduralArt] ?? ART_COMPONENTS["aurora-gradient"];
@@ -102,6 +103,7 @@ const ArtLayerInner: React.FC<ArtLayerProps> = ({ art, primaryColor, accentColor
           seed,
           labelFont,
           reserveTop: titleSafe ? 0.2 : 0,
+          reserveBand: captionSafe ? [0.66, 0.84] : undefined,
         }}
       />
     </div>
@@ -120,6 +122,7 @@ export const ArtLayer = Interactive.create({
     seed: numberField(1, "Variation seed", { min: 0, max: 9999, step: 1 }),
     labelFont: { type: "font-family", default: "Inter, sans-serif", description: "Label font" },
     titleSafe: boolField(false, "Keep top clear for title"),
+    captionSafe: boolField(false, "Keep caption area clear"),
   },
 });
 
