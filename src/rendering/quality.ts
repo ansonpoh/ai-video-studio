@@ -4,8 +4,9 @@
  * transition continuity. Also writes a contact sheet of sampled frames.
  */
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
-import { ffmpeg, ffprobeJson, run } from "../media/ffmpeg";
+import { ffmpeg, ffprobeJson } from "../media/ffmpeg";
 import { readCaptions, readSceneSpans, listElements, attrString, attrNumber } from "../editable/ast";
 import { P, store } from "../pipeline/store";
 import { fitFontSize, wrapLines } from "../video/components/text-fit";
@@ -19,15 +20,86 @@ const parseRate = (r?: string) => {
   return b ? a / b : a;
 };
 
-/** Luma statistics for sampled frames via ffmpeg signalstats. */
+/**
+ * Luma statistics for sampled frames. Each frame is decoded to raw 8-bit gray
+ * and measured in JS, which works with the minimal ffmpeg bundled with
+ * Remotion (no signalstats filter, no null encoder).
+ */
 const frameStats = async (file: string, times: number[]) => {
   const out: { t: number; yavg: number; ymin: number; ymax: number }[] = [];
-  for (const t of times) {
-    const { stderr } = await run("ffmpeg", ["-hide_banner", "-ss", t.toFixed(3), "-i", file, "-frames:v", "1", "-vf", "signalstats,metadata=print", "-f", "null", "-"]);
-    const g = (k: string) => Number(stderr.match(new RegExp(`lavfi\\.signalstats\\.${k}=([\\d.]+)`))?.[1] ?? NaN);
-    out.push({ t, yavg: g("YAVG"), ymin: g("YMIN"), ymax: g("YMAX") });
+  const tmp = path.join(os.tmpdir(), `studio-frame-${process.pid}-${Date.now()}.gray`);
+  try {
+    for (const t of times) {
+      await ffmpeg(["-ss", t.toFixed(3), "-i", file, "-frames:v", "1", "-vf", "scale=160:-2,format=gray", "-c:v", "rawvideo", "-f", "image2", "-update", "1", tmp]);
+      const px = fs.readFileSync(tmp);
+      let min = 255, max = 0, sum = 0;
+      for (const v of px) {
+        if (v < min) min = v;
+        if (v > max) max = v;
+        sum += v;
+      }
+      out.push(px.length ? { t, yavg: sum / px.length, ymin: min, ymax: max } : { t, yavg: NaN, ymin: NaN, ymax: NaN });
+    }
+  } finally {
+    fs.rmSync(tmp, { force: true });
   }
   return out;
+};
+
+/** 24-bit bottom-up BMP from top-down RGB rows (decodable by every ffmpeg build). */
+const bmp = (rgb: Buffer, w: number, h: number) => {
+  const stride = Math.ceil((w * 3) / 4) * 4;
+  const out = Buffer.alloc(54 + stride * h);
+  out.write("BM", 0);
+  out.writeUInt32LE(out.length, 2);
+  out.writeUInt32LE(54, 10);
+  out.writeUInt32LE(40, 14);
+  out.writeInt32LE(w, 18);
+  out.writeInt32LE(h, 22);
+  out.writeUInt16LE(1, 26);
+  out.writeUInt16LE(24, 28);
+  out.writeUInt32LE(stride * h, 34);
+  for (let y = 0; y < h; y++) {
+    const row = 54 + (h - 1 - y) * stride;
+    for (let x = 0; x < w; x++) {
+      const i = (y * w + x) * 3;
+      out[row + x * 3] = rgb[i + 2];
+      out[row + x * 3 + 1] = rgb[i + 1];
+      out[row + x * 3 + 2] = rgb[i];
+    }
+  }
+  return out;
+};
+
+/**
+ * Tiles the sampled frames (up to 4 per row) into one JPEG. Composited in JS
+ * because the bundled ffmpeg has no xstack/pad filters.
+ */
+const buildContactSheet = async (file: string, times: number[], outFile: string) => {
+  const probe = await ffprobeJson(file);
+  const v = probe.streams.find((s) => s.codec_type === "video");
+  if (!v?.width || !v?.height) return undefined;
+  const w = 360;
+  const h = Math.round((v.height / v.width) * w / 2) * 2;
+  const tmp = path.join(os.tmpdir(), `studio-sheet-${process.pid}-${Date.now()}`);
+  const cols = Math.min(times.length, 4);
+  const rows = Math.ceil(times.length / cols);
+  const sheet = Buffer.alloc(cols * w * rows * h * 3);
+  try {
+    for (const [i, t] of times.entries()) {
+      await ffmpeg(["-ss", t.toFixed(3), "-i", file, "-frames:v", "1", "-vf", `scale=${w}:${h},format=rgb24`, "-c:v", "rawvideo", "-f", "image2", "-update", "1", `${tmp}.rgb`]);
+      const px = fs.readFileSync(`${tmp}.rgb`);
+      const ox = (i % cols) * w;
+      const oy = Math.floor(i / cols) * h;
+      for (let y = 0; y < h; y++) px.copy(sheet, ((oy + y) * cols * w + ox) * 3, y * w * 3, (y + 1) * w * 3);
+    }
+    fs.writeFileSync(`${tmp}.bmp`, bmp(sheet, cols * w, rows * h));
+    await ffmpeg(["-i", `${tmp}.bmp`, "-q:v", "4", outFile]);
+    return outFile;
+  } finally {
+    fs.rmSync(`${tmp}.rgb`, { force: true });
+    fs.rmSync(`${tmp}.bmp`, { force: true });
+  }
 };
 
 export const checkRender = async (id: string, file: string, opts: { expectCaptions: boolean; scale?: number } = { expectCaptions: true }): Promise<QualityReport> => {
@@ -120,16 +192,7 @@ export const checkRender = async (id: string, file: string, opts: { expectCaptio
     await ffmpeg(["-ss", t.toFixed(3), "-i", file, "-frames:v", "1", "-vf", "scale=360:-2", "-q:v", "4", out]);
     frames.push(out);
   }
-  let contactSheet: string | undefined;
-  if (frames.length) {
-    contactSheet = path.join(p.outputDir, "contact-sheet.jpg");
-    const cols = Math.min(frames.length, 4);
-    const rows = Math.ceil(frames.length / cols);
-    await ffmpeg([...frames.flatMap((f) => ["-i", f]), "-filter_complex", `${frames.map((_, i) => `[${i}:v]`).join("")}xstack=inputs=${frames.length}:layout=${frames.map((_, i) => `${(i % cols) === 0 ? "0" : Array.from({ length: i % cols }, () => "w0").join("+")}_${Math.floor(i / cols) === 0 ? "0" : Array.from({ length: Math.floor(i / cols) }, () => "h0").join("+")}`).join("|")}:fill=black`, "-frames:v", "1", contactSheet]).catch(() => {
-      contactSheet = undefined;
-    });
-    void rows;
-  }
+  const contactSheet = frames.length ? await buildContactSheet(file, times, path.join(p.outputDir, "contact-sheet.jpg")).catch(() => undefined) : undefined;
 
   const report: QualityReport = { file, ok: checks.every((c) => c.ok || c.severity === "warn"), checks, frames, contactSheet, at: new Date().toISOString() };
   fs.writeFileSync(path.join(p.outputDir, "quality.json"), JSON.stringify(report, null, 2));

@@ -108,32 +108,53 @@ const LlmScriptSchema = z.object({
   sources: z.array(z.object({ title: z.string(), url: z.string() })),
 });
 
+/**
+ * Layout content as the model sees it. Structured outputs allow at most 24
+ * optional properties per request schema, so every field here is required:
+ * the model sends "" / [] / null for anything the layout does not use, and
+ * `cleanContent` turns those back into "absent" before mapping.
+ */
 const LlmContentSchema = z.object({
-  emphasis: z.string().optional(),
-  number: z.number().optional(),
-  heading: z.string().optional(),
-  body: z.string().optional(),
-  label: z.string().optional(),
-  fact: z.string().optional(),
-  leftLabel: z.string().optional(),
-  rightLabel: z.string().optional(),
-  leftText: z.string().optional(),
-  rightText: z.string().optional(),
-  points: z.array(z.string()).optional(),
-  quote: z.string().optional(),
-  attribution: z.string().optional(),
-  labels: z.array(z.string()).optional(),
-  productName: z.string().optional(),
-  tagline: z.string().optional(),
-  features: z.array(z.string()).optional(),
-  value: z.number().optional(),
-  prefix: z.string().optional(),
-  suffix: z.string().optional(),
-  decimals: z.number().optional(),
-  stats: z.array(z.object({ label: z.string(), value: z.number(), display: z.string() })).optional(),
-  cta: z.string().optional(),
+  emphasis: z.string(),
+  number: z.number().nullable(),
+  heading: z.string(),
+  body: z.string(),
+  label: z.string(),
+  fact: z.string(),
+  leftLabel: z.string(),
+  rightLabel: z.string(),
+  leftText: z.string(),
+  rightText: z.string(),
+  points: z.array(z.string()),
+  quote: z.string(),
+  attribution: z.string(),
+  labels: z.array(z.string()),
+  productName: z.string(),
+  tagline: z.string(),
+  features: z.array(z.string()),
+  value: z.number().nullable(),
+  prefix: z.string(),
+  suffix: z.string(),
+  decimals: z.number().nullable(),
+  stats: z.array(z.object({ label: z.string(), value: z.number(), display: z.string() })),
+  cta: z.string(),
   overlayArt: z.enum(PROCEDURAL_ART).optional().catch(undefined),
 });
+
+/** Content after cleaning: unused fields are simply absent. */
+export type LlmContent = { [K in keyof z.infer<typeof LlmContentSchema>]?: Exclude<z.infer<typeof LlmContentSchema>[K], null> };
+
+/** Drops "", [], and null fields so the mapper sees only what the model filled in. */
+export const cleanContent = (raw: Record<string, unknown> | null | undefined): LlmContent => {
+  const out: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(raw ?? {})) {
+    if (v === null || v === undefined) continue;
+    if (typeof v === "string" && !v.trim()) continue;
+    if (Array.isArray(v) && !v.length) continue;
+    out[k] = v;
+  }
+  return out as LlmContent;
+};
 
 export const LlmSceneSchema = z.object({
   purpose: z.enum(SCENE_PURPOSES).catch("point"),
@@ -164,9 +185,10 @@ export const LlmSceneSchema = z.object({
       }),
     )
     .optional(),
-  content: LlmContentSchema.optional(),
+  content: LlmContentSchema,
 });
-export type LlmScene = z.infer<typeof LlmSceneSchema>;
+/** A scene as the mapper accepts it: content may be partial (tests, older outputs) or missing. */
+export type LlmScene = Omit<z.infer<typeof LlmSceneSchema>, "content"> & { content?: Partial<z.infer<typeof LlmContentSchema>> | null };
 
 export const LlmStoryboardSchema = z.object({
   title: z.string(),
@@ -175,7 +197,7 @@ export const LlmStoryboardSchema = z.object({
   sources: z.array(z.object({ title: z.string(), url: z.string() })).optional(),
   disclaimer: z.string().optional(),
 });
-export type LlmStoryboard = z.infer<typeof LlmStoryboardSchema>;
+export type LlmStoryboard = Omit<z.infer<typeof LlmStoryboardSchema>, "scenes"> & { scenes: LlmScene[] };
 
 const LlmReviewSchema = z.object({
   issues: z.array(z.object({ sceneId: z.string(), claim: z.string(), problem: z.string() })),
@@ -228,7 +250,7 @@ const STOCK = new Set(["stock_image", "stock_video"]);
 export const mapLlmScene = (raw: LlmScene, index: number, ctx: MapContext = {}, listIndex?: number): { scene: unknown; repairs: string[] } => {
   const repairs: string[] = [];
   const id = `s${String(index + 1).padStart(2, "0")}`;
-  const c = raw.content ?? {};
+  const c = cleanContent(raw.content);
   const narration = (raw.narration ?? "").replace(/\s+/g, " ").trim();
   const title = clip(raw.title, 80);
   const onScreenText = clip(raw.onScreenText, 140);
@@ -546,7 +568,7 @@ Write in the requested language. Title: punchy, at most 60 characters.`;
 export const STORYBOARD_SYSTEM = `You are a storyboard artist and motion designer. Convert each script beat into exactly one scene that an automated Remotion renderer can draw. Keep each beat's narration verbatim (you may fix obvious typos only) and keep its purpose.
 
 For each scene choose:
-- layout (${list(LAYOUT_NAMES)}). Put layout-specific data in "content":
+- layout (${list(LAYOUT_NAMES)}). Put layout-specific data in "content". Every content field must be present: use "" for unused text, [] for unused lists and null for unused numbers.
   - cinematic_image: full-bleed image with captions. No content needed.
   - video_clip: full-bleed motion clip. Only with visual.type generated_video or stock_video.
   - text_reveal: big kinetic typography. content.emphasis = the word or phrase to highlight.

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type Anthropic from "@anthropic-ai/sdk";
 import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
-import { AnthropicLlm, LlmStoryboardSchema } from "../../src/ai/providers/anthropic";
+import { AnthropicLlm, LlmStoryboardSchema, cleanContent, mapLlmStoryboard } from "../../src/ai/providers/anthropic";
 import { MockLlm } from "../../src/ai/providers/mock";
 import { parsePromptHints } from "../../src/ai/prompt-parser";
 import { VideoRequest } from "../../src/schemas/options";
@@ -70,11 +70,39 @@ describe("AnthropicLlm (fake client, no network)", () => {
   });
 });
 
+const emptyContent = {
+  emphasis: "", number: null, heading: "", body: "", label: "", fact: "", leftLabel: "", rightLabel: "", leftText: "", rightText: "",
+  points: [], quote: "", attribution: "", labels: [], productName: "", tagline: "", features: [], value: null, prefix: "", suffix: "",
+  decimals: null, stats: [], cta: "",
+};
+
 describe("LLM output format", () => {
+  it("stays within the structured-output limit of 24 optional properties", () => {
+    let optional = 0;
+    const walk = (x: unknown): void => {
+      if (!x || typeof x !== "object") return;
+      if (Array.isArray(x)) return x.forEach(walk);
+      const o = x as { properties?: Record<string, unknown>; required?: string[] };
+      if (o.properties) {
+        const req = new Set(o.required ?? []);
+        optional += Object.keys(o.properties).filter((k) => !req.has(k)).length;
+      }
+      Object.values(o).forEach(walk);
+    };
+    walk(zodOutputFormat(LlmStoryboardSchema));
+    expect(optional).toBeLessThanOrEqual(24);
+  });
+
+  it("treats empty content fields as absent", () => {
+    expect(cleanContent({ ...emptyContent, heading: "Tool one", number: 2 })).toEqual({ heading: "Tool one", number: 2 });
+    const r = mapLlmStoryboard({ title: "t", hook: "h", scenes: [{ purpose: "point", layout: "listicle", narration: "One tool.", visual: { type: "motion_graphics", description: "d" }, content: { ...emptyContent, heading: "Tool one" } }] });
+    expect(r.errors).toEqual([]);
+  });
+
   it("tolerates off-vocabulary enum values instead of failing the whole parse", () => {
     const f = zodOutputFormat(LlmStoryboardSchema);
     const parsed = f.parse(
-      JSON.stringify({ title: "t", hook: "h", scenes: [{ purpose: "intro", layout: "fact card", narration: "n", visual: { type: "illustration", description: "d", art: "volcano" } }] }),
+      JSON.stringify({ title: "t", hook: "h", scenes: [{ purpose: "intro", layout: "fact card", narration: "n", visual: { type: "illustration", description: "d", art: "volcano" }, content: emptyContent }] }),
     );
     expect(parsed.scenes[0]).toMatchObject({ purpose: "point", layout: "cinematic_image", visual: { type: "motion_graphics" } });
     expect(parsed.scenes[0].visual.art).toBeUndefined();
