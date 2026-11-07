@@ -27,7 +27,7 @@ export const EnvSchema = z.object({
   VIDEO_PROVIDER: str("fal"),
   VIDEO_PROVIDER_API_KEY: str(),
   FAL_KEY: str(),
-  VIDEO_MODEL: str("kling/v4/image-to-video"),
+  VIDEO_MODEL: str("fal-ai/kling-video/v2.5-turbo/pro/image-to-video"),
   VIDEO_CLIP_SECONDS: num(5),
   VIDEO_RESOLUTION: str("720p"),
 
@@ -39,7 +39,7 @@ export const EnvSchema = z.object({
   PRICE_IMAGE_LOW: num(0.02),
   PRICE_IMAGE_MEDIUM: num(0.06),
   PRICE_IMAGE_HIGH: num(0.2),
-  PRICE_VIDEO_PER_SECOND: num(0.1),
+  PRICE_VIDEO_PER_SECOND: num(0.07),
   PRICE_TTS_PER_1K_CHARS: num(0.2),
   PRICE_SFX_PER_SECOND: num(0.01),
 

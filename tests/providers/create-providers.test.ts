@@ -32,7 +32,7 @@ describe("createProviders", () => {
   it("selects real adapters when keys exist (constructs only, no calls)", () => {
     const e = EnvSchema.parse({ ANTHROPIC_API_KEY: "a", OPENAI_API_KEY: "o", FAL_KEY: "f", PEXELS_API_KEY: "p", ELEVENLABS_API_KEY: "e" });
     const p = createProviders({ env: e });
-    expect(providerSummary(p)).toMatchObject({ llm: "anthropic:claude-opus-5-5", images: "openai:gpt-image-2", video: "fal:kling/v4/image-to-video", stock: "pexels", tts: "elevenlabs", sfx: "elevenlabs-sfx" });
+    expect(providerSummary(p)).toMatchObject({ llm: "anthropic:claude-opus-5-5", images: "openai:gpt-image-2", video: "fal:fal-ai/kling-video/v2.5-turbo/pro/image-to-video", stock: "pexels", tts: "elevenlabs", sfx: "elevenlabs-sfx" });
     const restricted = createProviders({ env: e, allowStock: false, allowVideo: false });
     expect(restricted.stock).toBeNull();
     expect(restricted.video).toBeNull();

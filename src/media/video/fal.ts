@@ -1,6 +1,6 @@
 /**
  * fal.ai image-to-video / text-to-video. The endpoint comes from VIDEO_MODEL
- * (default "kling/v4/image-to-video").
+ * (default "fal-ai/kling-video/v2.5-turbo/pro/image-to-video").
  *
  * IMPORTANT: every fal model has its own input schema. The field names below
  * (start_image_url / image_url, duration, resolution, aspect_ratio) must match
@@ -26,6 +26,7 @@ export type FalFieldMap = {
 /** Keyed by model-id prefix; first match wins. Keep honest: verify against the model's schema. */
 export const FIELD_MAPS: [prefix: string, map: FalFieldMap][] = [
   ["kling", { image: "start_image_url", durationAs: "string", resolution: true, aspectRatio: true }],
+  // fal-ai/kling-video/* (e.g. v2.5-turbo/pro): image_url, duration "5" | "10"; aspect follows the image.
   ["fal-ai/kling-video", { image: "image_url", durationAs: "string", resolution: false, aspectRatio: true }],
 ];
 const DEFAULT_MAP: FalFieldMap = { image: "image_url", durationAs: "number", resolution: true, aspectRatio: true };
@@ -60,7 +61,7 @@ export class FalVideo implements VideoProvider {
 
   constructor(opts: FalVideoOptions = {}) {
     const e = env();
-    this.model = opts.model ?? e.VIDEO_MODEL ?? "kling/v4/image-to-video";
+    this.model = opts.model ?? e.VIDEO_MODEL ?? "fal-ai/kling-video/v2.5-turbo/pro/image-to-video";
     // Equivalent to fal.config({ credentials }) but scoped to this instance instead of a global singleton.
     this.client = opts.client ?? createFalClient({ credentials: opts.apiKey ?? videoKey(e) });
     this.pricePerSecond = e.PRICE_VIDEO_PER_SECOND;
