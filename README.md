@@ -147,7 +147,7 @@ Clips are the expensive part, so the pipeline makes every still first and then p
 
 A one-minute hybrid video is about 12 stills at $0.06 and 3 Kling 2.5 Turbo clips of 5 s at $0.07/s, roughly $1.80 before narration. Clips run three at a time.
 
-The explainer preset makes narrated slides for videos up to 15 minutes: statements, cards, steps and diagrams that appear as they're spoken, with a chapter bar along the bottom. A few Z-Image Turbo stills at about $0.007 each share one locked dark look. There are no clips, automatic music or sound effects, and it defaults to 16:9 without captions. To show a screen recording in a browser window, use Replace media on that scene in the review screen. Slides are drawn in code, so you can retime or restyle them in Remotion Studio.
+The explainer preset makes narrated slides for videos up to 15 minutes: statements, cards, steps and diagrams that appear as they're spoken, with a chapter bar along the bottom. A few Z-Image Turbo stills at about $0.007 each share one locked dark look. There are no clips, automatic music or sound effects, and it defaults to 16:9 without captions. Any video over 3 minutes switches to it automatically. To show a screen recording in a browser window, use Replace media on that scene in the review screen. Slides are drawn in code, so you can retime or restyle them in Remotion Studio.
 
 ElevenLabs narration checks the remaining credits first. If the script won't fit, the whole video uses Edge TTS (`EDGE_TTS_VOICE`), so it keeps one voice. Edge TTS is an unofficial free endpoint: use Azure Speech instead for commercial work.
 

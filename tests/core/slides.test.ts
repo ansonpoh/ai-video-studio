@@ -3,7 +3,7 @@ import { chapterMarks, resolveReveals } from "../../src/rendering/reveals";
 import { layoutDiagram, slideMediaBox, slideMediaMode } from "../../src/video/scenes/slide-layout";
 import { mapLlmStoryboard, splitHeading, type LlmScene } from "../../src/ai/providers/anthropic";
 import { VideoRequest } from "../../src/schemas/options";
-import { explainerSceneCount } from "../../src/pipeline/explainer";
+import { explainerSceneCount, withLengthDefaults } from "../../src/pipeline/explainer";
 
 const words = "First we load the data then we check the data and finally we ship it".split(" ").map((text, i) => ({ text: i === 2 ? `${text},` : text, startMs: i * 500, endMs: i * 500 + 400 }));
 
@@ -167,6 +167,34 @@ describe("splitHeading", () => {
     expect(splitHeading("Every action must be", "provable")).toEqual({ heading: "Every action must be", accent: "provable" });
     expect(splitHeading("Provable", "provable")).toEqual({ heading: "Provable", accent: undefined });
     expect(splitHeading("Just a heading")).toEqual({ heading: "Just a heading" });
+  });
+});
+
+describe("withLengthDefaults", () => {
+  const prompt = "How a bank stays secure";
+
+  it("switches long videos to a landscape explainer", () => {
+    expect(withLengthDefaults({ prompt, durationSeconds: 300 })).toMatchObject({ quality: "explainer", durationSeconds: 300, aspectRatio: "16:9", captions: false });
+    expect(withLengthDefaults({ prompt, durationSeconds: 300, quality: "hybrid", aspectRatio: "9:16", captions: true })).toMatchObject({ quality: "explainer", aspectRatio: "16:9", captions: false });
+    expect(withLengthDefaults({ prompt, durationSeconds: 300, aspectRatio: "1:1" }).aspectRatio).toBe("1:1");
+  });
+
+  it("reads the length from the prompt while the form holds its default", () => {
+    expect(withLengthDefaults({ prompt: "Make a 10 minute video about banks", quality: "hybrid", durationSeconds: 30 })).toMatchObject({ quality: "explainer", durationSeconds: 600 });
+    expect(withLengthDefaults({ prompt: "Make a 10 minute video about banks", durationSeconds: 60 }).quality).toBeUndefined();
+  });
+
+  it("leaves shorter videos and explainers alone", () => {
+    const short = { prompt, durationSeconds: 180 };
+    expect(withLengthDefaults(short)).toBe(short);
+    const explainer = { prompt, durationSeconds: 300, quality: "explainer" as const, aspectRatio: "9:16" as const };
+    expect(withLengthDefaults(explainer)).toBe(explainer);
+  });
+
+  it("lets validation reject a long video on another specific preset", () => {
+    const premium = { prompt, durationSeconds: 300, quality: "premium" as const };
+    expect(withLengthDefaults(premium)).toBe(premium);
+    expect(() => VideoRequest.parse(withLengthDefaults(premium))).toThrow(/explainer/);
   });
 });
 

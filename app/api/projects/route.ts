@@ -1,4 +1,5 @@
-import { VideoRequest } from "../../../src/schemas/options";
+import { VideoRequest, type VideoRequestInput } from "../../../src/schemas/options";
+import { withLengthDefaults } from "../../../src/pipeline/explainer";
 import { newProjectId } from "../../../src/pipeline/store";
 import { startCliJob } from "../../../src/web/jobs";
 import { errorResponse, json, projectCards } from "../../../src/web/server";
@@ -21,7 +22,7 @@ export async function POST(req: Request) {
   try {
     const body = (await req.json()) as CreateBody;
     const { llm, skipExport, ...input } = body;
-    const parsed = VideoRequest.safeParse(input);
+    const parsed = VideoRequest.safeParse(withLengthDefaults(input as VideoRequestInput));
     if (!parsed.success) return json({ error: parsed.error.issues.map((i) => `${i.path.join(".") || "request"}: ${i.message}`).join("; ") }, 400);
     const r = parsed.data;
     const id = newProjectId(r.prompt);

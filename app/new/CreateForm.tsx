@@ -244,7 +244,19 @@ export function CreateForm({ options, capabilities, music, presets, prices }: Pr
           <div className="form-grid">
             <label className="field">
               <span>Duration: {duration}s</span>
-              <input type="range" min={5} max={quality === "explainer" ? 900 : 180} step={5} value={duration} onChange={(e) => setDuration(Number(e.target.value))} />
+              <input
+                type="range"
+                min={5}
+                max={900}
+                step={5}
+                value={duration}
+                onChange={(e) => {
+                  const next = Number(e.target.value);
+                  // Only explainers run past 3 minutes.
+                  if (next > 180 && quality !== "explainer") choosePreset("explainer");
+                  setDuration(next);
+                }}
+              />
             </label>
             <div className="field span-2" style={{ display: "flex", flexDirection: "column", gap: 6 }}>
               <span className="field-label">Aspect ratio</span>

@@ -11,7 +11,7 @@ import { STAGES, type ProjectMetadata, type StageName, type PipelineManifest } f
 import type { Providers, PromptHints, Script } from "../providers/types";
 import { ProviderError } from "../providers/types";
 import { P, newProjectId, store, writeJsonAtomic } from "./store";
-import { applyPresetLook } from "./explainer";
+import { applyPresetLook, withLengthDefaults } from "./explainer";
 import { enforceBudget, recordCost, budgetFor, PRESETS, ClipApprovalRequired, type PlannedCost } from "./budget";
 import { planAssets, plannedCosts, resolveSceneAsset, sceneEntry, makeClip, clipProviderFor, type AssetPlan } from "./assets";
 import { synthesizeScene, upsertNarration, buildContinuousNarration } from "./narration";
@@ -67,7 +67,7 @@ export const defaultRenderer = async (): Promise<Renderer> => {
 /* --------------------------------------------------------------- create */
 
 export const createProject = (input: VideoRequestInput, opts: { id?: string; mode?: ProjectMetadata["mode"]; providers?: Record<string, string> } = {}) => {
-  const request = VideoRequest.parse(input);
+  const request = VideoRequest.parse(withLengthDefaults(input));
   const id = opts.id ?? newProjectId(request.prompt);
   if (fs.existsSync(P(id).metadata)) throw new Error(`Project ${id} already exists`);
   store.createDirs(id);
