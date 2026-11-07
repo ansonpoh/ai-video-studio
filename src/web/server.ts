@@ -136,6 +136,8 @@ const prices = () => {
     llmRun: 0.15,
     image: { low: e.PRICE_IMAGE_LOW, medium: e.PRICE_IMAGE_MEDIUM, high: e.PRICE_IMAGE_HIGH },
     videoPerSecond: e.PRICE_VIDEO_PER_SECOND,
+    /** null when no cheap background model is configured (those scenes stay animated stills). */
+    backgroundVideoPerSecond: e.VIDEO_BACKGROUND_MODEL ? e.PRICE_VIDEO_BACKGROUND_PER_SECOND : null,
     clipSeconds: e.VIDEO_CLIP_SECONDS,
     ttsPer1kChars: e.PRICE_TTS_PER_1K_CHARS,
     sfxPerSecond: e.PRICE_SFX_PER_SECOND,

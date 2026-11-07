@@ -42,7 +42,7 @@ Copy `.env.example` to `.env`. Every key is optional; each one switches on a cap
 | `ELEVENLABS_API_KEY` | Narration with word-level timing; generated sound effects | Silent narration with estimated caption timing; procedural sound effects |
 | `OPENAI_API_KEY` | Generated images (`OPENAI_IMAGE_MODEL`, default `gpt-image-2`) | Procedural artwork and motion graphics |
 | `PEXELS_API_KEY` | Licensed stock photos and clips, with credits written to `credits.txt` | No stock media |
-| `VIDEO_PROVIDER_API_KEY` | Image-to-video clips via fal.ai (`VIDEO_MODEL`) | Still images with camera motion |
+| `VIDEO_PROVIDER_API_KEY` / `FAL_KEY` | Image-to-video clips via fal.ai (`VIDEO_MODEL`, plus the optional cheaper `VIDEO_BACKGROUND_MODEL`) | Still images with camera motion |
 
 An Anthropic API key is billed separately from a Claude subscription.
 
@@ -53,14 +53,15 @@ From the web UI: **New video** → write the prompt → choose the options → *
 From the CLI:
 
 ```bash
-npm run make -- -p "Why do cats purr? Fun, 30 seconds" --style playful --aspect 9:16 --quality balanced
+npm run make -- -p "Why do cats purr? Fun, 30 seconds" --style playful --aspect 9:16
 npm run make -- -p "5 habits for better sleep" --captions karaoke --music calm-piano.mp3
 npm run make -- -p "Explain black holes" --offline        # procedural visuals, silent narration
 npm run make -- -p "Explain black holes" --llm mock        # fully offline test run
 ```
 
 Useful options:
-- `--duration`, `--aspect` (9:16, 16:9, 1:1, 4:5), `--style` and `--quality` (economy, balanced or premium).
+- `--duration`, `--aspect` (9:16, 16:9, 1:1, 4:5), `--style` and `--quality` (economy, hybrid (default), balanced or premium).
+- `--clips approve|skip` decides the AI clips up front; by default the run stops after the stills so you can review them (see below).
 - `--visual-mode` (auto, ai_only, stock_preferred or procedural_only) and `--captions <style>` (or `--no-captions`).
 - `--no-narration`, `--voice <elevenlabs voice id>`, `--music <file|auto|none>` and `--sfx`.
 - `--budget <usd>`, `--approve-spend <usd>` and `-o <dir>` (copies the outputs to that folder).
@@ -134,10 +135,27 @@ Results and sampled frames go to `output/quality.json`, `output/frames/` and `ou
 | Preset | Images | AI clips | Sound effects |
 |---|---|---|---|
 | Economy | low quality, about 60% of scenes | none | no |
+| **Hybrid** (default) | medium quality, every media scene, each with a camera move | the hook + 2 key moments on `VIDEO_MODEL`, plus 2 background shots on `VIDEO_BACKGROUND_MODEL` if set | yes |
 | Balanced | medium quality, about 80% of scenes | up to 2 | yes |
 | Premium | high quality, every media scene | up to 5 | yes |
 
 Before anything is generated, the pipeline plans every asset and estimates the spend using the `PRICE_*` values in `.env`. If the estimate exceeds the budget (`MAX_GENERATION_BUDGET_USD`, or `--budget`), it stops before spending and shows the breakdown. Approve with `--approve-spend <usd>`, or with the button in the web UI.
+
+### Storyboard preview before clips
+
+Clips are the expensive part, so the pipeline makes every still first and then pauses (stage `clips`, project status "draft"). The review page shows the stills and which scenes will become clips, with the estimate. Fix or regenerate any still you don't like (each clip starts from its still), then press **Approve clips** or **Skip clips, keep animated stills**. From the CLI: `npm run cli -- resume --id <id> --clips approve` (or `skip`).
+
+A one-minute hybrid video is about 12 stills at $0.06 and 3 Kling 2.5 Turbo clips of 5 s at $0.07/s, roughly $1.80 before narration. Clips run three at a time.
+
+Background clip models checked on fal (Nov 2026 list prices; set `VIDEO_BACKGROUND_MODEL` and `PRICE_VIDEO_BACKGROUND_PER_SECOND`):
+
+| Model id | Price | Notes |
+|---|---|---|
+| `minimax/h3-max-turbo/image-to-video` | $0.04/s at 768P | cheapest; 5 s ≈ $0.20 |
+| `fal-ai/ltx-2/image-to-video/fast` | $0.04/s at 1080p | minimum 6 s, so ≈ $0.24 a clip |
+| `fal-ai/wan-25-preview/image-to-video` | $0.10/s at 720p ($0.05 at 480p) | |
+| `minimax/h3-max/image-to-video` | $0.08/s at 768P | |
+| `fal-ai/kling-video/v3/standard/image-to-video` | $0.084/s (audio off, which the studio sets) | higher quality hero option |
 
 Generated images, clips and narration are cached by content in `.cache/`, so identical requests never pay twice. "Regenerate" always asks for a fresh variant. Actual and estimated costs per project are in `manifest.json` (`npm run status -- --id <id>`).
 

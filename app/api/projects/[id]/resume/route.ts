@@ -15,7 +15,7 @@ export async function POST(req: Request, { params }: Ctx) {
   try {
     const { id } = await params;
     requireProject(id);
-    const body = (await req.json().catch(() => ({}))) as { approveSpendUsd?: number; retryJobId?: string };
+    const body = (await req.json().catch(() => ({}))) as { approveSpendUsd?: number; retryJobId?: string; clips?: "approve" | "skip" };
     const approve = body.approveSpendUsd !== undefined ? Number(body.approveSpendUsd) : undefined;
     if (approve !== undefined && (!Number.isFinite(approve) || approve < 0)) return json({ error: "approveSpendUsd must be a positive number" }, 400);
     const retry = body.retryJobId ? getJob(id, body.retryJobId) : null;
@@ -25,9 +25,10 @@ export async function POST(req: Request, { params }: Ctx) {
     }
     const args = ["resume", "--id", id];
     if (approve !== undefined) args.push("--approve-spend", String(approve));
+    if (body.clips === "approve" || body.clips === "skip") args.push("--clips", body.clips);
     // keep the script engine the project was started with
     if (/^mock/.test(store.metadata(id).providers.llm ?? "")) args.push("--llm", "mock");
-    const label = approve !== undefined ? `Resuming with $${approve.toFixed(2)} approved` : "Resuming pipeline";
+    const label = body.clips === "approve" ? "Generating approved clips" : body.clips === "skip" ? "Continuing with animated stills" : approve !== undefined ? `Resuming with $${approve.toFixed(2)} approved` : "Resuming pipeline";
     return json({ job: startCliJob({ projectId: id, kind: "resume", label, args }) }, 202);
   } catch (e) {
     return errorResponse(e);

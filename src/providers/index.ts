@@ -68,10 +68,12 @@ export const createProviders = (opts: CreateProvidersOptions = {}): Providers =>
   if (offline) return { llm, images: null, video: null, stock: null, tts: new SilentTts(), sfx: null };
 
   const vk = videoKey(e);
+  const falOn = allowVideo && vk && (e.VIDEO_PROVIDER ?? "fal") === "fal";
   return {
     llm,
     images: e.OPENAI_API_KEY ? new OpenAiImages({ apiKey: e.OPENAI_API_KEY, model: e.OPENAI_IMAGE_MODEL }) : null,
-    video: allowVideo && vk && (e.VIDEO_PROVIDER ?? "fal") === "fal" ? new FalVideo({ apiKey: vk, model: e.VIDEO_MODEL }) : null,
+    video: falOn ? new FalVideo({ apiKey: vk, model: e.VIDEO_MODEL }) : null,
+    videoBackground: falOn && e.VIDEO_BACKGROUND_MODEL ? new FalVideo({ apiKey: vk, model: e.VIDEO_BACKGROUND_MODEL, pricePerSecond: e.PRICE_VIDEO_BACKGROUND_PER_SECOND }) : null,
     stock: allowStock && e.PEXELS_API_KEY ? new PexelsStock({ apiKey: e.PEXELS_API_KEY }) : null,
     tts: e.ELEVENLABS_API_KEY ? new ElevenLabsTts({ apiKey: e.ELEVENLABS_API_KEY, voiceId: e.ELEVENLABS_VOICE_ID, model: e.ELEVENLABS_MODEL }) : new SilentTts(),
     sfx: e.ELEVENLABS_API_KEY ? new ElevenLabsSfx({ apiKey: e.ELEVENLABS_API_KEY }) : null,
@@ -83,6 +85,7 @@ export const providerSummary = (p: Providers): Record<string, string> => ({
   llm: p.llm.name === "unavailable" ? "unavailable (set ANTHROPIC_API_KEY)" : p.llm.name === "mock" ? `mock (${p.llm.model}, offline placeholder content)` : `${p.llm.name}:${p.llm.model}`,
   images: p.images ? `${p.images.name}:${p.images.model}` : "off (procedural motion graphics)",
   video: p.video ? `${p.video.name}:${p.video.model}` : "off (animated stills)",
+  videoBackground: p.videoBackground ? `${p.videoBackground.name}:${p.videoBackground.model}` : "off (animated stills)",
   stock: p.stock ? p.stock.name : "off",
   tts: p.tts.real ? p.tts.name : `${p.tts.name} (no narration audio; estimated caption timing)`,
   sfx: p.sfx ? p.sfx.name : "off",

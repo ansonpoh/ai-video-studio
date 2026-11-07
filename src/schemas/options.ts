@@ -4,7 +4,14 @@ import { z } from "zod";
 export const AspectRatio = z.enum(["9:16", "16:9", "1:1", "4:5"]);
 export type AspectRatio = z.infer<typeof AspectRatio>;
 
-export const QualityPreset = z.enum(["economy", "balanced", "premium"]);
+/**
+ * - economy: AI stills with camera motion, no clips.
+ * - hybrid (default): AI stills with camera motion on most scenes; real AI clips
+ *   only for the hook and 2 key moments, plus cheap clips for a couple of
+ *   background shots when VIDEO_BACKGROUND_MODEL is set.
+ * - balanced / premium: earlier presets with up to 2 / 5 premium clips.
+ */
+export const QualityPreset = z.enum(["economy", "hybrid", "balanced", "premium"]);
 export type QualityPreset = z.infer<typeof QualityPreset>;
 
 export const CaptionStyleName = z.enum([
@@ -65,7 +72,13 @@ export const VideoRequest = z.object({
   music: z.string().default("auto"), // "auto" | "none" | file name inside music/
   musicVolume: z.number().min(0).max(1).default(0.18),
   visualMode: VisualMode.default("auto"),
-  quality: QualityPreset.default("economy"),
+  quality: QualityPreset.default("hybrid"),
+  /**
+   * Storyboard preview before paying for clips. "ask" stops after the stills
+   * are made so they can be reviewed; "approved" generates the planned clips;
+   * "skipped" keeps the animated stills and never calls the video provider.
+   */
+  clipApproval: z.enum(["ask", "approved", "skipped"]).default("ask"),
   platform: Platform.default("shorts"),
   /** Hard ceiling for this project's estimated spend. Falls back to MAX_GENERATION_BUDGET_USD. */
   budgetUsd: z.number().min(0).optional(),

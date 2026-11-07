@@ -26,6 +26,8 @@ const fail = (err: unknown) => {
   const e = err as Error & { breakdown?: unknown };
   console.error(`\n✗ ${e.message}`);
   if (e.name === "BudgetApprovalRequired" && e.breakdown) console.error("  Planned spend:", JSON.stringify(e.breakdown, null, 2));
+  const clips = (e as { clips?: unknown }).clips;
+  if (e.name === "ClipApprovalRequired" && clips) console.error("  Planned clips:", JSON.stringify(clips, null, 2));
   process.exitCode = 1;
 };
 
@@ -54,7 +56,8 @@ program
   .option("-d, --duration <seconds>", "target duration", (v) => Number(v))
   .option("-s, --style <style>", "auto | cinematic | educational | bold-modern | minimal | documentary | playful | luxury | retro | tech")
   .option("-a, --aspect <ratio>", "9:16 | 16:9 | 1:1 | 4:5")
-  .option("-q, --quality <preset>", "economy | balanced | premium")
+  .option("-q, --quality <preset>", "economy | hybrid | balanced | premium (default hybrid)")
+  .option("--clips <choice>", "ask (default: stop after the storyboard stills) | approve | skip")
   .option("--visual-mode <mode>", "auto | ai_only | stock_preferred | procedural_only")
   .option("--captions <style>", "auto | minimal | bold | word-highlight | karaoke | cinematic")
   .option("--no-captions", "disable captions")
@@ -87,6 +90,7 @@ program
           music: o.music,
           budgetUsd: o.budget,
           approveSpendUsd: o.approveSpend,
+          clipApproval: o.clips === "approve" ? "approved" : o.clips === "skip" ? "skipped" : undefined,
           soundEffects: Boolean(o.sfx),
           offline: Boolean(o.offline),
         },
@@ -103,12 +107,13 @@ program
   .description("Resume a project's pipeline from the first unfinished stage")
   .requiredOption("--id <id>")
   .option("--approve-spend <usd>", "approve spending up to this amount", (v) => Number(v))
+  .option("--clips <choice>", "after the storyboard preview: approve | skip the planned AI clips")
   .option("--llm <provider>")
   .option("--skip-export", "stop after the draft preview")
   .action(async (o) => {
     try {
       const { resumeProject } = await import("../pipeline/operations");
-      const r = await resumeProject(o.id, { approveSpendUsd: o.approveSpend, llm: o.llm, onEvent: printer, skipExport: Boolean(o.skipExport) });
+      const r = await resumeProject(o.id, { approveSpendUsd: o.approveSpend, clips: o.clips === "approve" || o.clips === "skip" ? o.clips : undefined, llm: o.llm, onEvent: printer, skipExport: Boolean(o.skipExport) });
       console.log(`\n${r.id} [${r.status}]`);
     } catch (e) {
       fail(e);

@@ -104,6 +104,7 @@ const currentAsset = (manifest: AssetManifest, sceneId: string): Asset | undefin
   return entry.history.find((a) => a.id === entry.currentAssetId);
 };
 
+const STILL_MOVES = ["push-in", "pan-left", "pull-out", "pan-up", "parallax", "pan-right"] as const;
 const isVideoAsset = (a: Asset) => a.kind === "generated_video" || a.kind === "stock_video" || (a.kind === "uploaded" && a.mediaType === "video");
 
 /* -------------------------------------------------------------- per-scene */
@@ -132,8 +133,12 @@ export const sceneVisualCode = (x: SceneCodeInput, indent: string) => {
     lines.push(artNode(`${id} visual`, cardLayout ? { opacity: 0.22, filter: "blur(10px)" } : {}));
   } else {
     const src = `staticFile(${str(`${projectId}/${asset.file}`)})`;
+    const video = isVideoAsset(asset);
+    // A still never sits frozen: if the storyboard said "static", give it a gentle camera move (varied per scene).
+    const motion = !video && scene.visual.motion === "static" ? STILL_MOVES[x.index % STILL_MOVES.length] : scene.visual.motion;
+    const strength = motion === "static" ? 0 : video ? 0.04 : 0.1;
     lines.push(
-      `${indent}<MediaLayer name=${str(`${id} visual`)} src={${src}} mediaType=${str(isVideoAsset(asset) ? "video" : "image")} motion=${str(scene.visual.motion)} motionStrength={${scene.visual.motion === "static" ? 0 : 0.08}} darken={${darken}} blur={0} style=${styleObj({ translate: "0px 0px", scale: 1 })} />`,
+      `${indent}<MediaLayer name=${str(`${id} visual`)} src={${src}} mediaType=${str(video ? "video" : "image")} motion=${str(motion)} motionStrength={${strength}} darken={${darken}} blur={0} style=${styleObj({ translate: "0px 0px", scale: 1 })} />`,
     );
     if (scene.layout === "mixed_media") lines.push(artNode(`${id} overlay`, { opacity: 0.55 }));
   }

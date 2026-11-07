@@ -8,16 +8,20 @@ import { env } from "../config/env";
 
 export type PresetRules = {
   imageQuality: "low" | "medium" | "high";
+  /** Premium clips (VIDEO_MODEL): the hook plus the scenes that most need real motion. */
   maxVideoClips: number;
+  /** Cheap clips (VIDEO_BACKGROUND_MODEL) for background shots; 0 or no model = animated stills. */
+  backgroundClips: number;
   /** Prefer generated imagery on this share of non-diagram scenes (rest use motion graphics). */
   generatedImageShare: number;
   soundEffects: boolean;
 };
 
 export const PRESETS: Record<QualityPreset, PresetRules> = {
-  economy: { imageQuality: "low", maxVideoClips: 0, generatedImageShare: 0.6, soundEffects: false },
-  balanced: { imageQuality: "medium", maxVideoClips: 2, generatedImageShare: 0.8, soundEffects: true },
-  premium: { imageQuality: "high", maxVideoClips: 5, generatedImageShare: 1, soundEffects: true },
+  economy: { imageQuality: "low", maxVideoClips: 0, backgroundClips: 0, generatedImageShare: 0.6, soundEffects: false },
+  hybrid: { imageQuality: "medium", maxVideoClips: 3, backgroundClips: 2, generatedImageShare: 1, soundEffects: true },
+  balanced: { imageQuality: "medium", maxVideoClips: 2, backgroundClips: 0, generatedImageShare: 0.8, soundEffects: true },
+  premium: { imageQuality: "high", maxVideoClips: 5, backgroundClips: 0, generatedImageShare: 1, soundEffects: true },
 };
 
 export type PlannedCost = { category: CostEntry["category"]; provider: string; description: string; estimatedUsd: number };
@@ -32,6 +36,23 @@ export class BudgetApprovalRequired extends Error {
       `Estimated spend $${estimateUsd.toFixed(2)} exceeds the $${budgetUsd.toFixed(2)} limit. Re-run with approval (CLI: --approve-spend ${Math.ceil(estimateUsd * 100) / 100}; UI: confirm the estimate) or choose a cheaper preset.`,
     );
     this.name = "BudgetApprovalRequired";
+  }
+}
+
+/**
+ * Storyboard preview gate: stills are made, clips are planned but not paid
+ * for until the user approves (or skips) them. The message format is parsed
+ * by src/web/jobs.ts.
+ */
+export class ClipApprovalRequired extends Error {
+  constructor(
+    public clips: { sceneId: string; tier: "hero" | "background"; model: string; estimatedUsd: number }[],
+    public estimateUsd: number,
+  ) {
+    super(
+      `Storyboard ready for review: ${clips.length} AI clip(s) planned (about $${estimateUsd.toFixed(2)}). Check the stills, then approve the clips (CLI: resume --clips approve; UI: Approve clips) or skip them and keep animated stills (--clips skip).`,
+    );
+    this.name = "ClipApprovalRequired";
   }
 }
 

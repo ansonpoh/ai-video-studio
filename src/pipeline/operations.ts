@@ -15,7 +15,7 @@ import type { Asset, ProjectEdits } from "../schemas/project";
 import type { Providers } from "../providers/types";
 import { MissingCredentialsError } from "../providers/types";
 import { createProviders, providerSummary } from "../providers/index";
-import { createProject, runPipeline, defaultRenderer, type PipelineEvent } from "./pipeline";
+import { createProject, runPipeline, defaultRenderer, type PipelineEvent, type Renderer } from "./pipeline";
 import { P, store } from "./store";
 import { enforceBudget, recordCost, type PlannedCost } from "./budget";
 import { planAssets, plannedCosts, resolveSceneAsset, sceneEntry, nextVersionFile, type AssetPlan } from "./assets";
@@ -39,10 +39,14 @@ export const makeVideo = async (input: VideoRequestInput, opts: MakeOptions = {}
   return { id, status: meta.status, dir: P(id).dir };
 };
 
-export const resumeProject = async (id: string, opts: { approveSpendUsd?: number; llm?: "anthropic" | "mock"; onEvent?: (e: PipelineEvent) => void; providers?: Providers; skipExport?: boolean } = {}) => {
+export const resumeProject = async (id: string, opts: { approveSpendUsd?: number; clips?: "approve" | "skip"; llm?: "anthropic" | "mock"; onEvent?: (e: PipelineEvent) => void; providers?: Providers; skipExport?: boolean; renderer?: Renderer } = {}) => {
   const meta = store.metadata(id);
   if (opts.approveSpendUsd !== undefined) {
     meta.request.approveSpendUsd = opts.approveSpendUsd;
+    store.saveMetadata(meta);
+  }
+  if (opts.clips) {
+    meta.request.clipApproval = opts.clips === "approve" ? "approved" : "skipped";
     store.saveMetadata(meta);
   }
   if (meta.mode === "offline-demo") {
@@ -51,7 +55,7 @@ export const resumeProject = async (id: string, opts: { approveSpendUsd?: number
     return { id, status: r?.status ?? store.metadata(id).status };
   }
   const providers = opts.providers ?? createProviders({ offline: meta.request.offline, llm: opts.llm });
-  const m = await runPipeline(id, { providers, onEvent: opts.onEvent, skipExport: opts.skipExport });
+  const m = await runPipeline(id, { providers, onEvent: opts.onEvent, skipExport: opts.skipExport, renderer: opts.renderer });
   return { id, status: m.status };
 };
 

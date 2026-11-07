@@ -32,6 +32,7 @@ export async function POST(req: Request) {
     if (r.voiceId) args.push("--voice", r.voiceId);
     if (r.budgetUsd !== undefined) args.push("--budget", String(r.budgetUsd));
     if (r.approveSpendUsd !== undefined) args.push("--approve-spend", String(r.approveSpendUsd));
+    if (r.clipApproval !== "ask") args.push("--clips", r.clipApproval === "approved" ? "approve" : "skip");
     if (r.soundEffects) args.push("--sfx");
     if (r.offline) args.push("--offline");
     if (llm === "mock" || llm === "anthropic") args.push("--llm", llm);

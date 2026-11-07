@@ -150,6 +150,7 @@ export const STAGES = [
   "validate",
   "plan-assets",
   "assets",
+  "clips",
   "narration",
   "timing",
   "captions",

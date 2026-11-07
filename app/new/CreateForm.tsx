@@ -10,6 +10,7 @@ type Props = CreateOptions & {
 
 const QUALITY_TEXT: Record<string, string> = {
   economy: "Low-detail AI images on most scenes, motion graphics elsewhere, no video clips. Cheapest.",
+  hybrid: "Recommended. AI stills with camera moves on most scenes, real AI clips for the hook and 2 key moments. You review the stills before paying for clips.",
   balanced: "Medium-quality images, up to 2 AI video clips, sound effects.",
   premium: "High-quality images on every scene, up to 5 AI video clips, sound effects.",
 };
@@ -43,7 +44,7 @@ export function CreateForm({ options, capabilities, music, presets, prices }: Pr
   const [duration, setDuration] = useState(30);
   const [aspect, setAspect] = useState("9:16");
   const [style, setStyle] = useState("auto");
-  const [quality, setQuality] = useState("economy");
+  const [quality, setQuality] = useState("hybrid");
   const [visualMode, setVisualMode] = useState("auto");
   const [captions, setCaptions] = useState(true);
   const [captionStyle, setCaptionStyle] = useState("auto");
@@ -79,6 +80,10 @@ export function CreateForm({ options, capabilities, music, presets, prices }: Pr
     if (live("AI video") && visualMode !== "procedural_only" && rules.maxVideoClips > 0) {
       const n = Math.min(rules.maxVideoClips, scenes);
       lines.push({ what: `up to ${n} video clips`, usd: n * prices.clipSeconds * prices.videoPerSecond });
+      if (rules.backgroundClips > 0 && prices.backgroundVideoPerSecond !== null) {
+        const b = Math.min(rules.backgroundClips, Math.max(0, scenes - n));
+        if (b) lines.push({ what: `up to ${b} background clips (cheaper model)`, usd: b * prices.clipSeconds * prices.backgroundVideoPerSecond });
+      }
     }
     if (narration && live("Narration")) lines.push({ what: "Narration", usd: ((duration * 15) / 1000) * prices.ttsPer1kChars });
     if (sfx && live("Sound")) lines.push({ what: "Sound effects", usd: scenes * 2 * prices.sfxPerSecond });

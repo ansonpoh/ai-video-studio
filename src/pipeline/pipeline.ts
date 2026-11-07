@@ -11,8 +11,8 @@ import { STAGES, type ProjectMetadata, type StageName, type PipelineManifest } f
 import type { Providers, PromptHints, Script } from "../providers/types";
 import { ProviderError } from "../providers/types";
 import { P, newProjectId, store, writeJsonAtomic } from "./store";
-import { enforceBudget, recordCost, budgetFor, PRESETS, type PlannedCost } from "./budget";
-import { planAssets, plannedCosts, resolveSceneAsset, sceneEntry, type AssetPlan } from "./assets";
+import { enforceBudget, recordCost, budgetFor, PRESETS, ClipApprovalRequired, type PlannedCost } from "./budget";
+import { planAssets, plannedCosts, resolveSceneAsset, sceneEntry, makeClip, clipProviderFor, type AssetPlan } from "./assets";
 import { synthesizeScene, upsertNarration, buildContinuousNarration } from "./narration";
 import { selectAnimations } from "./animation";
 import { composeEditable, effectiveScenes, exportCaptions, timelineFor } from "./compose";
@@ -180,12 +180,15 @@ export const runPipeline = async (id: string, opts: RunOptions) => {
           await new Promise((r) => setTimeout(r, 1000 * 2 ** (attempt - 1)));
           continue;
         }
-        rec.status = "failed";
-        rec.error = message;
+        // The storyboard preview is a pause, not a failure: the stage stays pending until clips are approved or skipped.
+        const paused = (err as Error).name === "ClipApprovalRequired";
+        rec.status = paused ? "pending" : "failed";
+        rec.error = paused ? undefined : message;
+        rec.note = paused ? "waiting for clip approval" : rec.note;
         rec.finishedAt = new Date().toISOString();
         persist();
         const m = store.metadata(id);
-        m.status = "failed";
+        m.status = paused ? "draft" : "failed";
         store.saveMetadata(m);
         ctx.emit({ stage: name, status: "failed", message });
         throw err;
@@ -337,7 +340,9 @@ const STAGE_IMPL: Record<StageName, (ctx: Ctx) => Promise<StageResult>> = {
       const plan = plans.find((p) => p.sceneId === s.id);
       const entry = sceneEntry(manifest, s.id);
       if (!plan || plan.source === "keep") continue;
-      ctx.emit({ stage: "assets", status: "progress", progress: i / scenes.length, message: `${s.id}: ${plan.source}` });
+      ctx.emit({ stage: "assets", status: "progress", progress: i / scenes.length, message: `${s.id}: ${plan.source === "ai-video" ? "still (clip comes after review)" : plan.source}` });
+      // Clips are made in the "clips" stage, after the stills can be previewed.
+      const stillPlan: AssetPlan = plan.source === "ai-video" ? { ...plan, source: "ai-image", estimatedUsd: plan.stillUsd ?? 0 } : plan;
       try {
         const asset = await resolveSceneAsset(
           {
@@ -351,7 +356,7 @@ const STAGE_IMPL: Record<StageName, (ctx: Ctx) => Promise<StageResult>> = {
             cost: (category, provider, description, usd, cached) => recordCost(ctx.manifest, { category, provider, description, estimatedUsd: usd, cached }),
           },
           s,
-          plan,
+          stillPlan,
           i,
         );
         if (asset) {
@@ -378,6 +383,62 @@ const STAGE_IMPL: Record<StageName, (ctx: Ctx) => Promise<StageResult>> = {
     store.saveMetadata(meta);
     const failed = manifest.scenes.filter((e) => e.lastError).length;
     return `${manifest.scenes.filter((e) => e.currentAssetId).length} media assets; ${failed} fell back to motion graphics`;
+  },
+
+  async clips(ctx) {
+    const meta = store.metadata(ctx.id);
+    const scenes = effectiveScenes(store.storyboard(ctx.id), store.edits(ctx.id));
+    const { plans } = loadScratch<{ plans: AssetPlan[] }>(ctx.id, "asset-plan")!;
+    const manifest = store.assets(ctx.id);
+    const current = (sid: string) => {
+      const e = manifest.scenes.find((x) => x.sceneId === sid);
+      return e?.history.find((a) => a.id === e.currentAssetId);
+    };
+    // Only scenes whose current asset is still the generated image (not already a clip, an upload or a fallback).
+    const todo = plans.filter((p) => p.source === "ai-video" && current(p.sceneId)?.kind === "generated_image");
+    if (!todo.length) return "skipped";
+    if (meta.request.clipApproval === "skipped") return `${todo.length} planned clip(s) skipped; animated stills kept`;
+    if (meta.request.clipApproval !== "approved") {
+      const clips = todo.map((p) => ({ sceneId: p.sceneId, tier: p.clipTier ?? ("hero" as const), model: clipProviderFor(ctx.opts.providers, p.clipTier ?? "hero")?.model ?? "none", estimatedUsd: Math.max(0, p.estimatedUsd - (p.stillUsd ?? 0)) }));
+      throw new ClipApprovalRequired(clips, clips.reduce((a, c) => a + c.estimatedUsd, 0));
+    }
+    const resolveCtx = {
+      projectId: ctx.id,
+      request: meta.request,
+      direction: meta.direction!,
+      providers: ctx.opts.providers,
+      size: { width: meta.width, height: meta.height },
+      renderProceduralStill: ctx.renderer.renderProceduralStill,
+      log: (l: "info" | "warn" | "error", m: string) => ctx.log(l, "clips", m),
+      cost: (category: "image" | "video" | "stock", provider: string, description: string, usd: number, cached: boolean) => recordCost(ctx.manifest, { category, provider, description, estimatedUsd: usd, cached }),
+    };
+    // Clips take about a minute each, so a few run at once.
+    let made = 0;
+    let done = 0;
+    const queue = [...todo];
+    const worker = async () => {
+      for (let p = queue.shift(); p; p = queue.shift()) {
+        const scene = scenes.find((s) => s.id === p!.sceneId);
+        const still = current(p.sceneId);
+        if (!scene || !still) continue;
+        const clip = await makeClip(resolveCtx, scene, still, p.clipTier ?? "hero");
+        if (clip) {
+          const entry = sceneEntry(manifest, scene.id);
+          entry.history.push(clip);
+          entry.currentAssetId = clip.id;
+          made++;
+          store.saveAssets(ctx.id, manifest);
+        }
+        ctx.emit({ stage: "clips", status: "progress", progress: ++done / todo.length, message: `${scene.id}: ${clip ? "clip ready" : "kept animated still"}` });
+      }
+    };
+    await Promise.all(Array.from({ length: Math.min(3, todo.length) }, worker));
+    store.saveAssets(ctx.id, manifest);
+    if (made) {
+      meta.disclosure.containsAiGeneratedMedia = true;
+      store.saveMetadata(meta);
+    }
+    return `${made}/${todo.length} clips generated${made < todo.length ? "; the rest keep animated stills" : ""}`;
   },
 
   async narration(ctx) {

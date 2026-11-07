@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildFalInput, fieldMapFor } from "../../src/media/video/fal";
+import { buildFalInput, clipSecondsFor, fieldMapFor } from "../../src/media/video/fal";
 
 const req = { prompt: "a slow push-in on a lighthouse", durationSeconds: 5, aspectRatio: "9:16", resolution: "720p" as const };
 
@@ -18,6 +18,28 @@ describe("fal input mapping", () => {
     const input = buildFalInput("kling/v4/image-to-video", req, "https://example.com/still.png");
     expect(input.start_image_url).toBe("https://example.com/still.png");
     expect(input.resolution).toBe("720p");
+  });
+});
+
+describe("cheaper background models", () => {
+  const img = "https://example.com/still.png";
+  it("MiniMax H3 Max Turbo: numeric duration, 768P instead of 720p", () => {
+    expect(buildFalInput("minimax/h3-max-turbo/image-to-video", req, img)).toEqual({ prompt: req.prompt, image_url: img, duration: 5, resolution: "768P" });
+  });
+  it("LTX-2 Fast: snaps to its 6s minimum, 1080p, own audio off", () => {
+    expect(buildFalInput("fal-ai/ltx-2/image-to-video/fast", req, img)).toEqual({ prompt: req.prompt, image_url: img, duration: 6, resolution: "1080p", generate_audio: false });
+    expect(clipSecondsFor("fal-ai/ltx-2/image-to-video/fast", 5)).toBe(6);
+  });
+  it("Wan 2.5: string duration, real resolution field", () => {
+    expect(buildFalInput("fal-ai/wan-25-preview/image-to-video", req, img)).toEqual({ prompt: req.prompt, image_url: img, duration: "5", resolution: "720p" });
+  });
+  it("Kling 3.0 Standard: start_image_url and no paid audio", () => {
+    expect(buildFalInput("fal-ai/kling-video/v3/standard/image-to-video", req, img)).toEqual({ prompt: req.prompt, start_image_url: img, duration: "5", generate_audio: false });
+  });
+  it("prices the billed length, not the requested one", async () => {
+    const { FalVideo } = await import("../../src/media/video/fal");
+    const v = new FalVideo({ apiKey: "k", model: "fal-ai/ltx-2/image-to-video/fast", pricePerSecond: 0.04, client: {} as never });
+    expect(v.estimateUsd(req)).toBeCloseTo(0.24);
   });
 });
 

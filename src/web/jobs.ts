@@ -30,7 +30,8 @@ export type Job = {
 
 export type BudgetRequest = { estimateUsd: number; budgetUsd: number; approveUsd: number; breakdown: { category: string; provider: string; description: string; estimatedUsd: number }[] };
 
-export type JobView = Job & { logTail: string; budget: BudgetRequest | null; error: string | null };
+export type ClipReview = { count: number; estimateUsd: number; clips: { sceneId: string; tier: "hero" | "background"; model: string; estimatedUsd: number }[] };
+export type JobView = Job & { logTail: string; budget: BudgetRequest | null; clipReview: ClipReview | null; error: string | null };
 
 const jobsDir = (projectId: string | null) => (projectId ? path.join(P(projectId).dir, ".pipeline", "jobs") : path.join(cacheDir(), "jobs"));
 const jobFile = (projectId: string | null, jobId: string) => path.join(jobsDir(projectId), `${jobId}.json`);
@@ -99,6 +100,24 @@ export const parseBudget = (log: string): BudgetRequest | null => {
   return { estimateUsd, budgetUsd: Number(m[2]), approveUsd: Math.ceil(estimateUsd * 100) / 100, breakdown };
 };
 
+/** Recovers the ClipApprovalRequired details (storyboard preview before paying for clips). */
+export const parseClipReview = (log: string): ClipReview | null => {
+  const m = /Storyboard ready for review: (\d+) AI clip\(s\) planned \(about \$([\d.]+)\)/.exec(log);
+  if (!m) return null;
+  let clips: ClipReview["clips"] = [];
+  const at = log.indexOf("Planned clips:");
+  if (at >= 0) {
+    const start = log.indexOf("[", at);
+    const end = log.lastIndexOf("]");
+    try {
+      if (start >= 0 && end > start) clips = JSON.parse(log.slice(start, end + 1));
+    } catch {
+      clips = [];
+    }
+  }
+  return { count: Number(m[1]), estimateUsd: Number(m[2]), clips };
+};
+
 const errorOf = (log: string) => {
   const lines = log.split(/\r|\n/);
   const line = [...lines].reverse().find((l) => l.startsWith("✗ ") && !/^✗ [a-z-]+: /.test(l)) ?? [...lines].reverse().find((l) => l.startsWith("✗ "));
@@ -128,6 +147,7 @@ export const view = (job: Job): JobView => {
     ...j,
     logTail: cleanLog(full.slice(-6000)),
     budget: j.status === "failed" ? parseBudget(full) : null,
+    clipReview: j.status === "failed" ? parseClipReview(full) : null,
     error: j.status === "failed" ? errorOf(full) ?? `Process exited with code ${j.exitCode ?? "?"}` : null,
   };
 };

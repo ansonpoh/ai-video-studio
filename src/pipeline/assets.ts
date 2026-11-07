@@ -12,12 +12,50 @@ import type { Providers } from "../providers/types";
 import { PRESETS, type PlannedCost } from "./budget";
 import { cacheDir, P, sha256 } from "./store";
 import { THEME_TOKENS } from "../video/themes/themes";
+import { env } from "../config/env";
+
+const clipSecondsFor = (_s: Scene) => env().VIDEO_CLIP_SECONDS;
 
 export type AssetPlan = {
   sceneId: string;
   source: "ai-image" | "ai-video" | "stock-image" | "stock-video" | "procedural-still" | "live-art" | "keep";
   reason: string;
   estimatedUsd: number;
+  /** For ai-video: "hero" uses VIDEO_MODEL, "background" the cheaper VIDEO_BACKGROUND_MODEL. */
+  clipTier?: "hero" | "background";
+  /** For ai-video: the still's share of estimatedUsd (the clip is the rest). */
+  stillUsd?: number;
+};
+
+const LIVE_TYPES = ["diagram", "motion_graphics", "animated_text"];
+const FULL_BLEED = ["cinematic_image", "video_clip", "mixed_media"];
+
+/**
+ * Which scenes get real AI clips. Hook first (hybrid), then scenes the director
+ * asked to be clips, then scenes it flagged as wanting motion; background clips
+ * (hybrid, cheap model) go to the remaining full-bleed image scenes, spread out.
+ */
+export const pickClipScenes = (scenes: Scene[], request: VideoRequest, providers: Providers, offlineDemo: boolean) => {
+  const rules = PRESETS[request.quality];
+  const out = new Map<string, "hero" | "background">();
+  if (offlineDemo || request.visualMode === "procedural_only" || !providers.images || request.clipApproval === "skipped") return out;
+  const stockAllowed = request.visualMode !== "ai_only" && Boolean(providers.stock);
+  const eligible = scenes.filter((s) => !LIVE_TYPES.includes(s.visual.type) && s.layout !== "diagram" && !(s.visual.type.startsWith("stock") && stockAllowed));
+  if (providers.video && rules.maxVideoClips > 0) {
+    const ranked: Scene[] = [];
+    const add = (s: Scene | undefined) => s && !ranked.includes(s) && ranked.push(s);
+    if (request.quality === "hybrid") add(eligible.find((s) => s.id === scenes[0]?.id));
+    eligible.filter((s) => s.visual.type === "generated_video").forEach(add);
+    eligible.filter((s) => s.visual.wantsMotionClip).forEach(add);
+    ranked.slice(0, rules.maxVideoClips).forEach((s) => out.set(s.id, "hero"));
+  }
+  const bg = providers.videoBackground;
+  if (bg && rules.backgroundClips > 0) {
+    const rest = eligible.filter((s) => !out.has(s.id) && FULL_BLEED.includes(s.layout));
+    const n = Math.min(rules.backgroundClips, rest.length);
+    for (let k = 0; k < n; k++) out.set(rest[Math.floor(((k + 0.5) * rest.length) / n)].id, "background");
+  }
+  return out;
 };
 
 const portrait = (req: VideoRequest) => (req.aspectRatio === "9:16" || req.aspectRatio === "4:5" ? "portrait" : req.aspectRatio === "1:1" ? "square" : "landscape");
@@ -40,7 +78,7 @@ export const planAssets = (opts: {
 }): AssetPlan[] => {
   const { scenes, request, providers } = opts;
   const rules = PRESETS[request.quality];
-  let clips = 0;
+  const clipScenes = pickClipScenes(scenes, request, providers, opts.offlineDemo);
   const plans: AssetPlan[] = [];
   for (const s of scenes) {
     if (opts.only && !opts.only.includes(s.id)) continue;
@@ -53,8 +91,7 @@ export const planAssets = (opts: {
     const t = s.visual.type;
     const imgReq = { prompt: s.visual.prompt ?? s.visual.description, width: 1024, height: 1536, quality: rules.imageQuality };
     const imageCost = providers.images ? providers.images.estimateUsd(imgReq) : 0;
-    const liveTypes = ["diagram", "motion_graphics", "animated_text"];
-    if (liveTypes.includes(t) || s.layout === "diagram") {
+    if (LIVE_TYPES.includes(t) || s.layout === "diagram") {
       plans.push({ sceneId: s.id, source: "live-art", reason: "programmatic motion graphics", estimatedUsd: 0 });
       continue;
     }
@@ -63,13 +100,13 @@ export const planAssets = (opts: {
       continue;
     }
     const stockAllowed = request.visualMode !== "ai_only" && Boolean(providers.stock);
-    if (t === "generated_video" || (s.visual.wantsMotionClip && rules.maxVideoClips > 0)) {
-      if (providers.video && clips < rules.maxVideoClips && providers.images) {
-        clips++;
-        const v = providers.video.estimateUsd({ prompt: imgReq.prompt, durationSeconds: 5, aspectRatio: request.aspectRatio, resolution: "720p" });
-        plans.push({ sceneId: s.id, source: "ai-video", reason: "scene benefits from real motion", estimatedUsd: imageCost + v });
-        continue;
-      }
+    const tier = clipScenes.get(s.id);
+    const clipProvider = tier === "background" ? providers.videoBackground : providers.video;
+    if (tier && clipProvider) {
+      const v = clipProvider.estimateUsd({ prompt: imgReq.prompt, durationSeconds: clipSecondsFor(s), aspectRatio: request.aspectRatio, resolution: "720p" });
+      const reason = tier === "background" ? "background shot: cheap clip model" : s.id === scenes[0]?.id && request.quality === "hybrid" ? "hook: real motion grabs attention" : "key moment: benefits from real motion";
+      plans.push({ sceneId: s.id, source: "ai-video", clipTier: tier, reason, estimatedUsd: imageCost + v, stillUsd: imageCost });
+      continue;
     }
     if ((t === "stock_video" || t === "stock_image") && stockAllowed) {
       plans.push({ sceneId: s.id, source: t === "stock_video" ? "stock-video" : "stock-image", reason: "licensed stock fits this scene", estimatedUsd: 0 });
@@ -94,8 +131,8 @@ export const plannedCosts = (plans: AssetPlan[], providers: Providers): PlannedC
     .filter((p) => p.estimatedUsd > 0)
     .map((p) => ({
       category: p.source === "ai-video" ? "video" : "image",
-      provider: p.source === "ai-video" ? `${providers.video?.name}` : `${providers.images?.name}`,
-      description: `${p.sceneId}: ${p.source}`,
+      provider: p.source === "ai-video" ? `${clipProviderFor(providers, p.clipTier ?? "hero")?.model}` : `${providers.images?.name}`,
+      description: `${p.sceneId}: ${p.source === "ai-video" ? `still + ${p.clipTier ?? "hero"} clip` : p.source}`,
       estimatedUsd: p.estimatedUsd,
     }));
 
@@ -205,29 +242,8 @@ export const resolveSceneAsset = async (ctx: ResolveContext, scene: Scene, plan:
       return makeImage();
     case "ai-video": {
       const still = await makeImage();
-      if (!providers.video) return still;
-      const prompt = `${scene.visual.prompt ?? scene.visual.description}. Subtle, cinematic camera motion. ${direction.visualStyle.imageStylePrompt}`;
-      const req = { prompt, imageFile: dirOf(still.file), durationSeconds: 5, aspectRatio: request.aspectRatio, resolution: "720p" as const };
-      const key = sha256(`${providers.video.name}|${providers.video.model}|${prompt}|${still.cacheKey}|${req.durationSeconds}${ctx.variant ? `|${ctx.variant}` : ""}`);
-      const hit = cached(key, "mp4");
-      const file = nextVersionFile(projectId, scene.id, "clip", "mp4");
-      let usd = 0;
-      if (hit) {
-        fs.copyFileSync(hit, dirOf(file));
-        ctx.cost("video", providers.video.name, `${scene.id} clip (cache hit)`, 0, true);
-      } else {
-        try {
-          const res = await providers.video.generate(req);
-          putCache(key, "mp4", res.data);
-          fs.writeFileSync(dirOf(file), res.data);
-          usd = res.cost.actualUsd ?? res.cost.estimatedUsd;
-          ctx.cost("video", providers.video.name, `${scene.id} clip`, usd, false);
-        } catch (err) {
-          ctx.log("warn", `${scene.id}: video generation failed (${(err as Error).message}); using the animated still instead`);
-          return still;
-        }
-      }
-      return { kind: "generated_video", id: `${scene.id}-${path.basename(file)}`, sceneId: scene.id, file, createdAt: now, provider: providers.video.name, model: providers.video.model, prompt, sourceImageAssetId: still.id, costUsd: usd, cacheKey: key, durationSeconds: req.durationSeconds };
+      const clip = await makeClip(ctx, scene, still, plan.clipTier ?? "hero");
+      return clip ?? still;
     }
     case "stock-image":
     case "stock-video": {
@@ -263,4 +279,40 @@ export const resolveSceneAsset = async (ctx: ResolveContext, scene: Scene, plan:
       };
     }
   }
+};
+
+/** The video provider for a clip tier (background falls back to the hero model when no cheap model is set). */
+export const clipProviderFor = (providers: Providers, tier: "hero" | "background") => (tier === "background" ? providers.videoBackground ?? providers.video : providers.video);
+
+/**
+ * Animates an existing still into a clip. Returns null when there is no video
+ * provider or generation fails (the scene keeps its animated still).
+ */
+export const makeClip = async (ctx: ResolveContext, scene: Scene, still: Asset, tier: "hero" | "background"): Promise<Asset | null> => {
+  const { projectId, request, direction } = ctx;
+  const video = clipProviderFor(ctx.providers, tier);
+  if (!video) return null;
+  const dirOf = (rel: string) => path.join(P(projectId).dir, rel);
+  const prompt = `${scene.visual.prompt ?? scene.visual.description}. Subtle, cinematic camera motion. ${direction.visualStyle.imageStylePrompt}`;
+  const req = { prompt, imageFile: dirOf(still.file), durationSeconds: clipSecondsFor(scene), aspectRatio: request.aspectRatio, resolution: "720p" as const };
+  const key = sha256(`${video.name}|${video.model}|${prompt}|${"cacheKey" in still ? still.cacheKey : still.id}|${req.durationSeconds}${ctx.variant ? `|${ctx.variant}` : ""}`);
+  const hit = cached(key, "mp4");
+  const file = nextVersionFile(projectId, scene.id, "clip", "mp4");
+  let usd = 0;
+  if (hit) {
+    fs.copyFileSync(hit, dirOf(file));
+    ctx.cost("video", video.name, `${scene.id} clip (cache hit)`, 0, true);
+  } else {
+    try {
+      const res = await video.generate(req);
+      putCache(key, "mp4", res.data);
+      fs.writeFileSync(dirOf(file), res.data);
+      usd = res.cost.actualUsd ?? res.cost.estimatedUsd;
+      ctx.cost("video", video.name, `${scene.id} ${tier} clip (${video.model})`, usd, false);
+    } catch (err) {
+      ctx.log("warn", `${scene.id}: video generation failed (${(err as Error).message}); using the animated still instead`);
+      return null;
+    }
+  }
+  return { kind: "generated_video", id: `${scene.id}-${path.basename(file)}`, sceneId: scene.id, file, createdAt: new Date().toISOString(), provider: video.name, model: video.model, prompt, sourceImageAssetId: still.id, costUsd: usd, cacheKey: key, durationSeconds: req.durationSeconds };
 };

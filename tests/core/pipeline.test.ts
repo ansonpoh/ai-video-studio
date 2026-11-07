@@ -18,7 +18,8 @@ const { createMockProviders, solidPng } = await import("../../src/providers/mock
 const { store, P } = await import("../../src/pipeline/store");
 const ops = await import("../../src/pipeline/operations");
 const { setAttr, findByName, readSceneSpans, syntaxErrors } = await import("../../src/editable/ast");
-const { BudgetApprovalRequired } = await import("../../src/pipeline/budget");
+const { BudgetApprovalRequired, ClipApprovalRequired } = await import("../../src/pipeline/budget");
+const { MockVideo } = await import("../../src/providers/mocks");
 const { MissingCredentialsError } = await import("../../src/providers/types");
 const { editableIsUserModified } = await import("../../src/pipeline/compose");
 
@@ -41,7 +42,7 @@ const fakeRenderer = {
   checkRender: async () => ({ ok: true, checks: [{ name: "fake", ok: true, severity: "error", detail: "" }] }),
 };
 
-const request = { prompt: "5 habits that make mornings easier, 30 seconds", music: "none", quality: "balanced" as const, visualMode: "ai_only" as const, budgetUsd: 5 };
+const request = { prompt: "5 habits that make mornings easier, 30 seconds", music: "none", quality: "balanced" as const, visualMode: "ai_only" as const, budgetUsd: 5, clipApproval: "approved" as const };
 
 describe("pipeline with mock providers", () => {
   const providers = createMockProviders();
@@ -175,5 +176,42 @@ describe("budget gate", () => {
     const r = await ops.resumeProject(id, { approveSpendUsd: 2, providers, skipExport: true }).catch((e) => e);
     // resume goes through the default renderer for procedural stills only when needed; mocks need none
     expect(r instanceof Error ? r.message : "ok").not.toMatch(/budget/i);
+  }, 60_000);
+});
+
+describe("hybrid preset: storyboard preview before clips", () => {
+  it("makes every still first, pauses before paying for clips, then animates the hook on approval", async () => {
+    const providers = { ...createMockProviders(), videoBackground: new MockVideo() };
+    const id = createProject({ ...request, prompt: "how volcanoes form, 30 seconds", quality: "hybrid", clipApproval: undefined });
+    expect(store.metadata(id).request.clipApproval).toBe("ask");
+    await expect(runPipeline(id, { providers, renderer: fakeRenderer, skipExport: true })).rejects.toBeInstanceOf(ClipApprovalRequired);
+
+    // nothing spent on clips, but every media scene already has its still to review
+    expect(providers.video.calls + providers.videoBackground.calls).toBe(0);
+    const assets = store.assets(id);
+    const sb = store.storyboard(id);
+    const media = assets.scenes.filter((e) => e.currentAssetId);
+    expect(media.length).toBeGreaterThan(0);
+    for (const e of media) expect(e.history.find((a) => a.id === e.currentAssetId)?.kind).toBe("generated_image");
+    const clipsStage = store.manifest(id).stages.find((s) => s.name === "clips")!;
+    expect(clipsStage.status).toBe("pending");
+    expect(store.metadata(id).status).toBe("draft");
+
+    await ops.resumeProject(id, { clips: "approve", providers, skipExport: true, renderer: fakeRenderer });
+    expect(providers.video.calls).toBeGreaterThan(0);
+    const hook = store.assets(id).scenes.find((e) => e.sceneId === sb.scenes[0].id)!;
+    expect(hook.history.find((a) => a.id === hook.currentAssetId)?.kind).toBe("generated_video");
+    expect(store.manifest(id).stages.find((s) => s.name === "clips")?.status).toBe("done");
+    expect(["ready", "needs-review"]).toContain(store.metadata(id).status);
+  }, 60_000);
+
+  it("skipping clips keeps the animated stills and never calls the video provider", async () => {
+    const providers = createMockProviders();
+    const id = createProject({ ...request, prompt: "why cats purr, 20 seconds", quality: "hybrid", clipApproval: undefined });
+    await expect(runPipeline(id, { providers, renderer: fakeRenderer, skipExport: true })).rejects.toBeInstanceOf(ClipApprovalRequired);
+    await ops.resumeProject(id, { clips: "skip", providers, skipExport: true, renderer: fakeRenderer });
+    expect(providers.video.calls).toBe(0);
+    expect(store.assets(id).scenes.every((e) => !e.currentAssetId || e.history.find((a) => a.id === e.currentAssetId)?.kind === "generated_image")).toBe(true);
+    expect(fs.readFileSync(P(id).editable, "utf8")).not.toContain('motion="static" motionStrength={0.1}');
   }, 60_000);
 });

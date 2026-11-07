@@ -73,7 +73,7 @@ export function Review({ id, initial, capabilities, captionStyles }: { id: strin
     const prev = lastJob.current;
     if (prev && prev.id === job.id && prev.status === "running" && job.status !== "running") {
       if (job.status === "done") say({ kind: "success", text: `${job.label}: done` });
-      else if (!job.budget) say({ kind: "error", text: `${job.label} failed: ${job.error ?? "see the job log"}` });
+      else if (!job.budget && !job.clipReview) say({ kind: "error", text: `${job.label} failed: ${job.error ?? "see the job log"}` });
     }
     lastJob.current = { id: job.id, status: job.status };
   }, [job, say]);
@@ -229,7 +229,35 @@ export function Review({ id, initial, capabilities, captionStyles }: { id: strin
           <BudgetApproval budget={job.budget} busy={locked} onApprove={approveJob} title={`${job.label} is waiting for your approval`} />
         </div>
       )}
-      {job?.status === "failed" && !job.budget && (
+      {job?.status === "failed" && job.clipReview && (
+        <div className="panel" style={{ marginBottom: 16 }}>
+          <div className="panel-head">
+            <h2>Storyboard ready: review the stills</h2>
+            <span className="hint">nothing has been spent on clips yet</span>
+          </div>
+          <p className="small muted" style={{ marginTop: 0 }}>
+            Every scene has its still below. {job.clipReview.count} scene{job.clipReview.count === 1 ? "" : "s"} will become real AI clips for about {usd(job.clipReview.estimateUsd)}; the rest keep their camera moves. Regenerate or replace any still first if it is off, because each clip starts from its still.
+          </p>
+          {job.clipReview.clips.length > 0 && (
+            <ul className="small" style={{ margin: "0 0 12px", paddingLeft: 18 }}>
+              {job.clipReview.clips.map((c) => (
+                <li key={c.sceneId}>
+                  <span className="mono">{c.sceneId}</span> · {c.tier === "hero" ? "key moment" : "background"} · <span className="mono">{c.model}</span> · {usd(c.estimatedUsd)}
+                </li>
+              ))}
+            </ul>
+          )}
+          <div className="row">
+            <button className="btn ok" disabled={locked} onClick={() => act("clips", `/api/projects/${id}/resume`, { clips: "approve" })}>
+              Approve clips ({usd(job.clipReview.estimateUsd)})
+            </button>
+            <button className="btn" disabled={locked} onClick={() => act("clips", `/api/projects/${id}/resume`, { clips: "skip" })}>
+              Skip clips, keep animated stills
+            </button>
+          </div>
+        </div>
+      )}
+      {job?.status === "failed" && !job.budget && !job.clipReview && (
         <div className="notice danger" style={{ marginBottom: 16 }}>
           <span>✗</span>
           <div className="grow">

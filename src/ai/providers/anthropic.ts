@@ -586,7 +586,7 @@ For each scene choose:
   Vary layouts: never use the same layout in two consecutive scenes, except consecutive listicle items in a listicle. The first scene should be visually striking; the last is usually outro.
 - visual.type (${list(SceneVisualType.options)}):
   - generated_image: write visual.prompt as an image-generation prompt: subject, setting, composition, lighting, mood, then the direction's imageStylePrompt verbatim, then "vertical portrait composition, subject centred with space for captions in the lower third, no text, no letters, no logos, no watermarks". Never depict a real, identifiable person.
-  - generated_video: as above, plus describe the motion in one clause; set visual.wantsMotionClip true only for the 1-2 scenes that benefit most from real motion.
+  - generated_video: as above, plus describe the motion in one clause; set visual.wantsMotionClip true only for the 2 scenes after the hook that benefit most from real motion (a reveal, an action, something physically moving). The first scene is animated automatically. Every other image scene gets a camera move over its still, so write those prompts as strong, well-composed single frames.
   - stock_image / stock_video: set visual.stockQuery to 2-5 concrete, searchable words ("ocean waves aerial", not "the feeling of freedom").
   - motion_graphics / diagram: set visual.art to the best procedural art below. Use diagram for mechanisms and processes, motion_graphics for abstract mood. animated_text for typography-only scenes.
 - visual.description: a plain one-sentence description of what is on screen (used for search ranking and accessibility). Always required.

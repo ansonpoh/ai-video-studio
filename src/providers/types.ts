@@ -102,6 +102,8 @@ export type Providers = {
   llm: LlmProvider;
   images: ImageProvider | null;
   video: VideoProvider | null;
+  /** Cheaper clip model for background shots (hybrid preset). Optional: null/absent = animated stills. */
+  videoBackground?: VideoProvider | null;
   stock: StockProvider | null;
   tts: TtsProvider;
   sfx: SfxProvider | null;

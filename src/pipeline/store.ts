@@ -74,6 +74,18 @@ export const exists = (f: string) => fs.existsSync(f);
 
 export const sha256 = (data: string | Buffer) => crypto.createHash("sha256").update(data).digest("hex");
 
+/** Projects made before a stage existed get it added (pending, or done when later stages already ran). */
+const withAllStages = (m: PipelineManifest): PipelineManifest => {
+  if (STAGES.every((n) => m.stages.some((s) => s.name === n))) return m;
+  const stages = STAGES.map((name, i) => {
+    const have = m.stages.find((s) => s.name === name);
+    if (have) return have;
+    const laterRan = STAGES.slice(i + 1).some((n) => m.stages.find((s) => s.name === n && s.status === "done"));
+    return { name, status: laterRan ? ("done" as const) : ("pending" as const), attempts: 0, note: laterRan ? "added after this project ran" : undefined };
+  });
+  return { ...m, stages };
+};
+
 export const emptyManifest = (): PipelineManifest => ({
   stages: STAGES.map((name) => ({ name, status: "pending", attempts: 0 })),
   costs: [],
@@ -101,7 +113,7 @@ export const store = {
   saveEdits: (id: string, e: ProjectEdits) => writeJsonAtomic(P(id).edits, e),
   assets: (id: string) => (exists(P(id).assets) ? readJson(P(id).assets, AssetManifest) : AssetManifest.parse({ scenes: [] })),
   saveAssets: (id: string, a: AssetManifest) => writeJsonAtomic(P(id).assets, a),
-  manifest: (id: string) => (exists(P(id).manifest) ? readJson(P(id).manifest, PipelineManifest) : emptyManifest()),
+  manifest: (id: string) => (exists(P(id).manifest) ? withAllStages(readJson(P(id).manifest, PipelineManifest)) : emptyManifest()),
   saveManifest: (id: string, m: PipelineManifest) => writeJsonAtomic(P(id).manifest, m),
   list(): ProjectMetadata[] {
     const dir = projectsDir();
