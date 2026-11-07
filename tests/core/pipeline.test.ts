@@ -19,9 +19,11 @@ const { store, P } = await import("../../src/pipeline/store");
 const ops = await import("../../src/pipeline/operations");
 const { setAttr, findByName, readSceneSpans, syntaxErrors } = await import("../../src/editable/ast");
 const { BudgetApprovalRequired, ClipApprovalRequired } = await import("../../src/pipeline/budget");
-const { MockVideo } = await import("../../src/providers/mocks");
+const { MockTts, MockVideo } = await import("../../src/providers/mocks");
 const { MissingCredentialsError } = await import("../../src/providers/types");
 const { editableIsUserModified } = await import("../../src/pipeline/compose");
+
+type SpeechRequest = import("../../src/providers/types").SpeechRequest;
 
 const fakeRenderer = {
   renderProceduralStill: async (_p: unknown, out: string) => {
@@ -213,5 +215,33 @@ describe("hybrid preset: storyboard preview before clips", () => {
     expect(providers.video.calls).toBe(0);
     expect(store.assets(id).scenes.every((e) => !e.currentAssetId || e.history.find((a) => a.id === e.currentAssetId)?.kind === "generated_image")).toBe(true);
     expect(fs.readFileSync(P(id).editable, "utf8")).not.toContain('motion="static" motionStrength={0.1}');
+  }, 60_000);
+});
+
+describe("narration running out of credits", () => {
+  it("re-voices the whole video with the fallback, so it keeps one voice", async () => {
+    const { FallbackTts } = await import("../../src/audio/fallback");
+    const { OutOfCreditsError } = await import("../../src/audio/elevenlabs");
+    class PrimaryTts extends MockTts {
+      override readonly name = "paid-tts";
+      remainingCharacters = async () => null;
+      override async synthesize(req: SpeechRequest) {
+        if (this.calls >= 2) throw new OutOfCreditsError("paid-tts", "no credits", false, 401);
+        return super.synthesize(req);
+      }
+    }
+    class FreeTts extends MockTts {
+      override readonly name = "free-tts";
+    }
+    const primary = new PrimaryTts();
+    const free = new FreeTts();
+    const providers = { ...createMockProviders(), tts: new FallbackTts(primary, free) };
+    const id = createProject({ ...request, prompt: "5 habits for better sleep, 30 seconds" }, { providers: { llm: "mock" } });
+    await runPipeline(id, { providers, renderer: fakeRenderer, skipExport: true });
+    const { narration } = store.assets(id);
+    expect(primary.calls).toBe(2);
+    expect(narration.length).toBeGreaterThan(2);
+    expect(new Set(narration.map((n) => n.provider))).toEqual(new Set(["free-tts"]));
+    expect(free.calls).toBe(narration.length);
   }, 60_000);
 });

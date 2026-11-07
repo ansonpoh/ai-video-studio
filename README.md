@@ -39,10 +39,10 @@ Copy `.env.example` to `.env`. Every key is optional; each one switches on a cap
 | Key | Enables | Without it |
 |---|---|---|
 | `ANTHROPIC_API_KEY` | Creative direction, script, storyboard and scene rewrites from any prompt | Only the demos (or `--llm mock`) work |
-| `ELEVENLABS_API_KEY` | Narration with word-level timing; generated sound effects | Silent narration with estimated caption timing; procedural sound effects |
+| `ELEVENLABS_API_KEY` | Narration with word-level timing, switching to free Edge TTS when credits run out; generated sound effects | Silent narration with estimated caption timing; procedural sound effects |
 | `OPENAI_API_KEY` | Generated images (`OPENAI_IMAGE_MODEL`, default `gpt-image-2`) | Procedural artwork and motion graphics |
 | `PEXELS_API_KEY` | Licensed stock photos and clips, with credits written to `credits.txt` | No stock media |
-| `VIDEO_PROVIDER_API_KEY` / `FAL_KEY` | Image-to-video clips via fal.ai (`VIDEO_MODEL`, plus the optional cheaper `VIDEO_BACKGROUND_MODEL`) | Still images with camera motion |
+| `VIDEO_PROVIDER_API_KEY` / `FAL_KEY` | Image-to-video clips via fal.ai (`VIDEO_MODEL`, plus the optional cheaper `VIDEO_BACKGROUND_MODEL`) and budget stills (`IMAGE_BUDGET_MODEL`) | Still images with camera motion |
 
 An Anthropic API key is billed separately from a Claude subscription.
 
@@ -60,7 +60,7 @@ npm run make -- -p "Explain black holes" --llm mock        # fully offline test 
 ```
 
 Useful options:
-- `--duration`, `--aspect` (9:16, 16:9, 1:1, 4:5), `--style` and `--quality` (economy, hybrid (default), balanced or premium).
+- `--duration`, `--aspect` (9:16, 16:9, 1:1, 4:5), `--style` and `--quality` (economy, hybrid (default), balanced, premium or explainer).
 - `--clips approve|skip` decides the AI clips up front; by default the run stops after the stills so you can review them (see below).
 - `--visual-mode` (auto, ai_only, stock_preferred or procedural_only) and `--captions <style>` (or `--no-captions`).
 - `--no-narration`, `--voice <elevenlabs voice id>`, `--music <file|auto|none>` and `--sfx`.
@@ -146,6 +146,10 @@ Before anything is generated, the pipeline plans every asset and estimates the s
 Clips are the expensive part, so the pipeline makes every still first and then pauses (stage `clips`, project status "draft"). The review page shows the stills and which scenes will become clips, with the estimate. Fix or regenerate any still you don't like (each clip starts from its still), then press **Approve clips** or **Skip clips, keep animated stills**. From the CLI: `npm run cli -- resume --id <id> --clips approve` (or `skip`).
 
 A one-minute hybrid video is about 12 stills at $0.06 and 3 Kling 2.5 Turbo clips of 5 s at $0.07/s, roughly $1.80 before narration. Clips run three at a time.
+
+The explainer preset uses Z-Image Turbo stills at about $0.007 each in one locked dark look, with no clips, automatic music or sound effects. It defaults to 16:9 without captions.
+
+ElevenLabs narration checks the remaining credits first. If the script won't fit, the whole video uses Edge TTS (`EDGE_TTS_VOICE`), so it keeps one voice. Edge TTS is an unofficial free endpoint: use Azure Speech instead for commercial work.
 
 Background clip models checked on fal (Nov 2026 list prices; set `VIDEO_BACKGROUND_MODEL` and `PRICE_VIDEO_BACKGROUND_PER_SECOND`):
 

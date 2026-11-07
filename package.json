@@ -44,6 +44,7 @@
     "@remotion/zod-types": "^4.0.541",
     "commander": "^15.0.0",
     "dotenv": "^18.0.9",
+    "msedge-tts": "^2.1.1",
     "nanoid": "^6.0.2",
     "next": "^16.4.5",
     "openai": "^7.51.0",

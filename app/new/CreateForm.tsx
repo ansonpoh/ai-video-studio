@@ -13,6 +13,7 @@ const QUALITY_TEXT: Record<string, string> = {
   hybrid: "Recommended. AI stills with camera moves on most scenes, real AI clips for the hook and 2 key moments. You review the stills before paying for clips.",
   balanced: "Medium-quality images, up to 2 AI video clips, sound effects.",
   premium: "High-quality images on every scene, up to 5 AI video clips, sound effects.",
+  explainer: "Very cheap AI stills in one dark glass look, no clips, music or captions. Landscape, like a presentation.",
 };
 
 const MODE_TEXT: Record<string, string> = {
@@ -67,6 +68,16 @@ export function CreateForm({ options, capabilities, music, presets, prices }: Pr
 
   const live = (prefix: string) => !offline && Boolean(cap(prefix)?.available);
 
+  const choosePreset = (q: string) => {
+    setQuality(q);
+    if (q === "explainer") {
+      setAspect("16:9");
+      setCaptions(false);
+      setSfx(false);
+      setMusicChoice("none");
+    }
+  };
+
   /** Rough guide only; the pipeline computes the real estimate after the storyboard and asks for approval if it exceeds the budget. */
   const estimate = useMemo(() => {
     const rules = presets[quality as keyof typeof presets];
@@ -75,7 +86,8 @@ export function CreateForm({ options, capabilities, music, presets, prices }: Pr
     if (llm === "anthropic" && !offline && hasLlm) lines.push({ what: "Script & storyboard", usd: prices.llmRun });
     if (live("AI images") && visualMode !== "procedural_only" && visualMode !== "stock_preferred") {
       const n = Math.round(scenes * rules.generatedImageShare);
-      lines.push({ what: `~${n} images (${rules.imageQuality})`, usd: n * prices.image[rules.imageQuality] });
+      if ("budgetImages" in rules && rules.budgetImages) lines.push({ what: `~${n} images (budget)`, usd: n * prices.budgetImage });
+      else lines.push({ what: `~${n} images (${rules.imageQuality})`, usd: n * prices.image[rules.imageQuality] });
     }
     if (live("AI video") && visualMode !== "procedural_only" && rules.maxVideoClips > 0) {
       const n = Math.min(rules.maxVideoClips, scenes);
@@ -265,7 +277,7 @@ export function CreateForm({ options, capabilities, music, presets, prices }: Pr
               <span className="field-label">Quality preset</span>
               <div className="preset-cards">
                 {options.qualities.map((q) => (
-                  <button key={q} type="button" className={`preset${quality === q ? " on" : ""}`} onClick={() => setQuality(q)}>
+                  <button key={q} type="button" className={`preset${quality === q ? " on" : ""}`} onClick={() => choosePreset(q)}>
                     <b>{q}</b>
                     <span>{QUALITY_TEXT[q]}</span>
                   </button>

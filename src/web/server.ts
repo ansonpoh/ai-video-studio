@@ -135,6 +135,8 @@ const prices = () => {
     defaultBudgetUsd: e.MAX_GENERATION_BUDGET_USD,
     llmRun: 0.15,
     image: { low: e.PRICE_IMAGE_LOW, medium: e.PRICE_IMAGE_MEDIUM, high: e.PRICE_IMAGE_HIGH },
+    /** One 16:9 still (1536x864) on the budget image model. */
+    budgetImage: 1.327 * e.PRICE_IMAGE_BUDGET_PER_MP,
     videoPerSecond: e.PRICE_VIDEO_PER_SECOND,
     /** null when no cheap background model is configured (those scenes stay animated stills). */
     backgroundVideoPerSecond: e.VIDEO_BACKGROUND_MODEL ? e.PRICE_VIDEO_BACKGROUND_PER_SECOND : null,

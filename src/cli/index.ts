@@ -56,7 +56,7 @@ program
   .option("-d, --duration <seconds>", "target duration", (v) => Number(v))
   .option("-s, --style <style>", "auto | cinematic | educational | bold-modern | minimal | documentary | playful | luxury | retro | tech")
   .option("-a, --aspect <ratio>", "9:16 | 16:9 | 1:1 | 4:5")
-  .option("-q, --quality <preset>", "economy | hybrid | balanced | premium (default hybrid)")
+  .option("-q, --quality <preset>", "economy | hybrid | balanced | premium | explainer (default hybrid)")
   .option("--clips <choice>", "ask (default: stop after the storyboard stills) | approve | skip")
   .option("--visual-mode <mode>", "auto | ai_only | stock_preferred | procedural_only")
   .option("--captions <style>", "auto | minimal | bold | word-highlight | karaoke | cinematic")
@@ -80,11 +80,12 @@ program
           prompt: o.prompt,
           durationSeconds: o.duration,
           style: o.style,
-          aspectRatio: o.aspect,
+          // Explainers default to landscape without captions, like a presentation.
+          aspectRatio: o.aspect ?? (o.quality === "explainer" ? "16:9" : undefined),
           quality: o.quality,
           visualMode: o.visualMode,
           captionStyle: typeof o.captions === "string" ? o.captions : undefined,
-          captions: o.captions !== false,
+          captions: o.captions !== false && (o.quality !== "explainer" || typeof o.captions === "string"),
           narration: o.narration !== false,
           voiceId: o.voice,
           music: o.music,

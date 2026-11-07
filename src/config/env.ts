@@ -17,10 +17,14 @@ export const EnvSchema = z.object({
   OPENAI_API_KEY: str(),
   OPENAI_IMAGE_MODEL: str("gpt-image-2"),
   OPENAI_IMAGE_QUALITY: str("medium"),
+  /** fal model for budget stills (explainer preset, or any preset without an OpenAI key). */
+  IMAGE_BUDGET_MODEL: str("fal-ai/z-image/turbo"),
 
   ELEVENLABS_API_KEY: str(),
   ELEVENLABS_VOICE_ID: str("JBFqnCBsd6RMkjVDRZzb"),
   ELEVENLABS_MODEL: str("eleven_multilingual_v2"),
+  /** Free Microsoft Edge voice used when ElevenLabs credits run out. */
+  EDGE_TTS_VOICE: str("en-US-AndrewMultilingualNeural"),
 
   PEXELS_API_KEY: str(),
 
@@ -41,6 +45,7 @@ export const EnvSchema = z.object({
   PRICE_IMAGE_LOW: num(0.02),
   PRICE_IMAGE_MEDIUM: num(0.06),
   PRICE_IMAGE_HIGH: num(0.2),
+  PRICE_IMAGE_BUDGET_PER_MP: num(0.005),
   PRICE_VIDEO_PER_SECOND: num(0.07),
   PRICE_VIDEO_BACKGROUND_PER_SECOND: num(0.04),
   PRICE_TTS_PER_1K_CHARS: num(0.2),
@@ -54,15 +59,17 @@ export type Env = z.infer<typeof EnvSchema>;
 export const env = (): Env => EnvSchema.parse(process.env);
 
 export const videoKey = (e = env()) => e.VIDEO_PROVIDER_API_KEY ?? e.FAL_KEY;
+/** The fal key for budget images; VIDEO_PROVIDER_API_KEY only counts when it belongs to fal. */
+export const falImageKey = (e = env()) => e.FAL_KEY ?? ((e.VIDEO_PROVIDER ?? "fal") === "fal" ? e.VIDEO_PROVIDER_API_KEY : undefined);
 
 export type Capability = { name: string; available: boolean; provider: string; detail: string; envVars: string[] };
 
 export const capabilities = (e = env()): Capability[] => [
   { name: "Script & storyboard (Claude)", available: Boolean(e.ANTHROPIC_API_KEY), provider: `anthropic:${e.ANTHROPIC_MODEL}`, detail: e.ANTHROPIC_API_KEY ? "Live creative direction, script and storyboard" : "Missing key: arbitrary prompts are unavailable; the offline demo still works", envVars: ["ANTHROPIC_API_KEY"] },
-  { name: "AI images", available: Boolean(e.OPENAI_API_KEY), provider: `openai:${e.OPENAI_IMAGE_MODEL}`, detail: e.OPENAI_API_KEY ? "Generated scene imagery" : "Falls back to procedural motion graphics", envVars: ["OPENAI_API_KEY"] },
+  { name: "AI images", available: Boolean(e.OPENAI_API_KEY || falImageKey(e)), provider: e.OPENAI_API_KEY ? `openai:${e.OPENAI_IMAGE_MODEL}` : `fal:${e.IMAGE_BUDGET_MODEL}`, detail: e.OPENAI_API_KEY || falImageKey(e) ? `Generated scene imagery${falImageKey(e) ? `; explainer preset uses ${e.IMAGE_BUDGET_MODEL}` : ""}` : "Falls back to procedural motion graphics", envVars: ["OPENAI_API_KEY", "FAL_KEY"] },
   { name: "AI video clips", available: Boolean(videoKey(e)), provider: `${e.VIDEO_PROVIDER}:${e.VIDEO_MODEL}`, detail: videoKey(e) ? `Image-to-video clips for the hook and key moments${e.VIDEO_BACKGROUND_MODEL ? `; background shots on ${e.VIDEO_BACKGROUND_MODEL}` : ""}` : "Animated stills are used instead", envVars: ["VIDEO_PROVIDER_API_KEY", "FAL_KEY"] },
   { name: "Stock media (Pexels)", available: Boolean(e.PEXELS_API_KEY), provider: "pexels", detail: e.PEXELS_API_KEY ? "Licensed stock photos and clips with attribution" : "Stock search disabled", envVars: ["PEXELS_API_KEY"] },
-  { name: "Narration (ElevenLabs)", available: Boolean(e.ELEVENLABS_API_KEY), provider: `elevenlabs:${e.ELEVENLABS_MODEL}`, detail: e.ELEVENLABS_API_KEY ? "Voice with word-level timing for captions" : "Silent mode with estimated caption timing (clearly labelled)", envVars: ["ELEVENLABS_API_KEY", "ELEVENLABS_VOICE_ID"] },
+  { name: "Narration (ElevenLabs)", available: Boolean(e.ELEVENLABS_API_KEY), provider: `elevenlabs:${e.ELEVENLABS_MODEL}`, detail: e.ELEVENLABS_API_KEY ? `Voice with word-level timing for captions; switches to free Edge TTS (${e.EDGE_TTS_VOICE}) when credits run out` : "Silent mode with estimated caption timing (clearly labelled)", envVars: ["ELEVENLABS_API_KEY", "ELEVENLABS_VOICE_ID"] },
   { name: "Sound effects (ElevenLabs)", available: Boolean(e.ELEVENLABS_API_KEY), provider: "elevenlabs:sound-generation", detail: e.ELEVENLABS_API_KEY ? "Optional generated sound effects" : "No sound effects", envVars: ["ELEVENLABS_API_KEY"] },
 ];
 

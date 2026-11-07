@@ -10,8 +10,9 @@ export type AspectRatio = z.infer<typeof AspectRatio>;
  *   only for the hook and 2 key moments, plus cheap clips for a couple of
  *   background shots when VIDEO_BACKGROUND_MODEL is set.
  * - balanced / premium: earlier presets with up to 2 / 5 premium clips.
+ * - explainer: budget AI stills in one locked look, no clips, no automatic music or sound effects.
  */
-export const QualityPreset = z.enum(["economy", "hybrid", "balanced", "premium"]);
+export const QualityPreset = z.enum(["economy", "hybrid", "balanced", "premium", "explainer"]);
 export type QualityPreset = z.infer<typeof QualityPreset>;
 
 export const CaptionStyleName = z.enum([

@@ -86,9 +86,11 @@ export interface StockProvider {
 export type SpeechRequest = { text: string; voiceId?: string; previousText?: string; nextText?: string; language?: string; style?: string };
 export type SpeechResult = { audio: Buffer | null; extension: "mp3" | "wav"; durationSeconds: number; words: Word[]; timing: "tts-alignment" | "estimated"; voiceId?: string; cost: CostReport };
 export interface TtsProvider {
-  readonly name: string; // "elevenlabs" | "silent"
+  readonly name: string; // "elevenlabs" | "edge" | "silent"; may change during a run when a fallback takes over
   readonly real: boolean;
   estimateUsd(text: string): number;
+  /** Optional: called before a run with its total characters. Returns a note when the provider changes its plan. */
+  prepare?(totalChars: number): Promise<string | null>;
   synthesize(req: SpeechRequest): Promise<SpeechResult>;
 }
 
@@ -101,6 +103,8 @@ export interface SfxProvider {
 export type Providers = {
   llm: LlmProvider;
   images: ImageProvider | null;
+  /** Cheap stills for presets with budgetImages. Optional: null/absent = use `images`. */
+  imagesBudget?: ImageProvider | null;
   video: VideoProvider | null;
   /** Cheaper clip model for background shots (hybrid preset). Optional: null/absent = animated stills. */
   videoBackground?: VideoProvider | null;

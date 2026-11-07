@@ -60,6 +60,17 @@ export const pickClipScenes = (scenes: Scene[], request: VideoRequest, providers
 
 const portrait = (req: VideoRequest) => (req.aspectRatio === "9:16" || req.aspectRatio === "4:5" ? "portrait" : req.aspectRatio === "1:1" ? "square" : "landscape");
 
+/** The image model for this request: budget stills when the preset asks for them and one is configured. */
+export const imageProviderFor = (providers: Providers, request: VideoRequest) => (PRESETS[request.quality].budgetImages && providers.imagesBudget) || providers.images;
+
+/** Generation size matching the video's orientation. */
+export const imageSizeFor = (request: VideoRequest) => {
+  const o = portrait(request);
+  return o === "landscape" ? { width: 1536, height: 864 } : o === "square" ? { width: 1024, height: 1024 } : { width: 1024, height: 1536 };
+};
+
+const COMPOSITION = { portrait: "vertical composition", landscape: "wide landscape composition", square: "square composition" };
+
 export class AiOnlyUnavailable extends Error {
   constructor(sceneId: string) {
     super(`Scene ${sceneId}: "AI-only" visuals were requested but no image generation provider is configured (set OPENAI_API_KEY), so stock media will not be substituted. Use the offline demo or switch visual mode.`);
@@ -89,8 +100,9 @@ export const planAssets = (opts: {
       continue;
     }
     const t = s.visual.type;
-    const imgReq = { prompt: s.visual.prompt ?? s.visual.description, width: 1024, height: 1536, quality: rules.imageQuality };
-    const imageCost = providers.images ? providers.images.estimateUsd(imgReq) : 0;
+    const imgReq = { prompt: s.visual.prompt ?? s.visual.description, ...imageSizeFor(request), quality: rules.imageQuality };
+    const imageModel = imageProviderFor(providers, request);
+    const imageCost = imageModel ? imageModel.estimateUsd(imgReq) : 0;
     if (LIVE_TYPES.includes(t) || s.layout === "diagram") {
       plans.push({ sceneId: s.id, source: "live-art", reason: "programmatic motion graphics", estimatedUsd: 0 });
       continue;
@@ -126,12 +138,12 @@ export const planAssets = (opts: {
   return plans;
 };
 
-export const plannedCosts = (plans: AssetPlan[], providers: Providers): PlannedCost[] =>
+export const plannedCosts = (plans: AssetPlan[], providers: Providers, request: VideoRequest): PlannedCost[] =>
   plans
     .filter((p) => p.estimatedUsd > 0)
     .map((p) => ({
       category: p.source === "ai-video" ? "video" : "image",
-      provider: p.source === "ai-video" ? `${clipProviderFor(providers, p.clipTier ?? "hero")?.model}` : `${providers.images?.name}`,
+      provider: p.source === "ai-video" ? `${clipProviderFor(providers, p.clipTier ?? "hero")?.model}` : `${imageProviderFor(providers, request)?.name}`,
       description: `${p.sceneId}: ${p.source === "ai-video" ? `still + ${p.clipTier ?? "hero"} clip` : p.source}`,
       estimatedUsd: p.estimatedUsd,
     }));
@@ -182,8 +194,8 @@ export type ResolveContext = {
   variant?: string;
 };
 
-const stylePrompt = (s: Scene, d: CreativeDirection, override?: string) =>
-  [s.visual.prompt ?? s.visual.description, override ?? d.visualStyle.imageStylePrompt, "vertical composition, cinematic lighting, no text, no letters, no logos, no watermarks"].filter(Boolean).join(". ");
+const stylePrompt = (s: Scene, d: CreativeDirection, request: VideoRequest, override?: string) =>
+  [s.visual.prompt ?? s.visual.description, override ?? d.visualStyle.imageStylePrompt, `${COMPOSITION[portrait(request)]}, cinematic lighting, no text, no letters, no logos, no watermarks`].filter(Boolean).join(". ");
 
 /** Produces the asset for one scene according to its plan; returns the new Asset or null for live art. */
 export const resolveSceneAsset = async (ctx: ResolveContext, scene: Scene, plan: AssetPlan, index: number, styleOverride?: string): Promise<Asset | null> => {
@@ -193,30 +205,31 @@ export const resolveSceneAsset = async (ctx: ResolveContext, scene: Scene, plan:
   const dirOf = (rel: string) => path.join(P(projectId).dir, rel);
 
   const makeImage = async (): Promise<Asset> => {
-    if (!providers.images) throw new Error("no image provider");
-    const prompt = stylePrompt(scene, direction, styleOverride);
-    const req = { prompt, width: 1024, height: portrait(request) === "landscape" ? 1024 : 1536, quality: rules.imageQuality };
-    const key = sha256(`${providers.images.name}|${providers.images.model}|${prompt}|${req.width}x${req.height}|${req.quality}${ctx.variant ? `|${ctx.variant}` : ""}`);
+    const images = imageProviderFor(providers, request);
+    if (!images) throw new Error("no image provider");
+    const prompt = stylePrompt(scene, direction, request, styleOverride);
+    const req = { prompt, ...imageSizeFor(request), quality: rules.imageQuality };
+    const key = sha256(`${images.name}|${images.model}|${prompt}|${req.width}x${req.height}|${req.quality}${ctx.variant ? `|${ctx.variant}` : ""}`);
     let file: string;
     let usd = 0;
-    let model = providers.images.model;
+    let model = images.model;
     let revised: string | undefined;
     const hit = cached(key, "png") ?? cached(key, "jpg") ?? cached(key, "webp");
     if (hit) {
       file = nextVersionFile(projectId, scene.id, "img", path.extname(hit).slice(1));
       fs.copyFileSync(hit, dirOf(file));
-      ctx.cost("image", providers.images.name, `${scene.id} image (cache hit)`, 0, true);
+      ctx.cost("image", images.name, `${scene.id} image (cache hit)`, 0, true);
     } else {
-      const res = await providers.images.generate(req);
+      const res = await images.generate(req);
       putCache(key, res.extension, res.data);
       file = nextVersionFile(projectId, scene.id, "img", res.extension);
       fs.writeFileSync(dirOf(file), res.data);
       usd = res.cost.actualUsd ?? res.cost.estimatedUsd;
       model = res.model;
       revised = res.revisedPrompt;
-      ctx.cost("image", providers.images.name, `${scene.id} image`, usd, false);
+      ctx.cost("image", images.name, `${scene.id} image`, usd, false);
     }
-    return { kind: "generated_image", id: `${scene.id}-${path.basename(file)}`, sceneId: scene.id, file, createdAt: now, provider: providers.images.name, model, prompt, revisedPrompt: revised, costUsd: usd, cacheKey: key, width: req.width, height: req.height };
+    return { kind: "generated_image", id: `${scene.id}-${path.basename(file)}`, sceneId: scene.id, file, createdAt: now, provider: images.name, model, prompt, revisedPrompt: revised, costUsd: usd, cacheKey: key, width: req.width, height: req.height };
   };
 
   switch (plan.source) {

@@ -11,6 +11,7 @@ import { STAGES, type ProjectMetadata, type StageName, type PipelineManifest } f
 import type { Providers, PromptHints, Script } from "../providers/types";
 import { ProviderError } from "../providers/types";
 import { P, newProjectId, store, writeJsonAtomic } from "./store";
+import { applyPresetLook } from "./explainer";
 import { enforceBudget, recordCost, budgetFor, PRESETS, ClipApprovalRequired, type PlannedCost } from "./budget";
 import { planAssets, plannedCosts, resolveSceneAsset, sceneEntry, makeClip, clipProviderFor, type AssetPlan } from "./assets";
 import { synthesizeScene, upsertNarration, buildContinuousNarration } from "./narration";
@@ -234,8 +235,8 @@ const STAGE_IMPL: Record<StageName, (ctx: Ctx) => Promise<StageResult>> = {
       enforceBudget(meta.request, ctx.manifest, [{ category: "llm", provider: llm.name, description: "direction + script + storyboard", estimatedUsd: 0.15 }]);
       const res = await llm.direction(meta.request, hints);
       recordCost(ctx.manifest, { category: "llm", provider: llm.name, description: "creative direction", estimatedUsd: res.cost.estimatedUsd, actualUsd: res.cost.actualUsd });
-      direction = res.direction;
       // user choices from the form override the director
+      direction = applyPresetLook(res.direction, meta.request);
       if (meta.request.captionStyle !== "auto") direction.captionStyle = meta.request.captionStyle;
     }
     meta.direction = direction;
@@ -317,7 +318,7 @@ const STAGE_IMPL: Record<StageName, (ctx: Ctx) => Promise<StageResult>> = {
     const meta = store.metadata(ctx.id);
     const scenes = effectiveScenes(store.storyboard(ctx.id), store.edits(ctx.id));
     const plans = planAssets({ scenes, request: meta.request, providers: ctx.opts.providers, manifest: store.assets(ctx.id), offlineDemo: Boolean(ctx.opts.offlineDemo) });
-    const planned: PlannedCost[] = plannedCosts(plans, ctx.opts.providers);
+    const planned: PlannedCost[] = plannedCosts(plans, ctx.opts.providers, meta.request);
     const narrationChars = scenes.reduce((a, s) => a + s.narration.length, 0);
     if (meta.request.narration && ctx.opts.providers.tts.real && !ctx.opts.offlineDemo)
       planned.push({ category: "voice", provider: ctx.opts.providers.tts.name, description: `${narrationChars} characters`, estimatedUsd: ctx.opts.providers.tts.estimateUsd(scenes.map((s) => s.narration).join(" ")) });
@@ -447,23 +448,34 @@ const STAGE_IMPL: Record<StageName, (ctx: Ctx) => Promise<StageResult>> = {
     const manifest = store.assets(ctx.id);
     const tts = meta.request.narration && !ctx.opts.offlineDemo ? ctx.opts.providers.tts : (await import("../audio/silent")).silentTts;
     const voiceId = store.edits(ctx.id).voiceId ?? meta.request.voiceId;
-    for (const [i, s] of scenes.entries()) {
+    const done = (s: (typeof scenes)[number]) => {
       const existing = manifest.narration.find((n) => n.sceneId === s.id);
-      if (existing && existing.text === s.narration.trim() && (existing.file || !tts.real) && existing.provider === tts.name) continue;
-      ctx.emit({ stage: "narration", status: "progress", progress: i / scenes.length, message: s.id });
-      const seg = await synthesizeScene({
-        projectId: ctx.id,
-        tts,
-        scene: s,
-        prev: scenes[i - 1],
-        next: scenes[i + 1],
-        voiceId,
-        language: meta.request.language,
-        style: meta.direction?.narrationStyle,
-        onCost: (usd, cached, description) => recordCost(ctx.manifest, { category: "voice", provider: tts.name, description, estimatedUsd: usd, cached }),
-      });
-      upsertNarration(manifest, seg);
-      store.saveAssets(ctx.id, manifest);
+      return Boolean(existing && existing.text === s.narration.trim() && (existing.file || !tts.real) && existing.provider === tts.name);
+    };
+    const note = await tts.prepare?.(scenes.filter((s) => !done(s)).reduce((a, s) => a + s.narration.trim().length, 0));
+    if (note) ctx.log("warn", "narration", note);
+    // A second pass only runs when the provider changed partway, so the video keeps one voice.
+    for (let pass = 0; pass < 2; pass++) {
+      const startedOn = tts.name;
+      for (const [i, s] of scenes.entries()) {
+        if (done(s)) continue;
+        ctx.emit({ stage: "narration", status: "progress", progress: i / scenes.length, message: s.id });
+        const seg = await synthesizeScene({
+          projectId: ctx.id,
+          tts,
+          scene: s,
+          prev: scenes[i - 1],
+          next: scenes[i + 1],
+          voiceId,
+          language: meta.request.language,
+          style: meta.direction?.narrationStyle,
+          onCost: (usd, cached, description) => recordCost(ctx.manifest, { category: "voice", provider: tts.name, description, estimatedUsd: usd, cached }),
+        });
+        upsertNarration(manifest, seg);
+        store.saveAssets(ctx.id, manifest);
+      }
+      if (tts.name === startedOn) break;
+      ctx.log("warn", "narration", `${startedOn} ran out of credits partway; re-voicing every scene with ${tts.name}`);
     }
     meta.disclosure.containsAiVoice = manifest.narration.some((n) => n.file);
     store.saveMetadata(meta);

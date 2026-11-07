@@ -32,15 +32,25 @@ export const alignmentEndSeconds = (r: Pick<TimestampsResponse, "alignment" | "n
   return ends.length ? ends[ends.length - 1] : 0;
 };
 
+/** The account can't pay for this request (distinct from a bad key or an outage). */
+export class OutOfCreditsError extends ProviderError {}
+
+/** ElevenLabs statuses meaning the plan has no usable credits (free accounts can also be blocked outright). */
+const NO_CREDIT_STATUSES = ["quota_exceeded", "detected_unusual_activity"];
+
 const httpError = async (provider: string, res: Response): Promise<ProviderError> => {
   const body = await res.text().catch(() => "");
   let detail = body.slice(0, 300);
+  let status: string | undefined;
   try {
     const j = JSON.parse(body) as { detail?: { message?: string; status?: string } | string };
     detail = typeof j.detail === "string" ? j.detail : (j.detail?.message ?? detail);
+    status = typeof j.detail === "string" ? undefined : j.detail?.status;
   } catch {
     /* not json */
   }
+  // paid_plan_required means this voice needs a paid plan, which a different provider wouldn't really fix.
+  if ((res.status === 402 && status !== "paid_plan_required") || (status && NO_CREDIT_STATUSES.includes(status))) return new OutOfCreditsError(provider, `out of credits: ${detail}`, false, res.status);
   const msg = res.status === 401 ? "authentication failed - check ELEVENLABS_API_KEY" : `HTTP ${res.status}: ${detail}`;
   return new ProviderError(provider, msg, res.status === 429 || res.status >= 500, res.status);
 };
@@ -57,7 +67,7 @@ const post = async (provider: string, url: string, key: string, body: unknown, f
 };
 
 /** Measures an mp3 buffer with ffprobe via a temp file. Returns 0 on failure. */
-const measureMp3 = async (audio: Buffer): Promise<number> => {
+export const measureMp3 = async (audio: Buffer): Promise<number> => {
   const file = path.join(os.tmpdir(), `ai-video-studio-tts-${randomUUID()}.mp3`);
   try {
     await fs.writeFile(file, audio);
@@ -94,6 +104,18 @@ export class ElevenLabsTts implements TtsProvider {
 
   estimateUsd(text: string) {
     return (text.length / 1000) * this.pricePer1k;
+  }
+
+  /** Characters left this billing period, or null when the balance can't be read (e.g. a restricted key). */
+  async remainingCharacters(): Promise<number | null> {
+    try {
+      const res = await this.fetchImpl(`${API}/user/subscription`, { headers: { "xi-api-key": this.key } });
+      if (!res.ok) return null;
+      const j = (await res.json()) as { character_count?: number; character_limit?: number };
+      return typeof j.character_count === "number" && typeof j.character_limit === "number" ? Math.max(0, j.character_limit - j.character_count) : null;
+    } catch {
+      return null;
+    }
   }
 
   async synthesize(req: SpeechRequest): Promise<SpeechResult> {

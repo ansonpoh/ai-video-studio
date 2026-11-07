@@ -310,7 +310,7 @@ const resolveVisuals = async (id: string, providers: Providers, sceneIds: string
   const manifest = store.assets(id);
   const pm = store.manifest(id);
   const plans = planAssets({ scenes, request: meta.request, providers, manifest, offlineDemo: meta.mode === "offline-demo", only: sceneIds, force: true }).map(override);
-  const planned: PlannedCost[] = plannedCosts(plans, providers);
+  const planned: PlannedCost[] = plannedCosts(plans, providers, meta.request);
   enforceBudget(meta.request, pm, planned);
   const renderer = await defaultRenderer();
   const changed: string[] = [];
@@ -418,7 +418,7 @@ export const regenerate = async (id: string, o: RegenerateOptions): Promise<OpRe
       }
       const wantVideo = o.what === "clip";
       if (wantVideo && !providers.video) throw new MissingCredentialsError("Video clip generation", ["FAL_KEY"]);
-      if (!wantVideo && !providers.images) throw new MissingCredentialsError("Image generation", ["OPENAI_API_KEY"]);
+      if (!wantVideo && !providers.images) throw new MissingCredentialsError("Image generation", ["OPENAI_API_KEY", "FAL_KEY"]);
       const { changed, failures } = await resolveVisuals(id, providers, [sid], (p) => ({ ...p, source: wantVideo ? "ai-video" : "ai-image", reason: `regenerate ${o.what}` }), o.style, o.what === "scene-style" ? undefined : `regen-${Date.now()}`);
       if (!changed.length) return { ok: false, message: `Regeneration failed; the scene keeps its previous media. ${failures.join("; ")}` };
       const patched = patchScenes(id, changed, ["visual"]);

@@ -76,6 +76,25 @@ export const buildFalInput = (model: string, req: VideoClipRequest, imageUrl?: s
   return input;
 };
 
+/** Maps anything thrown by the fal client to a ProviderError with fal's own reason. */
+export const falError = (provider: string, model: string, err: unknown): ProviderError => {
+  if (err instanceof ProviderError) return err;
+  if (err instanceof ValidationError) {
+    return new ProviderError(provider, `input rejected by ${model} (check its schema on fal.ai): ${err.message}`, false, err.status);
+  }
+  if (err instanceof ApiError) {
+    const s = err.status;
+    const retryable = s === 429 || s >= 500 || (s === 408 && !err.isUserTimeout);
+    // fal also answers 403 for a locked account (e.g. "Exhausted balance"), so surface its own detail.
+    const detail = (err.body as { detail?: unknown } | undefined)?.detail;
+    const falSays = typeof detail === "string" ? detail : err.message;
+    const msg = s === 401 ? `authentication failed - check VIDEO_PROVIDER_API_KEY / FAL_KEY (${falSays})` : s === 403 ? `request refused by fal: ${falSays}` : err.message;
+    return new ProviderError(provider, msg, retryable, s);
+  }
+  if (err instanceof TypeError) return new ProviderError(provider, `network error: ${err.message}`, true);
+  return new ProviderError(provider, err instanceof Error ? err.message : String(err), false);
+};
+
 const MIME: Record<string, string> = { ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp" };
 
 export type FalVideoOptions = { apiKey?: string; model?: string; client?: FalClient; pricePerSecond?: number };
@@ -116,25 +135,7 @@ export class FalVideo implements VideoProvider {
       const usd = this.estimateUsd(req);
       return { data, model: this.model, cost: { estimatedUsd: usd, actualUsd: usd, description: `${this.model} ${clipSecondsFor(this.model, req.durationSeconds)}s clip (price assumption)` } };
     } catch (err) {
-      throw this.mapError(err);
+      throw falError(this.name, this.model, err);
     }
-  }
-
-  private mapError(err: unknown): ProviderError {
-    if (err instanceof ProviderError) return err;
-    if (err instanceof ValidationError) {
-      return new ProviderError(this.name, `input rejected by ${this.model} (check FIELD_MAPS in src/media/video/fal.ts): ${err.message}`, false, err.status);
-    }
-    if (err instanceof ApiError) {
-      const s = err.status;
-      const retryable = s === 429 || s >= 500 || (s === 408 && !err.isUserTimeout);
-      // fal also answers 403 for a locked account (e.g. "Exhausted balance"), so surface its own detail.
-      const detail = (err.body as { detail?: unknown } | undefined)?.detail;
-      const falSays = typeof detail === "string" ? detail : err.message;
-      const msg = s === 401 ? `authentication failed - check VIDEO_PROVIDER_API_KEY / FAL_KEY (${falSays})` : s === 403 ? `request refused by fal: ${falSays}` : err.message;
-      return new ProviderError(this.name, msg, retryable, s);
-    }
-    if (err instanceof TypeError) return new ProviderError(this.name, `network error: ${err.message}`, true);
-    return new ProviderError(this.name, err instanceof Error ? err.message : String(err), false);
   }
 }

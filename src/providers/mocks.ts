@@ -154,7 +154,7 @@ export class MockStock implements StockProvider {
 
 /** Deterministic "real" TTS: silent WAV whose length matches the estimated speech; word timings are exact for that WAV. */
 export class MockTts implements TtsProvider {
-  readonly name = "mock-tts";
+  readonly name: string = "mock-tts";
   readonly real = true;
   calls = 0;
   texts: string[] = [];

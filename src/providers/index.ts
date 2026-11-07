@@ -6,13 +6,16 @@
  * a provider that throws MissingCredentialsError when (and only when) a method
  * is called - the offline demo path never calls it and keeps working.
  */
-import { env, videoKey, type Env } from "../config/env";
+import { env, falImageKey, videoKey, type Env } from "../config/env";
 import { AnthropicLlm } from "../ai/providers/anthropic";
 import { MockLlm } from "../ai/providers/mock";
 import { OpenAiImages } from "../media/images/openai";
+import { FalImages } from "../media/images/fal";
 import { FalVideo } from "../media/video/fal";
 import { PexelsStock } from "../media/stock/pexels";
 import { ElevenLabsSfx, ElevenLabsTts, SilentTts } from "../audio/elevenlabs";
+import { EdgeTts } from "../audio/edge";
+import { FallbackTts } from "../audio/fallback";
 import { MissingCredentialsError, type LlmProvider, type Providers } from "./types";
 
 export type CreateProvidersOptions = {
@@ -69,13 +72,16 @@ export const createProviders = (opts: CreateProvidersOptions = {}): Providers =>
 
   const vk = videoKey(e);
   const falOn = allowVideo && vk && (e.VIDEO_PROVIDER ?? "fal") === "fal";
+  const imageKey = falImageKey(e);
+  const imagesBudget = imageKey ? new FalImages({ apiKey: imageKey, model: e.IMAGE_BUDGET_MODEL, pricePerMegapixel: e.PRICE_IMAGE_BUDGET_PER_MP }) : null;
   return {
     llm,
-    images: e.OPENAI_API_KEY ? new OpenAiImages({ apiKey: e.OPENAI_API_KEY, model: e.OPENAI_IMAGE_MODEL }) : null,
+    images: e.OPENAI_API_KEY ? new OpenAiImages({ apiKey: e.OPENAI_API_KEY, model: e.OPENAI_IMAGE_MODEL }) : imagesBudget,
+    imagesBudget,
     video: falOn ? new FalVideo({ apiKey: vk, model: e.VIDEO_MODEL }) : null,
     videoBackground: falOn && e.VIDEO_BACKGROUND_MODEL ? new FalVideo({ apiKey: vk, model: e.VIDEO_BACKGROUND_MODEL, pricePerSecond: e.PRICE_VIDEO_BACKGROUND_PER_SECOND }) : null,
     stock: allowStock && e.PEXELS_API_KEY ? new PexelsStock({ apiKey: e.PEXELS_API_KEY }) : null,
-    tts: e.ELEVENLABS_API_KEY ? new ElevenLabsTts({ apiKey: e.ELEVENLABS_API_KEY, voiceId: e.ELEVENLABS_VOICE_ID, model: e.ELEVENLABS_MODEL }) : new SilentTts(),
+    tts: e.ELEVENLABS_API_KEY ? new FallbackTts(new ElevenLabsTts({ apiKey: e.ELEVENLABS_API_KEY, voiceId: e.ELEVENLABS_VOICE_ID, model: e.ELEVENLABS_MODEL }), new EdgeTts({ voice: e.EDGE_TTS_VOICE })) : new SilentTts(),
     sfx: e.ELEVENLABS_API_KEY ? new ElevenLabsSfx({ apiKey: e.ELEVENLABS_API_KEY }) : null,
   };
 };

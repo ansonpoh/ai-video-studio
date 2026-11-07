@@ -15,6 +15,8 @@ export type PresetRules = {
   /** Prefer generated imagery on this share of non-diagram scenes (rest use motion graphics). */
   generatedImageShare: number;
   soundEffects: boolean;
+  /** Generate stills on the budget image model (IMAGE_BUDGET_MODEL) when one is configured. */
+  budgetImages?: boolean;
 };
 
 export const PRESETS: Record<QualityPreset, PresetRules> = {
@@ -22,6 +24,7 @@ export const PRESETS: Record<QualityPreset, PresetRules> = {
   hybrid: { imageQuality: "medium", maxVideoClips: 3, backgroundClips: 2, generatedImageShare: 1, soundEffects: true },
   balanced: { imageQuality: "medium", maxVideoClips: 2, backgroundClips: 0, generatedImageShare: 0.8, soundEffects: true },
   premium: { imageQuality: "high", maxVideoClips: 5, backgroundClips: 0, generatedImageShare: 1, soundEffects: true },
+  explainer: { imageQuality: "medium", maxVideoClips: 0, backgroundClips: 0, generatedImageShare: 1, soundEffects: false, budgetImages: true },
 };
 
 export type PlannedCost = { category: CostEntry["category"]; provider: string; description: string; estimatedUsd: number };
