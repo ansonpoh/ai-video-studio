@@ -23,6 +23,8 @@ export interface LlmProvider {
   storyboard(req: VideoRequest, direction: CreativeDirection, script: Script): Promise<{ storyboard: Omit<Storyboard, "version" | "createdAt" | "source">; cost: CostReport }>;
   /** Rewrites one scene (visual or narration) while keeping its purpose and position. */
   rewriteScene(req: VideoRequest, direction: CreativeDirection, scenes: Scene[], sceneId: string, instruction: string): Promise<{ scene: Scene; cost: CostReport }>;
+  /** Drawn preset: one scene's SVG, optionally fixing a failed attempt or matching a reference scene. */
+  drawScene?(req: VideoRequest, direction: CreativeDirection, script: Script, index: number, opts: { width: number; height: number; reference?: string; previous?: { svg: string; issues: string[] }; instruction?: string }): Promise<{ scene: Scene; cost: CostReport }>;
   /** Optional fact review: returns claims that look unsupported. */
   reviewClaims?(direction: CreativeDirection, scenes: Scene[]): Promise<{ issues: { sceneId: string; claim: string; problem: string }[]; cost: CostReport }>;
 }

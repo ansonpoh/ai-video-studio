@@ -11,8 +11,9 @@ export type AspectRatio = z.infer<typeof AspectRatio>;
  *   background shots when VIDEO_BACKGROUND_MODEL is set.
  * - balanced / premium: earlier presets with up to 2 / 5 premium clips.
  * - explainer: budget AI stills in one locked look, no clips, no automatic music or sound effects.
+ * - drawn: every visual is SVG written by Claude and animated on the narration; no image or clip spend.
  */
-export const QualityPreset = z.enum(["economy", "hybrid", "balanced", "premium", "explainer"]);
+export const QualityPreset = z.enum(["economy", "hybrid", "balanced", "premium", "explainer", "drawn"]);
 export type QualityPreset = z.infer<typeof QualityPreset>;
 
 export const CaptionStyleName = z.enum([
@@ -59,7 +60,7 @@ export const RESOLUTIONS: Record<AspectRatio, { width: number; height: number }>
 
 export const VideoRequest = z.object({
   prompt: z.string().min(3, "Describe the video you want (at least a few words)."),
-  /** Up to 180 s, or 900 s with the explainer preset (checked below). */
+  /** Up to 180 s, or 900 s with the explainer or drawn preset (checked below). */
   durationSeconds: z.number().int().min(5).max(900).default(30),
   aspectRatio: AspectRatio.default("9:16"),
   fps: z.number().int().min(24).max(60).default(30),
@@ -90,6 +91,6 @@ export const VideoRequest = z.object({
   offline: z.boolean().default(false),
   /** Allow sound effect generation (costs money when ElevenLabs is configured). */
   soundEffects: z.boolean().default(false),
-}).refine((r) => r.quality === "explainer" || r.durationSeconds <= 180, { message: "Videos over 180 seconds need the explainer preset.", path: ["durationSeconds"] });
+}).refine((r) => r.quality === "explainer" || r.quality === "drawn" || r.durationSeconds <= 180, { message: "Videos over 180 seconds need the explainer or drawn preset.", path: ["durationSeconds"] });
 export type VideoRequest = z.infer<typeof VideoRequest>;
 export type VideoRequestInput = z.input<typeof VideoRequest>;

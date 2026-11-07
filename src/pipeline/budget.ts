@@ -25,6 +25,7 @@ export const PRESETS: Record<QualityPreset, PresetRules> = {
   balanced: { imageQuality: "medium", maxVideoClips: 2, backgroundClips: 0, generatedImageShare: 0.8, soundEffects: true },
   premium: { imageQuality: "high", maxVideoClips: 5, backgroundClips: 0, generatedImageShare: 1, soundEffects: true },
   explainer: { imageQuality: "medium", maxVideoClips: 0, backgroundClips: 0, generatedImageShare: 1, soundEffects: false, budgetImages: true },
+  drawn: { imageQuality: "low", maxVideoClips: 0, backgroundClips: 0, generatedImageShare: 0, soundEffects: false },
 };
 
 export type PlannedCost = { category: CostEntry["category"]; provider: string; description: string; estimatedUsd: number };

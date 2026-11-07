@@ -149,6 +149,10 @@ export const sceneVisualCode = (x: SceneCodeInput, indent: string) => {
     `${indent}<ArtLayer name=${str(name)} art=${str(art)} primaryColor=${str(pal.primary)} accentColor=${str(pal.accent)} backgroundColor=${str(pal.background)} labels=${str(labels)} seed={${x.index + 1}} labelFont=${str(fonts.body)}${scene.onScreenText ?? scene.title ? " titleSafe" : ""}${x.captionsEnabled && scene.narration.trim() ? " captionSafe" : ""} style=${styleObj({ translate: "0px 0px", scale: 1, ...extraStyle })} />`;
   const darken = ["cinematic_image", "video_clip", "mixed_media"].includes(scene.layout) ? 0.35 : 0.55;
   const lines: string[] = [];
+  if (scene.layout === "drawn") {
+    lines.push(`${indent}<Backdrop name=${str(`${id} backdrop`)} colorA=${str(pal.background)} colorB=${str(pal.background)} angle={160} style=${styleObj({})} />`);
+    return lines;
+  }
   if (scene.layout === "slide") {
     lines.push(`${indent}<Backdrop name=${str(`${id} backdrop`)} colorA=${str(pal.background)} colorB=${str(pal.background)} angle={160} style=${styleObj({})} />`);
     if (!asset) {
@@ -222,6 +226,14 @@ export const sceneLayoutCode = (x: SceneCodeInput, indent: string): string[] => 
       );
       break;
     }
+    case "drawn": {
+      const seg = x.manifest.narration.find((n) => n.sceneId === id);
+      const beats = resolveReveals(L.beats.map((b) => b.cue), seg?.words ?? [], x.timing.narrationOffsetFrames, x.timing.narrationFrames, x.fps);
+      out.push(
+        `${indent}<DrawnLayer name=${str(`${id} layout`)} svg=${strExpr(L.svg)} beatsJson=${strExpr(JSON.stringify(beats))} scope=${str(id)} backgroundColor=${str(pal.background)} primaryColor=${str(pal.primary)} accentColor=${str(pal.accent)} textColor=${str(pal.text)} mutedColor=${str(theme.muted)} panelColor=${str(theme.backgroundAlt)} displayFont=${str(fonts.display)} bodyFont=${str(fonts.body)} ${t0} />`,
+      );
+      break;
+    }
     case "cinematic_image":
     case "video_clip":
     case "mixed_media":
@@ -286,7 +298,7 @@ export const sceneAudioCaptionCode = (x: SceneCodeInput, indent: string): string
   }
   if (x.captionsEnabled && seg && seg.words.length) {
     // Slides already carry a lot of text, so captions are one quiet line under the content.
-    const slide = x.scene.layout === "slide";
+    const slide = x.scene.layout === "slide" || x.scene.layout === "drawn";
     const portrait = x.height > x.width;
     const cs = slide
       ? { style: { fontFamily: "Inter, sans-serif", fontWeight: 500, fontSize: portrait ? 44 : 34, color: "#ffffff", translate: `0px -${Math.round(x.height * (portrait ? 0.1 : 0.075))}px` }, uppercase: false, words: portrait ? 6 : 11 }
@@ -371,6 +383,7 @@ import {
   ChapterBar,
   Chip,
   ComparisonScene,
+  DrawnLayer,
   FactCardScene,
   FilmLook,
   ListicleScene,

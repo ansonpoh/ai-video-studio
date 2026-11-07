@@ -268,7 +268,7 @@ export const patchScenes = (id: string, sceneIds: string[], parts: PatchPart[]):
       src = patchAudio(src, x);
       patched.push(`${sid} narration + captions`);
       // reveal frames follow the narration
-      if (x.scene.layout === "slide") src = patchLayout(src, x);
+      if (x.scene.layout === "slide" || x.scene.layout === "drawn") src = patchLayout(src, x);
     }
     if (parts.includes("duration") || parts.includes("audio")) {
       const seq = findSceneSequence(src, sid)!;

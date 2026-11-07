@@ -6,6 +6,7 @@
 import { parseDuration } from "../ai/prompt-parser";
 import type { VideoRequest, VideoRequestInput } from "../schemas/options";
 import type { CreativeDirection } from "../schemas/storyboard";
+import { drawnSceneCount } from "./drawn";
 
 export const EXPLAINER_STYLE = {
   name: "Dark glass explainer",
@@ -30,7 +31,7 @@ export const withLengthDefaults = (input: VideoRequestInput): VideoRequestInput 
   // The prompt's length only counts while the form still holds its default.
   const hinted = stated === undefined || stated === 30 ? parseDuration(input.prompt ?? "") : undefined;
   const seconds = hinted ?? stated ?? 30;
-  if (seconds <= 180 || input.quality === "explainer") return input;
+  if (seconds <= 180 || input.quality === "explainer" || input.quality === "drawn") return input;
   const otherPreset = input.quality && input.quality !== "hybrid";
   if (otherPreset && !hinted) return input;
   return {
@@ -42,6 +43,17 @@ export const withLengthDefaults = (input: VideoRequestInput): VideoRequestInput 
 };
 
 export const applyPresetLook = (direction: CreativeDirection, request: VideoRequest): CreativeDirection => {
+  // Drawn videos keep the director's palette and fonts: the topic should set the look.
+  if (request.quality === "drawn") {
+    return {
+      ...direction,
+      musicMood: request.music === "auto" ? "none" : direction.musicMood,
+      format: "explainer",
+      pacing: "measured",
+      transitionStyle: "crossfade",
+      targetSceneCount: drawnSceneCount(request.durationSeconds),
+    };
+  }
   if (request.quality !== "explainer") return direction;
   return {
     ...direction,

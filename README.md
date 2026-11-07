@@ -60,7 +60,7 @@ npm run make -- -p "Explain black holes" --llm mock        # fully offline test 
 ```
 
 Useful options:
-- `--duration`, `--aspect` (9:16, 16:9, 1:1, 4:5), `--style` and `--quality` (economy, hybrid (default), balanced, premium or explainer).
+- `--duration`, `--aspect` (9:16, 16:9, 1:1, 4:5), `--style` and `--quality` (economy, hybrid (default), balanced, premium, explainer or drawn).
 - `--clips approve|skip` decides the AI clips up front; by default the run stops after the stills so you can review them (see below).
 - `--visual-mode` (auto, ai_only, stock_preferred or procedural_only) and `--captions <style>` (or `--no-captions`).
 - `--no-narration`, `--voice <elevenlabs voice id>`, `--music <file|auto|none>` and `--sfx`.
@@ -148,6 +148,8 @@ Clips are the expensive part, so the pipeline makes every still first and then p
 A one-minute hybrid video is about 12 stills at $0.06 and 3 Kling 2.5 Turbo clips of 5 s at $0.07/s, roughly $1.80 before narration. Clips run three at a time.
 
 The explainer preset makes narrated slides for videos up to 15 minutes: statements, cards, steps and diagrams that appear as they're spoken, with a chapter bar along the bottom. A few Z-Image Turbo stills at about $0.007 each share one locked dark look. There are no clips, automatic music or sound effects, and it defaults to 16:9 with a single line of captions above the chapter bar. Any video over 3 minutes switches to it automatically. To show a screen recording in a browser window, use Replace media on that scene in the review screen. Slides are drawn in code, so you can retime or restyle them in Remotion Studio.
+
+The drawn preset has no AI images or clips: Claude writes every scene as an SVG, using illustrations, diagrams, charts and moving text, and parts of the drawing appear as the narrator says them. Before narration is generated, each drawing is measured in headless Chrome with the real fonts. Text that overflows, collides, gets crossed by a line, runs into the caption zone or has too little contrast is sent back to Claude to fix, up to two rounds, and anything left is logged as a warning. The SVG passes through an allowlist, so it can't run scripts or load outside files. It goes up to 15 minutes, keeps the director's palette and fonts, and defaults to 16:9: `npm run make -- -p "How vaccines work" -d 60 -q drawn`.
 
 ElevenLabs narration checks the remaining credits first. If the script won't fit, the whole video uses Edge TTS (`EDGE_TTS_VOICE`), so it keeps one voice. Edge TTS is an unofficial free endpoint: use Azure Speech instead for commercial work.
 

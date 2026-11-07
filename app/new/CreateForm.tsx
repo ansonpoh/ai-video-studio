@@ -14,6 +14,7 @@ const QUALITY_TEXT: Record<string, string> = {
   balanced: "Medium-quality images, up to 2 AI video clips, sound effects.",
   premium: "High-quality images on every scene, up to 5 AI video clips, sound effects.",
   explainer: "Narrated slides with panels and diagrams that appear as they're spoken, a few cheap AI stills, and a chapter bar. No clips or music. Up to 15 minutes.",
+  drawn: "Everything on screen is drawn in code by Claude: illustrations, diagrams, charts and moving text, timed to the narration. No AI images or clips. Up to 15 minutes.",
 };
 
 const MODE_TEXT: Record<string, string> = {
@@ -70,7 +71,7 @@ export function CreateForm({ options, capabilities, music, presets, prices }: Pr
 
   const choosePreset = (q: string) => {
     setQuality(q);
-    if (q === "explainer") {
+    if (q === "explainer" || q === "drawn") {
       setAspect("16:9");
       setSfx(false);
       setMusicChoice("none");
@@ -85,7 +86,8 @@ export function CreateForm({ options, capabilities, music, presets, prices }: Pr
     const scenes = Math.max(2, Math.round(duration / 5));
     const lines: { what: string; usd: number }[] = [];
     if (llm === "anthropic" && !offline && hasLlm) lines.push({ what: "Script & storyboard", usd: prices.llmRun });
-    if (live("AI images") && visualMode !== "procedural_only" && visualMode !== "stock_preferred") {
+    if (quality === "drawn" && llm === "anthropic" && !offline && hasLlm) lines.push({ what: "Drawing the scenes", usd: Math.max(3, Math.round(duration / 12)) * prices.drawnScene });
+    if (rules.generatedImageShare > 0 && live("AI images") && visualMode !== "procedural_only" && visualMode !== "stock_preferred") {
       // Explainers use about one still per 75 seconds; the rest are slides drawn in code.
       const n = "budgetImages" in rules && rules.budgetImages ? Math.max(3, Math.round(duration / 75)) : Math.round(scenes * rules.generatedImageShare);
       if ("budgetImages" in rules && rules.budgetImages) lines.push({ what: `~${n} images (budget)`, usd: n * prices.budgetImage });
@@ -252,7 +254,7 @@ export function CreateForm({ options, capabilities, music, presets, prices }: Pr
                 onChange={(e) => {
                   const next = Number(e.target.value);
                   // Only explainers run past 3 minutes.
-                  if (next > 180 && quality !== "explainer") choosePreset("explainer");
+                  if (next > 180 && quality !== "explainer" && quality !== "drawn") choosePreset("explainer");
                   setDuration(next);
                 }}
               />

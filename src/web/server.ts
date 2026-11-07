@@ -134,6 +134,7 @@ const prices = () => {
   return {
     defaultBudgetUsd: e.MAX_GENERATION_BUDGET_USD,
     llmRun: 0.15,
+    drawnScene: 0.12,
     image: { low: e.PRICE_IMAGE_LOW, medium: e.PRICE_IMAGE_MEDIUM, high: e.PRICE_IMAGE_HIGH },
     /** One 1216x1216 still on the budget image model. */
     budgetImage: 1.479 * e.PRICE_IMAGE_BUDGET_PER_MP,

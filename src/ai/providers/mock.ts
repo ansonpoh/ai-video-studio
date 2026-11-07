@@ -16,6 +16,7 @@ import type { CreativeDirection, Scene } from "../../schemas/storyboard";
 import type { ProceduralArt, ThemeName, VideoFormat } from "../../schemas/catalog";
 import { suggestArts } from "../prompt-parser";
 import { mapLlmDirection, mapLlmScene, mapLlmStoryboard, validateScene, type LlmDirection, type LlmScene } from "./anthropic";
+import { mapDrawnScene } from "../drawn-prompt";
 
 const ZERO = (what: string): CostReport => ({ estimatedUsd: 0, actualUsd: 0, description: `mock-offline ${what} (no API call)` });
 
@@ -237,6 +238,10 @@ export class MockLlm implements LlmProvider {
     const index = scenes.findIndex((s) => s.id === sceneId);
     if (index < 0) throw new ProviderError(this.name, `scene ${sceneId} not found`);
     const s = scenes[index];
+    if (s.layout === "drawn") {
+      const script: Script = { title: direction.title, hook: direction.hookIdea, sources: [], beats: scenes.map((x) => ({ purpose: x.purpose, narration: x.narration, intent: x.visual.description })) };
+      return this.drawScene(req, direction, script, index, { width: 1920, height: 1080 });
+    }
     const narrationEdit = instruction.match(/^\s*narration:\s*(.+)$/is);
     const flat: LlmScene = {
       purpose: s.purpose,
@@ -259,6 +264,17 @@ export class MockLlm implements LlmProvider {
     const v = validateScene(m.scene);
     if (!v.value) throw new ProviderError(this.name, `mock rewrite invalid: ${v.errors.join("; ")}`);
     return { scene: v.value, cost: ZERO("scene rewrite") };
+  }
+
+  async drawScene(_req: VideoRequest, _direction: CreativeDirection, script: Script, index: number, opts: { width: number; height: number }) {
+    const beat = script.beats[index];
+    const words = beat.narration.split(/\s+/);
+    const cues = [words.slice(0, 2).join(" "), words.slice(Math.floor(words.length / 2), Math.floor(words.length / 2) + 2).join(" ")];
+    const w = opts.width;
+    const svg = `<svg><text x='${w * 0.06}' y='150' font-size='64' font-weight='800' font-family='var(--display)' fill='var(--text)'>Scene ${index + 1}</text><rect x='${w * 0.1}' y='260' width='${w * 0.35}' height='300' rx='24' fill='var(--panel)' data-beat='0' data-anim='pop'/><circle cx='${w * 0.7}' cy='410' r='150' fill='var(--primary)' data-beat='1' data-anim='pop'/><path d='M${w * 0.45} 410 L${w * 0.7 - 150} 410' fill='none' stroke='var(--accent)' stroke-width='6' data-beat='1' data-anim='draw'/></svg>`;
+    const m = mapDrawnScene({ heading: `Scene ${index + 1}`, chapter: index < 2 ? "Intro" : "Main", description: "A panel joined to a circle.", beats: cues.map((cue) => ({ cue, what: "part" })), svg, claims: [] }, index, beat);
+    if (!m.value) throw new ProviderError(this.name, `mock drawing invalid: ${m.errors.join("; ")}`);
+    return { scene: m.value, cost: ZERO("drawn scene") };
   }
 
   async reviewClaims(_direction: CreativeDirection, scenes: Scene[]) {

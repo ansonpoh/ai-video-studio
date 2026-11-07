@@ -12,12 +12,14 @@ import type { Providers, PromptHints, Script } from "../providers/types";
 import { ProviderError } from "../providers/types";
 import { P, newProjectId, store, writeJsonAtomic } from "./store";
 import { applyPresetLook, withLengthDefaults } from "./explainer";
+import { drawnTokens, drawScenes, estimateDrawnUsd } from "./drawn";
 import { enforceBudget, recordCost, budgetFor, PRESETS, ClipApprovalRequired, type PlannedCost } from "./budget";
 import { planAssets, plannedCosts, resolveSceneAsset, sceneEntry, makeClip, clipProviderFor, type AssetPlan } from "./assets";
 import { synthesizeScene, upsertNarration, buildContinuousNarration } from "./narration";
 import { selectAnimations } from "./animation";
 import { composeEditable, effectiveScenes, exportCaptions, timelineFor } from "./compose";
 import { checkContent, requiresReview } from "../ai/content-checks";
+import { env } from "../config/env";
 import { pickTrack } from "../audio/music-library";
 import { generateProceduralMusic } from "../audio/procedural-music";
 import { generateProceduralSfx } from "../audio/procedural-sfx";
@@ -50,12 +52,16 @@ export type Renderer = {
   renderThumbnail: (id: string) => Promise<string>;
   renderAudioMix: (id: string) => Promise<string>;
   checkRender: (id: string, file: string, opts: { expectCaptions: boolean; scale?: number }) => Promise<{ ok: boolean; checks: { name: string; ok: boolean; severity: string; detail: string }[] }>;
+  /** Measures drawn scenes in a browser. Optional so tests can run without Chromium. */
+  checkDrawnLayouts?: typeof import("../rendering/svg-layout").checkDrawnLayouts;
 };
 
 export const defaultRenderer = async (): Promise<Renderer> => {
   const r = await import("../rendering/render");
   const q = await import("../rendering/quality");
+  const l = await import("../rendering/svg-layout");
   return {
+    checkDrawnLayouts: l.checkDrawnLayouts,
     renderProceduralStill: r.renderProceduralStill,
     renderVideo: (id, kind, onProgress) => r.renderVideo(id, kind, { onProgress: onProgress ? (p) => onProgress({ progress: p.progress }) : undefined }),
     renderThumbnail: (id) => r.renderThumbnail(id),
@@ -268,6 +274,27 @@ const STAGE_IMPL: Record<StageName, (ctx: Ctx) => Promise<StageResult>> = {
     if (ctx.opts.preset) {
       sb = ctx.opts.preset.storyboard;
       source = ctx.opts.preset.source;
+    } else if (meta.request.quality === "drawn") {
+      const script = loadScratch<Script>(ctx.id, "script")!;
+      const llm = ctx.opts.providers.llm;
+      enforceBudget(meta.request, ctx.manifest, [{ category: "llm", provider: llm.name, description: `draw ${script.beats.length} scenes`, estimatedUsd: estimateDrawnUsd(script.beats.length, env().PRICE_LLM_OUTPUT_PER_MTOK) }]);
+      const check = ctx.renderer.checkDrawnLayouts;
+      const tokens = drawnTokens(meta.direction!);
+      const drawn = await drawScenes({
+        llm,
+        request: meta.request,
+        direction: meta.direction!,
+        script,
+        width: meta.width,
+        height: meta.height,
+        check: check ? (scenes) => check(scenes, { width: meta.width, height: meta.height, tokens }) : undefined,
+        onCost: (description, cost) => recordCost(ctx.manifest, { category: "llm", provider: llm.name, description, estimatedUsd: cost.estimatedUsd, actualUsd: cost.actualUsd }),
+        onProgress: (done, total, message) => ctx.emit({ stage: "storyboard", status: "progress", progress: done / total, message }),
+        log: (level, message) => ctx.log(level, "storyboard", message),
+      });
+      saveScratch(ctx.id, "drawn-layout", drawn.layout);
+      sb = { title: script.title, hook: script.hook, scenes: drawn.scenes, sources: script.sources };
+      source = llm.name === "anthropic" ? "anthropic" : "mock";
     } else {
       const script = loadScratch<Script>(ctx.id, "script")!;
       const res = await ctx.opts.providers.llm.storyboard(meta.request, meta.direction!, script);

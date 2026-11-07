@@ -7,4 +7,5 @@ export { MediaLayer as CinematicImageScene, MediaLayer as VideoClipScene, ArtLay
 export { ListicleScene, FactCardScene, ComparisonScene, TimelineScene, QuoteScene, ProductShowcaseScene, NumberCounterScene, AnimatedInfographicScene, OutroScene, Chip } from "./cards";
 export { MediaLayer, ArtLayer, TextLayer, CaptionLayer, FilmLook, Backdrop } from "../components/layers";
 export { SlideLayer, ChapterBar } from "./slides";
+export { DrawnLayer } from "./drawn";
 export { MusicBed } from "../components/audio";

@@ -167,6 +167,13 @@ export const SceneLayout = z.discriminatedUnion("layout", [
     /** What belongs in a media slide's frame, e.g. "The app's users page". */
     mediaHint: z.string().optional(),
   }),
+  z.object({
+    layout: z.literal("drawn"),
+    /** Allowlisted SVG written by the model; see video/scenes/drawn-svg.ts. */
+    svg: z.string().min(1),
+    /** Moments in the narration that parts of the drawing appear on, referenced by data-beat. */
+    beats: z.array(z.object({ cue: z.string() })).max(8).default([]),
+  }),
 ]);
 export type SceneLayout = z.infer<typeof SceneLayout>;
 export type LayoutName = SceneLayout["layout"];

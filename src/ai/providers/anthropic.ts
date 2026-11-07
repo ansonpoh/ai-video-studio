@@ -46,6 +46,7 @@ import {
 } from "../../schemas/storyboard";
 import { estimateSpeechSeconds } from "../../rendering/timeline";
 import { suggestArt } from "../prompt-parser";
+import { DRAWN_SCENE_SYSTEM, LlmDrawnSceneSchema, drawnScenePrompt, drawnSharedPrompt, mapDrawnScene } from "../drawn-prompt";
 import { ProviderError, type CostReport, type LlmProvider, type PromptHints, type Script } from "../../providers/types";
 
 /* ================================================================== */
@@ -70,7 +71,8 @@ export const LAYOUT_NAMES = [
   "slide",
 ] as const satisfies readonly LayoutName[];
 // Compile-time guard: fails if SceneLayout gains a layout that is missing here.
-type _MissingLayouts = Exclude<LayoutName, (typeof LAYOUT_NAMES)[number]>;
+// "drawn" is left out on purpose: drawn scenes are requested one at a time with their own schema.
+type _MissingLayouts = Exclude<LayoutName, (typeof LAYOUT_NAMES)[number] | "drawn">;
 const _layoutsComplete: [_MissingLayouts] extends [never] ? true : never = true;
 void _layoutsComplete;
 
@@ -824,12 +826,14 @@ export class AnthropicLlm implements LlmProvider {
   private async structured<S extends z.ZodType, T>(
     stage: string,
     system: string,
-    user: string,
+    user: string | Anthropic.ContentBlockParam[],
     schema: S,
     validate: (raw: z.infer<S>) => MapResult<T>,
     maxTokens = 16000,
   ): Promise<{ value: T; cost: CostReport; repairs: string[] }> {
     let inTok = 0;
+    let cacheWrite = 0;
+    let cacheRead = 0;
     let outTok = 0;
     const messages: Anthropic.MessageParam[] = [{ role: "user", content: user }];
     let lastErrors: string[] = [];
@@ -848,7 +852,9 @@ export class AnthropicLlm implements LlmProvider {
           // Generous per-request timeout: large structured outputs with adaptive thinking can take minutes.
           { timeout: 15 * 60 * 1000 },
         );
-        inTok += response.usage.input_tokens + (response.usage.cache_creation_input_tokens ?? 0) + (response.usage.cache_read_input_tokens ?? 0);
+        inTok += response.usage.input_tokens;
+        cacheWrite += response.usage.cache_creation_input_tokens ?? 0;
+        cacheRead += response.usage.cache_read_input_tokens ?? 0;
         outTok += response.usage.output_tokens;
         if (response.stop_reason === "refusal") {
           const d = response.stop_details;
@@ -874,7 +880,7 @@ export class AnthropicLlm implements LlmProvider {
       } else {
         const r = validate(parsed);
         if (r.value !== undefined && !r.errors.length) {
-          return { value: r.value, repairs: r.repairs, cost: this.cost(stage, inTok, outTok, attempt) };
+          return { value: r.value, repairs: r.repairs, cost: this.cost(stage, inTok, outTok, attempt, cacheWrite, cacheRead) };
         }
         lastErrors = r.errors;
       }
@@ -889,12 +895,13 @@ export class AnthropicLlm implements LlmProvider {
     throw new ProviderError(this.name, `${stage} was invalid after one corrective retry: ${lastErrors.slice(0, 8).join("; ")}`, false);
   }
 
-  private cost(stage: string, inTok: number, outTok: number, retries: number): CostReport {
-    const usd = this.estimateUsd(inTok, outTok);
+  private cost(stage: string, inTok: number, outTok: number, retries: number, cacheWrite = 0, cacheRead = 0): CostReport {
+    // Cache writes cost 1.25x input. Reads are $0.20 per MTok on Opus and Sonnet 5.5.
+    const usd = this.estimateUsd(inTok + cacheWrite * 1.25, outTok) + (cacheRead * Math.min(0.2, this.priceIn)) / 1e6;
     return {
       estimatedUsd: usd,
       actualUsd: usd,
-      description: `${this.model} ${stage}: ${inTok} in / ${outTok} out tokens${retries ? ` (${retries} corrective retry)` : ""}`,
+      description: `${this.model} ${stage}: ${inTok} in${cacheWrite || cacheRead ? ` + ${cacheWrite} cache write + ${cacheRead} cache read` : ""} / ${outTok} out tokens${retries ? ` (${retries} corrective retry)` : ""}`,
     };
   }
 
@@ -927,7 +934,7 @@ ${JSON.stringify(direction, null, 2)}
 </creative_direction>
 
 Target duration: ${seconds} s, so about ${Math.round(seconds * 2.5)} words in total across ${direction.targetSceneCount} beats.${hints.listCount ? ` Cover exactly ${hints.listCount} list items, one per beat.` : ""}`;
-    const explainer = req.quality === "explainer";
+    const explainer = req.quality === "explainer" || req.quality === "drawn";
     const r = await this.structured("script", explainer ? EXPLAINER_SCRIPT_SYSTEM : SCRIPT_SYSTEM, user, LlmScriptSchema, (raw) => mapLlmScript(raw, explainer ? 60 : 24), explainer ? 32000 : 12000);
     return { script: r.value, cost: r.cost };
   }
@@ -958,10 +965,27 @@ Visual mode: ${req.visualMode}. Aspect ratio: ${req.aspectRatio}.`;
     return { storyboard: { ...r.value, model: this.model }, cost: r.cost };
   }
 
+  async drawScene(req: VideoRequest, direction: CreativeDirection, script: Script, index: number, opts: { width: number; height: number; reference?: string; previous?: { svg: string; issues: string[] }; instruction?: string }) {
+    const beat = script.beats[index];
+    if (!beat) throw new ProviderError(this.name, `script has no beat ${index + 1}`, false);
+    // Everything shared across scenes comes first, so the later scenes read it from the cache.
+    const user: Anthropic.ContentBlockParam[] = [
+      { type: "text", text: drawnSharedPrompt(reqSummary(req), direction, script.beats, opts), cache_control: { type: "ephemeral" } },
+      { type: "text", text: drawnScenePrompt(index, beat, opts) },
+    ];
+    const r = await this.structured("drawn scene", DRAWN_SCENE_SYSTEM, user, LlmDrawnSceneSchema, (raw) => mapDrawnScene(raw, index, beat), 32000);
+    return { scene: r.value, cost: r.cost };
+  }
+
   async rewriteScene(req: VideoRequest, direction: CreativeDirection, scenes: Scene[], sceneId: string, instruction: string) {
     const index = scenes.findIndex((s) => s.id === sceneId);
     if (index < 0) throw new ProviderError(this.name, `scene ${sceneId} not found`, false);
     const target = scenes[index];
+    if (target.layout === "drawn") {
+      const script: Script = { title: direction.title, hook: direction.hookIdea, sources: [], beats: scenes.map((s) => ({ purpose: s.purpose, narration: s.narration, intent: s.visual.description })) };
+      const size = req.aspectRatio === "16:9" ? { width: 1920, height: 1080 } : req.aspectRatio === "9:16" ? { width: 1080, height: 1920 } : req.aspectRatio === "1:1" ? { width: 1080, height: 1080 } : { width: 1080, height: 1350 };
+      return this.drawScene(req, direction, script, index, { ...size, instruction, previous: { svg: target.svg, issues: [] } });
+    }
     const user = `Revise scene ${sceneId} (position ${index + 1} of ${scenes.length}).
 
 <creative_direction>
