@@ -62,7 +62,7 @@ npm run make -- -p "Explain black holes" --llm mock        # fully offline test 
 Useful options:
 - `--duration`, `--aspect` (9:16, 16:9, 1:1, 4:5), `--style` and `--quality` (economy, hybrid (default), balanced, premium or explainer).
 - `--clips approve|skip` decides the AI clips up front; by default the run stops after the stills so you can review them (see below).
-- `--visual-mode` (auto, ai_only, stock_preferred or procedural_only) and `--captions <style>` (or `--no-captions`).
+- `--visual-mode` (auto, ai_only, stock_preferred or procedural_only) and `--captions <style>`. Every video has captions.
 - `--no-narration`, `--voice <elevenlabs voice id>`, `--music <file|auto|none>` and `--sfx`.
 - `--budget <usd>`, `--approve-spend <usd>` and `-o <dir>` (copies the outputs to that folder).
 

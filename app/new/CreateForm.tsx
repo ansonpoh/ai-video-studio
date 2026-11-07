@@ -47,7 +47,6 @@ export function CreateForm({ options, capabilities, music, presets, prices }: Pr
   const [style, setStyle] = useState("auto");
   const [quality, setQuality] = useState("hybrid");
   const [visualMode, setVisualMode] = useState("auto");
-  const [captions, setCaptions] = useState(true);
   const [captionStyle, setCaptionStyle] = useState("auto");
   const [narration, setNarration] = useState(true);
   const [voiceId, setVoiceId] = useState("");
@@ -141,8 +140,7 @@ export function CreateForm({ options, capabilities, music, presets, prices }: Pr
       style,
       quality,
       visualMode,
-      captions,
-      captionStyle: captions ? captionStyle : "auto",
+      captionStyle,
       narration,
       voiceId: voiceId.trim() || undefined,
       music: musicChoice,
@@ -324,16 +322,9 @@ export function CreateForm({ options, capabilities, music, presets, prices }: Pr
                 <small>{live("Sound") ? "Generated (small cost)" : "Local placeholder effects"}</small>
               </span>
             </label>
-            <label className="check">
-              <input type="checkbox" checked={captions} onChange={(e) => setCaptions(e.target.checked)} />
-              <span>
-                <b>Captions</b>
-                <small>Burned into final.mp4; clean.mp4 has none</small>
-              </span>
-            </label>
             <label className="field">
               <span>Caption style</span>
-              <select value={captionStyle} onChange={(e) => setCaptionStyle(e.target.value)} disabled={!captions}>
+              <select value={captionStyle} onChange={(e) => setCaptionStyle(e.target.value)}>
                 <option value="auto">Auto (director picks)</option>
                 {options.captionStyles.map((c) => (
                   <option key={c} value={c}>

@@ -60,7 +60,6 @@ program
   .option("--clips <choice>", "ask (default: stop after the storyboard stills) | approve | skip")
   .option("--visual-mode <mode>", "auto | ai_only | stock_preferred | procedural_only")
   .option("--captions <style>", "auto | minimal | bold | word-highlight | karaoke | cinematic")
-  .option("--no-captions", "disable captions")
   .option("--no-narration", "disable narration")
   .option("--voice <id>", "ElevenLabs voice id")
   .option("--music <file|auto|none>", "music file from music/ (auto picks by mood)")
@@ -84,8 +83,7 @@ program
           aspectRatio: o.aspect ?? (o.quality === "explainer" ? "16:9" : undefined),
           quality: o.quality,
           visualMode: o.visualMode,
-          captionStyle: typeof o.captions === "string" ? o.captions : undefined,
-          captions: o.captions !== false,
+          captionStyle: o.captions,
           narration: o.narration !== false,
           voiceId: o.voice,
           music: o.music,

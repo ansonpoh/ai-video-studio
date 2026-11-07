@@ -198,6 +198,13 @@ describe("withLengthDefaults", () => {
   });
 });
 
+describe("captions", () => {
+  it("are always on, even for a request that asks otherwise", () => {
+    expect(VideoRequest.parse({ prompt: "Explain it" }).captions).toBe(true);
+    expect(VideoRequest.parse({ prompt: "Explain it", captions: false }).captions).toBe(true);
+  });
+});
+
 describe("explainer length", () => {
   it("allows 15 minutes only with the explainer preset", () => {
     expect(VideoRequest.parse({ prompt: "Explain it", quality: "explainer", durationSeconds: 900 }).durationSeconds).toBe(900);

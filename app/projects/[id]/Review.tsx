@@ -385,7 +385,7 @@ export function Review({ id, initial, capabilities, captionStyles }: { id: strin
               <h2>Project settings</h2>
               <span className="hint">patched into editable/Video.tsx</span>
             </div>
-            <ProjectSettings id={id} locked={locked} act={act} captionsEnabled={m.request.captions} currentCaption={currentCaption} captionStyles={captionStyles} voice={d.edits.voiceId ?? m.request.voiceId ?? ""} ttsLive={capOn("Narration") && !offlineProject} />
+            <ProjectSettings id={id} locked={locked} act={act} currentCaption={currentCaption} captionStyles={captionStyles} voice={d.edits.voiceId ?? m.request.voiceId ?? ""} ttsLive={capOn("Narration") && !offlineProject} />
           </div>
 
           <div className="panel">
@@ -498,7 +498,7 @@ export function Review({ id, initial, capabilities, captionStyles }: { id: strin
 
 type Act = (key: string, url: string, body: unknown, done?: string) => Promise<boolean>;
 
-function ProjectSettings({ id, locked, act, captionsEnabled, currentCaption, captionStyles, voice, ttsLive }: { id: string; locked: boolean; act: Act; captionsEnabled: boolean; currentCaption: string; captionStyles: readonly string[]; voice: string; ttsLive: boolean }) {
+function ProjectSettings({ id, locked, act, currentCaption, captionStyles, voice, ttsLive }: { id: string; locked: boolean; act: Act; currentCaption: string; captionStyles: readonly string[]; voice: string; ttsLive: boolean }) {
   const [caption, setCaption] = useState(currentCaption);
   const [voiceId, setVoiceId] = useState(voice);
   useEffect(() => setCaption(currentCaption), [currentCaption]);
@@ -507,18 +507,18 @@ function ProjectSettings({ id, locked, act, captionsEnabled, currentCaption, cap
       <div className="stack" style={{ gap: 6 }}>
         <span className="field-label">Caption style</span>
         <div className="row" style={{ flexWrap: "nowrap" }}>
-          <select value={caption} onChange={(e) => setCaption(e.target.value)} disabled={!captionsEnabled}>
+          <select value={caption} onChange={(e) => setCaption(e.target.value)}>
             {captionStyles.map((c) => (
               <option key={c} value={c}>
                 {c}
               </option>
             ))}
           </select>
-          <button className="btn" disabled={locked || !captionsEnabled || caption === currentCaption} onClick={() => act("caption", `/api/projects/${id}/caption-style`, { style: caption })}>
+          <button className="btn" disabled={locked || caption === currentCaption} onClick={() => act("caption", `/api/projects/${id}/caption-style`, { style: caption })}>
             Apply
           </button>
         </div>
-        <span className="field-help">{captionsEnabled ? "Restyles every scene's captions; timings stay." : "Captions are off for this project."}</span>
+        <span className="field-help">Restyles every scene's captions; timings stay.</span>
       </div>
       <div className="stack" style={{ gap: 6 }}>
         <span className="field-label">Narration voice</span>

@@ -27,8 +27,7 @@ export async function POST(req: Request) {
     const r = parsed.data;
     const id = newProjectId(r.prompt);
     const args = ["make", "--id", id, "--prompt", r.prompt, "--duration", String(r.durationSeconds), "--aspect", r.aspectRatio, "--style", r.style, "--quality", r.quality, "--visual-mode", r.visualMode, "--music", r.music];
-    if (!r.captions) args.push("--no-captions");
-    else if (r.captionStyle !== "auto") args.push("--captions", r.captionStyle);
+    if (r.captionStyle !== "auto") args.push("--captions", r.captionStyle);
     if (!r.narration) args.push("--no-narration");
     if (r.voiceId) args.push("--voice", r.voiceId);
     if (r.budgetUsd !== undefined) args.push("--budget", String(r.budgetUsd));

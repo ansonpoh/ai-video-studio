@@ -69,7 +69,8 @@ export const VideoRequest = z.object({
   language: z.string().default("en"),
   narration: z.boolean().default(true),
   voiceId: z.string().optional(),
-  captions: z.boolean().default(true),
+  /** Every video has captions. Still accepted so older requests and projects keep loading. */
+  captions: z.boolean().default(true).transform((): boolean => true),
   captionStyle: z.union([CaptionStyleName, z.literal("auto")]).default("auto"),
   music: z.string().default("auto"), // "auto" | "none" | file name inside music/
   musicVolume: z.number().min(0).max(1).default(0.18),
