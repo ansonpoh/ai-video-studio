@@ -20,3 +20,14 @@ describe("fal input mapping", () => {
     expect(input.resolution).toBe("720p");
   });
 });
+
+describe("fal error mapping", () => {
+  it("shows fal's own reason for a 403 instead of blaming the key", async () => {
+    const { ApiError } = await import("@fal-ai/client");
+    const { FalVideo } = await import("../../src/media/video/fal");
+    const body = { detail: "User is locked. Reason: Exhausted balance. Top up your balance at fal.ai/dashboard/billing" };
+    const client = { subscribe: async () => { throw new ApiError({ message: "Forbidden", status: 403, body, requestId: "r1" }); }, storage: { upload: async () => "" } };
+    const v = new FalVideo({ apiKey: "k", model: "fal-ai/kling-video/v2.5-turbo/pro/image-to-video", client: client as never });
+    await expect(v.generate(req)).rejects.toThrow(/Exhausted balance/);
+  });
+});

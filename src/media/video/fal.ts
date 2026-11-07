@@ -101,7 +101,10 @@ export class FalVideo implements VideoProvider {
     if (err instanceof ApiError) {
       const s = err.status;
       const retryable = s === 429 || s >= 500 || (s === 408 && !err.isUserTimeout);
-      const msg = s === 401 || s === 403 ? "authentication failed - check VIDEO_PROVIDER_API_KEY / FAL_KEY" : err.message;
+      // fal also answers 403 for a locked account (e.g. "Exhausted balance"), so surface its own detail.
+      const detail = (err.body as { detail?: unknown } | undefined)?.detail;
+      const falSays = typeof detail === "string" ? detail : err.message;
+      const msg = s === 401 ? `authentication failed - check VIDEO_PROVIDER_API_KEY / FAL_KEY (${falSays})` : s === 403 ? `request refused by fal: ${falSays}` : err.message;
       return new ProviderError(this.name, msg, retryable, s);
     }
     if (err instanceof TypeError) return new ProviderError(this.name, `network error: ${err.message}`, true);
