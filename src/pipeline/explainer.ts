@@ -25,7 +25,7 @@ export const explainerSceneCount = (seconds: number) => Math.min(60, Math.max(3,
  * video"). A number typed alongside another specific preset is left alone, so
  * validation can say why that combination doesn't work.
  */
-export const withLengthDefaults = <T extends VideoRequestInput>(input: T): T => {
+export const withLengthDefaults = (input: VideoRequestInput): VideoRequestInput => {
   const stated = input.durationSeconds;
   // The prompt's length only counts while the form still holds its default.
   const hinted = stated === undefined || stated === 30 ? parseDuration(input.prompt ?? "") : undefined;
