@@ -151,8 +151,8 @@ Background clip models checked on fal (Nov 2026 list prices; set `VIDEO_BACKGROU
 
 | Model id | Price | Notes |
 |---|---|---|
-| `minimax/h3-max-turbo/image-to-video` | $0.04/s at 768P | cheapest; 5 s ≈ $0.20 |
-| `fal-ai/ltx-2/image-to-video/fast` | $0.04/s at 1080p | minimum 6 s, so ≈ $0.24 a clip |
+| `minimax/h3-max-turbo/image-to-video` | $0.04/s at 768P | cheapest; 5 s ≈ $0.20. Tested: stable, subtle motion, ~18 s per clip, 768x1344 (scaled up), comes with an audio track (muted in the video) |
+| `fal-ai/ltx-2/image-to-video/fast` | $0.04/s at 1080p | minimum 6 s, so ≈ $0.24 a clip. Returned 404 in a live test on 2026-11-07 although fal still lists it |
 | `fal-ai/wan-25-preview/image-to-video` | $0.10/s at 720p ($0.05 at 480p) | |
 | `minimax/h3-max/image-to-video` | $0.08/s at 768P | |
 | `fal-ai/kling-video/v3/standard/image-to-video` | $0.084/s (audio off, which the studio sets) | higher quality hero option |
