@@ -245,3 +245,38 @@ describe("narration running out of credits", () => {
     expect(free.calls).toBe(narration.length);
   }, 60_000);
 });
+
+describe("explainer projects", () => {
+  const providers = createMockProviders();
+  let id = "";
+
+  beforeAll(async () => {
+    id = createProject({ prompt: "How a bank CRM stays secure", quality: "explainer", aspectRatio: "16:9", captions: false, durationSeconds: 300, budgetUsd: 5 }, { providers: { llm: "mock" } });
+    await runPipeline(id, { providers, renderer: fakeRenderer, skipExport: true });
+  }, 60_000);
+
+  it("draws slides, a chapter bar and a dark look with no clips or music", () => {
+    const src = fs.readFileSync(P(id).editable, "utf8");
+    expect(syntaxErrors(src)).toEqual([]);
+    expect(store.storyboard(id).scenes.every((s) => s.layout === "slide")).toBe(true);
+    expect(src).toContain("<SlideLayer");
+    expect(src).toContain("<ChapterBar");
+    expect(src).not.toContain("<ArtLayer");
+    expect(store.metadata(id).direction?.visualStyle.name).toBe("Dark glass explainer");
+    expect(store.assets(id).music).toBeFalsy();
+    expect(providers.video.calls).toBe(0);
+  });
+
+  it("moves a scene's media into a browser window when a recording replaces it", async () => {
+    const scene = store.storyboard(id).scenes.find((s) => s.visual.type === "generated_image")!;
+    const file = path.join(tmp, "recording.png");
+    fs.writeFileSync(file, solidPng());
+    const lineOf = (src: string, name: string) => src.split("\n").find((l) => l.includes(`name="${scene.id} ${name}"`))!;
+    expect(lineOf(fs.readFileSync(P(id).editable, "utf8"), "visual")).toContain('chrome="none"');
+    await ops.replaceMedia(id, scene.id, file);
+    const src = fs.readFileSync(P(id).editable, "utf8");
+    expect(syntaxErrors(src)).toEqual([]);
+    expect(lineOf(src, "visual")).toContain('chrome="browser"');
+    expect(lineOf(src, "layout")).toContain('mediaMode="frame"');
+  }, 60_000);
+});

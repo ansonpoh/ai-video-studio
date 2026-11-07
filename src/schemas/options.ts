@@ -59,7 +59,8 @@ export const RESOLUTIONS: Record<AspectRatio, { width: number; height: number }>
 
 export const VideoRequest = z.object({
   prompt: z.string().min(3, "Describe the video you want (at least a few words)."),
-  durationSeconds: z.number().int().min(5).max(180).default(30),
+  /** Up to 180 s, or 900 s with the explainer preset (checked below). */
+  durationSeconds: z.number().int().min(5).max(900).default(30),
   aspectRatio: AspectRatio.default("9:16"),
   fps: z.number().int().min(24).max(60).default(30),
   style: VisualStylePreference.default("auto"),
@@ -89,6 +90,6 @@ export const VideoRequest = z.object({
   offline: z.boolean().default(false),
   /** Allow sound effect generation (costs money when ElevenLabs is configured). */
   soundEffects: z.boolean().default(false),
-});
+}).refine((r) => r.quality === "explainer" || r.durationSeconds <= 180, { message: "Videos over 180 seconds need the explainer preset.", path: ["durationSeconds"] });
 export type VideoRequest = z.infer<typeof VideoRequest>;
 export type VideoRequestInput = z.input<typeof VideoRequest>;

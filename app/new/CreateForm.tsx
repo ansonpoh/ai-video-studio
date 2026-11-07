@@ -13,7 +13,7 @@ const QUALITY_TEXT: Record<string, string> = {
   hybrid: "Recommended. AI stills with camera moves on most scenes, real AI clips for the hook and 2 key moments. You review the stills before paying for clips.",
   balanced: "Medium-quality images, up to 2 AI video clips, sound effects.",
   premium: "High-quality images on every scene, up to 5 AI video clips, sound effects.",
-  explainer: "Very cheap AI stills in one dark glass look, no clips, music or captions. Landscape, like a presentation.",
+  explainer: "Narrated slides with panels and diagrams that appear as they're spoken, a few cheap AI stills, and a chapter bar. No clips, music or captions. Up to 15 minutes.",
 };
 
 const MODE_TEXT: Record<string, string> = {
@@ -75,6 +75,8 @@ export function CreateForm({ options, capabilities, music, presets, prices }: Pr
       setCaptions(false);
       setSfx(false);
       setMusicChoice("none");
+    } else {
+      setDuration((d) => Math.min(d, 180));
     }
   };
 
@@ -85,7 +87,8 @@ export function CreateForm({ options, capabilities, music, presets, prices }: Pr
     const lines: { what: string; usd: number }[] = [];
     if (llm === "anthropic" && !offline && hasLlm) lines.push({ what: "Script & storyboard", usd: prices.llmRun });
     if (live("AI images") && visualMode !== "procedural_only" && visualMode !== "stock_preferred") {
-      const n = Math.round(scenes * rules.generatedImageShare);
+      // Explainers use about one still per 75 seconds; the rest are slides drawn in code.
+      const n = "budgetImages" in rules && rules.budgetImages ? Math.max(3, Math.round(duration / 75)) : Math.round(scenes * rules.generatedImageShare);
       if ("budgetImages" in rules && rules.budgetImages) lines.push({ what: `~${n} images (budget)`, usd: n * prices.budgetImage });
       else lines.push({ what: `~${n} images (${rules.imageQuality})`, usd: n * prices.image[rules.imageQuality] });
     }
@@ -241,7 +244,7 @@ export function CreateForm({ options, capabilities, music, presets, prices }: Pr
           <div className="form-grid">
             <label className="field">
               <span>Duration: {duration}s</span>
-              <input type="range" min={5} max={180} step={5} value={duration} onChange={(e) => setDuration(Number(e.target.value))} />
+              <input type="range" min={5} max={quality === "explainer" ? 900 : 180} step={5} value={duration} onChange={(e) => setDuration(Number(e.target.value))} />
             </label>
             <div className="field span-2" style={{ display: "flex", flexDirection: "column", gap: 6 }}>
               <span className="field-label">Aspect ratio</span>

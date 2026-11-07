@@ -35,19 +35,61 @@ type MediaLayerProps = {
   motionStrength: number;
   darken: number;
   blur: number;
+  /** Position as fractions of the frame: "x y width height". Empty means full frame. */
+  box?: string;
+  /** "browser" draws a browser window around the media. */
+  chrome?: string;
+  chromeLabel?: string;
+  /** Above 1, crushes near-black to black so a dark still melts into the background. */
+  blackPoint?: number;
+  /** 0 to 1: how much of the edges fades out. */
+  edgeFade?: number;
   style?: CSSProperties;
 };
 
-const MediaLayerInner: React.FC<MediaLayerProps> = ({ src, mediaType, motion, motionStrength, darken, blur, style }) => {
-  const frame = useCurrentFrame();
-  const { durationInFrames } = useVideoConfig();
-  const cam = cameraMove(motion as MediaMotion, frame / Math.max(1, durationInFrames - 1), motionStrength);
-  const media: CSSProperties = { width: "100%", height: "100%", objectFit: "cover", filter: blur ? `blur(${blur}px)` : undefined };
+const boxStyle = (box: string | undefined, width: number, height: number): CSSProperties => {
+  const n = (box ?? "").trim().split(/\s+/).map(Number);
+  if (n.length !== 4 || n.some((v) => !Number.isFinite(v))) return fill;
+  return { position: "absolute", left: n[0] * width, top: n[1] * height, width: n[2] * width, height: n[3] * height };
+};
+
+const BrowserChrome: React.FC<{ label?: string; scale: number; children: React.ReactNode }> = ({ label, scale: s, children }) => {
+  const bar = 46 * s;
   return (
-    <div style={{ ...fill, overflow: "hidden", ...style }}>
-      <div style={{ ...fill, scale: `${cam.scale}`, translate: `${cam.x}px ${cam.y}px` }}>
-        {mediaType === "video" ? <Video src={src} muted loop style={media} /> : <Img src={src} style={media} />}
+    <div style={{ ...fill, display: "flex", flexDirection: "column", borderRadius: 16 * s, overflow: "hidden", backgroundColor: "#0c1114", border: `${1.5 * s}px solid rgba(255,255,255,0.14)`, boxShadow: `0 ${24 * s}px ${70 * s}px rgba(0,0,0,0.55)` }}>
+      <div style={{ flex: "none", height: bar, display: "flex", alignItems: "center", gap: 8 * s, padding: `0 ${16 * s}px`, backgroundColor: "#161d21" }}>
+        {["#ff5f57", "#febc2e", "#28c840"].map((c) => (
+          <div key={c} style={{ width: 12 * s, height: 12 * s, borderRadius: 6 * s, backgroundColor: c }} />
+        ))}
+        {label ? <div style={{ marginLeft: 10 * s, padding: `${4 * s}px ${14 * s}px`, borderRadius: 8 * s, backgroundColor: "rgba(255,255,255,0.07)", fontFamily: "Inter, sans-serif", fontSize: 15 * s, color: "rgba(255,255,255,0.65)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{label}</div> : null}
       </div>
+      <div style={{ position: "relative", flex: 1, minHeight: 0, overflow: "hidden" }}>{children}</div>
+    </div>
+  );
+};
+
+const MediaLayerInner: React.FC<MediaLayerProps> = ({ src, mediaType, motion, motionStrength, darken, blur, box, chrome, chromeLabel, blackPoint, edgeFade, style }) => {
+  const frame = useCurrentFrame();
+  const { durationInFrames, width, height } = useVideoConfig();
+  const cam = cameraMove(motion as MediaMotion, frame / Math.max(1, durationInFrames - 1), motionStrength);
+  const framed = chrome === "browser";
+  const filter = [blur ? `blur(${blur}px)` : "", blackPoint && blackPoint > 1 ? `contrast(${blackPoint})` : ""].filter(Boolean).join(" ") || undefined;
+  // A recording is never cropped: it matters what's on screen.
+  const media: CSSProperties = { width: "100%", height: "100%", objectFit: framed ? "contain" : "cover", filter };
+  const element = mediaType === "video" ? <Video src={src} muted loop style={media} /> : <Img src={src} style={media} />;
+  if (framed) {
+    return (
+      <div style={{ ...boxStyle(box, width, height), ...style }}>
+        <BrowserChrome label={chromeLabel} scale={height > width ? width / 1080 : width / 1920}>
+          <div style={fill}>{element}</div>
+        </BrowserChrome>
+      </div>
+    );
+  }
+  const fade = edgeFade ? `radial-gradient(ellipse 50% 50% at center, #000 ${Math.round(100 - edgeFade * 70)}%, transparent 100%)` : undefined;
+  return (
+    <div style={{ ...boxStyle(box, width, height), overflow: "hidden", maskImage: fade, WebkitMaskImage: fade, ...style }}>
+      <div style={{ ...fill, scale: `${cam.scale}`, translate: `${cam.x}px ${cam.y}px` }}>{element}</div>
       {darken > 0 ? <div style={{ ...fill, background: `linear-gradient(180deg, rgba(0,0,0,${darken * 0.7}) 0%, rgba(0,0,0,${darken * 0.15}) 40%, rgba(0,0,0,${darken}) 100%)` }} /> : null}
     </div>
   );
@@ -63,6 +105,11 @@ export const MediaLayer = Interactive.create({
     motionStrength: numberField(0.08, "Motion strength", { min: 0, max: 0.4, step: 0.01 }),
     darken: numberField(0.35, "Darken for text", { min: 0, max: 1, step: 0.05 }),
     blur: numberField(0, "Blur", { min: 0, max: 40, step: 1 }),
+    box: stringField("", "Position: x y width height, as fractions (empty = full frame)"),
+    chrome: enumField(["none", "browser"] as const, "none", "Window around the media"),
+    chromeLabel: stringField("", "Address shown in the window"),
+    blackPoint: numberField(1, "Crush blacks", { min: 1, max: 2, step: 0.05 }),
+    edgeFade: numberField(0, "Fade the edges", { min: 0, max: 1, step: 0.05 }),
   },
 });
 

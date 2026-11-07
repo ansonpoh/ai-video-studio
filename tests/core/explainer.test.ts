@@ -56,9 +56,11 @@ describe("image provider choice", () => {
 
 describe("image sizes", () => {
   it("match the video's orientation", () => {
-    expect(imageSizeFor(request({ aspectRatio: "16:9" }))).toEqual({ width: 1536, height: 864 });
-    expect(imageSizeFor(request({ aspectRatio: "9:16" }))).toEqual({ width: 1024, height: 1536 });
-    expect(imageSizeFor(request({ aspectRatio: "1:1" }))).toEqual({ width: 1024, height: 1024 });
+    const hybrid = { quality: "hybrid" };
+    expect(imageSizeFor(request({ ...hybrid, aspectRatio: "16:9" }))).toEqual({ width: 1536, height: 864 });
+    expect(imageSizeFor(request({ ...hybrid, aspectRatio: "9:16" }))).toEqual({ width: 1024, height: 1536 });
+    expect(imageSizeFor(request({ ...hybrid, aspectRatio: "1:1" }))).toEqual({ width: 1024, height: 1024 });
+    expect(imageSizeFor(request({ aspectRatio: "16:9" }))).toEqual({ width: 1216, height: 1216 });
   });
 });
 

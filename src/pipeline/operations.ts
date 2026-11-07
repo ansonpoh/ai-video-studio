@@ -21,7 +21,7 @@ import { enforceBudget, recordCost, type PlannedCost } from "./budget";
 import { planAssets, plannedCosts, resolveSceneAsset, sceneEntry, nextVersionFile, type AssetPlan } from "./assets";
 import { synthesizeScene, upsertNarration } from "./narration";
 import { composeEditable, editableIsUserModified, effectiveScenes, exportCaptions, markEditablePatched, resolvedCaptionStyle, timelineFor } from "./compose";
-import { componentNameFor, sceneAudioCaptionCode, sceneLayoutCode, sceneSequenceCode, sceneVisualCode, type SceneCodeInput } from "../editable/codegen";
+import { chaptersLiteral, componentNameFor, sceneAudioCaptionCode, sceneLayoutCode, sceneSequenceCode, sceneVisualCode, type SceneCodeInput } from "../editable/codegen";
 import { appendChild, findByName, findSceneSequence, listElements, readSceneSpans, removeElement, setAttr, syntaxErrors, type JsxEl } from "../editable/ast";
 import { mediaDurationSeconds } from "../media/ffmpeg";
 
@@ -150,12 +150,13 @@ const replaceEl = (src: string, el: JsxEl, code: string) => src.slice(0, el.star
 const patchVisual = (src: string, x: SceneCodeInput): string => {
   const id = x.scene.id;
   const lines = sceneVisualCode(x, "          ");
-  const newVisual = lineFor(lines, `${id} visual`)!;
+  const newVisual = lineFor(lines, `${id} visual`);
   const old = findByName(src, `${id} visual`);
-  if (old && old.tag === "MediaLayer" && newVisual.trim().startsWith("<MediaLayer")) {
+  // A slide's media placement depends on the media (a recording gets a window), so slides are always rebuilt.
+  if (old && old.tag === "MediaLayer" && newVisual?.trim().startsWith("<MediaLayer") && x.scene.layout !== "slide") {
     // same component: only swap the media, keep the user's motion/position/darken edits
-    const srcCode = /src=(\{staticFile\([^)]*\)\})/.exec(newVisual)![1];
-    const typeCode = /mediaType=("[a-z]+")/.exec(newVisual)![1];
+    const srcCode = /src=(\{staticFile\([^)]*\)\})/.exec(newVisual!)![1];
+    const typeCode = /mediaType=("[a-z]+")/.exec(newVisual!)![1];
     src = setAttr(src, `${id} visual`, "src", srcCode);
     return setAttr(src, `${id} visual`, "mediaType", typeCode);
   }
@@ -207,6 +208,15 @@ const patchLayout = (src: string, x: SceneCodeInput): string => {
   return src;
 };
 
+/** Chapter starts move whenever a scene's length changes. */
+const patchChapters = (src: string, id: string, fps: number) => {
+  if (!listElements(src).some((e) => e.tag === "ChapterBar")) return src;
+  const { spans } = readSceneSpans(src, fps);
+  const scenes = effectiveScenes(store.storyboard(id), store.edits(id));
+  const starts = scenes.map((s) => spans.find((x) => x.sceneId === s.id)?.startFrame ?? 0);
+  return setAttr(src, "Chapter bar", "chaptersJson", `{${JSON.stringify(chaptersLiteral(scenes, starts))}}`);
+};
+
 const patchDuckRanges = (src: string, id: string, fps: number, timeline: ReturnType<typeof timelineFor>) => {
   const music = listElements(src).find((e) => e.tag === "MusicBed");
   if (!music?.name) return src;
@@ -248,6 +258,7 @@ export const patchScenes = (id: string, sceneIds: string[], parts: PatchPart[]):
     if (parts.includes("visual")) {
       src = patchVisual(src, x);
       patched.push(`${sid} visual`);
+      if (x.scene.layout === "slide") src = patchLayout(src, x);
     }
     if (parts.includes("layout")) {
       src = patchLayout(src, x);
@@ -256,13 +267,18 @@ export const patchScenes = (id: string, sceneIds: string[], parts: PatchPart[]):
     if (parts.includes("audio")) {
       src = patchAudio(src, x);
       patched.push(`${sid} narration + captions`);
+      // reveal frames follow the narration
+      if (x.scene.layout === "slide") src = patchLayout(src, x);
     }
     if (parts.includes("duration") || parts.includes("audio")) {
       const seq = findSceneSequence(src, sid)!;
       src = setAttr(src, seq.name!, "durationInFrames", `{${x.timing.durationInFrames}}`, (s) => findSceneSequence(s, sid));
     }
   }
-  if (parts.some((x) => x === "audio" || x === "duration" || x === "sequence")) src = patchDuckRanges(src, id, meta.fps, timeline);
+  if (parts.some((x) => x === "audio" || x === "duration" || x === "sequence")) {
+    src = patchDuckRanges(src, id, meta.fps, timeline);
+    src = patchChapters(src, id, meta.fps);
+  }
   const errors = syntaxErrors(src);
   if (errors.length) throw new Error(`Patch produced invalid code (file left unchanged): ${errors.join("; ")}`);
   fs.writeFileSync(p.editable, src);

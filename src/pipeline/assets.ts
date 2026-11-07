@@ -66,6 +66,8 @@ export const imageProviderFor = (providers: Providers, request: VideoRequest) =>
 /** Generation size matching the video's orientation. */
 export const imageSizeFor = (request: VideoRequest) => {
   const o = portrait(request);
+  // Budget stills float in a roughly square area of a slide, so a wide image would only be cropped.
+  if (PRESETS[request.quality].budgetImages) return { width: 1216, height: 1216 };
   return o === "landscape" ? { width: 1536, height: 864 } : o === "square" ? { width: 1024, height: 1024 } : { width: 1024, height: 1536 };
 };
 
@@ -195,7 +197,7 @@ export type ResolveContext = {
 };
 
 const stylePrompt = (s: Scene, d: CreativeDirection, request: VideoRequest, override?: string) =>
-  [s.visual.prompt ?? s.visual.description, override ?? d.visualStyle.imageStylePrompt, `${COMPOSITION[portrait(request)]}, cinematic lighting, no text, no letters, no logos, no watermarks`].filter(Boolean).join(". ");
+  [s.visual.prompt ?? s.visual.description, override ?? d.visualStyle.imageStylePrompt, `${PRESETS[request.quality].budgetImages ? COMPOSITION.square : COMPOSITION[portrait(request)]}, cinematic lighting, no text, no letters, no logos, no watermarks`].filter(Boolean).join(". ");
 
 /** Produces the asset for one scene according to its plan; returns the new Asset or null for live art. */
 export const resolveSceneAsset = async (ctx: ResolveContext, scene: Scene, plan: AssetPlan, index: number, styleOverride?: string): Promise<Asset | null> => {

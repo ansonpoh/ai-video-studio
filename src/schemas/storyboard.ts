@@ -43,7 +43,7 @@ export const CreativeDirection = z.object({
   captionStyle: CaptionStyleName,
   transitionStyle: z.enum(TRANSITIONS),
   musicMood: z.enum(MUSIC_MOODS),
-  targetSceneCount: z.number().int().min(2).max(20),
+  targetSceneCount: z.number().int().min(2).max(60),
   hookIdea: z.string(),
   ending: z.string(),
   needsFactCheck: z.boolean(),
@@ -103,10 +103,21 @@ const SceneBase = z.object({
   animationPreset: z.enum(ANIMATION_PRESETS).default("fade-up"),
   /** Transition INTO this scene (ignored for the first scene). */
   transitionIn: z.enum(TRANSITIONS).default("crossfade"),
-  estimatedDurationSeconds: z.number().min(1).max(30).default(4),
+  estimatedDurationSeconds: z.number().min(1).max(120).default(4),
+  /** Section label on the chapter bar; scenes without one continue the previous chapter. */
+  chapter: z.string().max(24).optional(),
   sfx: z.enum(SFX_KINDS).optional(),
   claims: z.array(Claim).default([]),
 });
+
+export const SlideItem = z.object({
+  title: z.string(),
+  body: z.string().optional(),
+  tag: z.string().optional(),
+  /** Words from the narration; the item appears when they are spoken. */
+  cue: z.string().optional(),
+});
+export type SlideItem = z.infer<typeof SlideItem>;
 
 /** Layout-specific content. Discriminated on `layout` so each scene component gets exactly the props it needs. */
 export const SceneLayout = z.discriminatedUnion("layout", [
@@ -145,6 +156,17 @@ export const SceneLayout = z.discriminatedUnion("layout", [
   }),
   z.object({ layout: z.literal("outro"), cta: z.string() }),
   z.object({ layout: z.literal("mixed_media"), overlayArt: z.enum(PROCEDURAL_ART).optional() }),
+  z.object({
+    layout: z.literal("slide"),
+    slideKind: z.enum(["statement", "cards", "steps", "diagram", "media"]),
+    kicker: z.string().optional(),
+    heading: z.string(),
+    headingAccent: z.string().optional(),
+    items: z.array(SlideItem).max(12).default([]),
+    edges: z.array(z.object({ from: z.number().int().min(0), to: z.number().int().min(0) })).max(20).default([]),
+    /** What belongs in a media slide's frame, e.g. "The app's users page". */
+    mediaHint: z.string().optional(),
+  }),
 ]);
 export type SceneLayout = z.infer<typeof SceneLayout>;
 export type LayoutName = SceneLayout["layout"];
@@ -159,7 +181,7 @@ export const Storyboard = z.object({
   model: z.string().optional(),
   title: z.string(),
   hook: z.string(),
-  scenes: z.array(Scene).min(1).max(24),
+  scenes: z.array(Scene).min(1).max(60),
   sources: z.array(z.object({ title: z.string(), url: z.string().url() })).default([]),
   disclaimer: z.string().optional(),
 });

@@ -23,6 +23,10 @@ export const selectAnimations = (d: CreativeDirection, scenes: Scene[]): Scene[]
   const fam = FAMILIES[familyFor(d)];
   const out: Scene[] = [];
   scenes.forEach((s, i) => {
+    if (s.layout === "slide") {
+      out.push({ ...s, transitionIn: i === 0 ? "cut" : "crossfade", animationPreset: "fade-up" } as Scene);
+      return;
+    }
     let transitionIn: TransitionName = i === 0 ? "cut" : fam.transitions.includes(s.transitionIn) || s.transitionIn === "cut" ? s.transitionIn : fam.transitions[i % fam.transitions.length];
     const prev1 = out[i - 1]?.transitionIn;
     const prev2 = out[i - 2]?.transitionIn;

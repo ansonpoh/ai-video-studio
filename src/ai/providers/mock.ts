@@ -174,6 +174,19 @@ export class MockLlm implements LlmProvider {
       transitionIn: direction.transitionStyle,
       claims: direction.contentKind === "speculative" ? [{ text: beat.narration, kind: "speculation" as const, confidence: 0.5 }] : [],
     };
+    if (req.quality === "explainer") {
+      const kinds = ["statement", "cards", "steps", "diagram"];
+      const kind = kinds[i % kinds.length];
+      const image = i === 0 || i === total - 1 || i % 5 === 0;
+      const items = kind === "statement" ? [] : ["First part", "Second part", "Third part"].map((title) => ({ title, body: "", tag: "", cue: "" }));
+      return {
+        ...base,
+        layout: "slide",
+        title: direction.title,
+        visual: image ? { type: "generated_image", prompt: `A symbolic object representing ${topic}`, description: `A symbolic object representing ${topic}` } : { type: "animated_text", description: `Slide about ${topic}` },
+        content: { slideKind: kind, heading: i === 0 ? cap(topic) : `Part ${i + 1} of ${total}`, kicker: `Section ${i + 1}`, chapter: `Part ${Math.floor(i / 2) + 1}`, items, edges: kind === "diagram" ? [{ from: 0, to: 1 }, { from: 1, to: 2 }] : [] },
+      };
+    }
     const item = beat.intent.match(/^item:(\d+)$/);
     if (beat.purpose === "hook") {
       return { ...base, layout: "cinematic_image", onScreenText: direction.title, animationPreset: "scale-pop", visual: imageVisual(`A striking opening image about ${topic}`), sfx: "whoosh" };
@@ -214,7 +227,7 @@ export class MockLlm implements LlmProvider {
         : direction.contentKind === "fiction"
           ? "Fictional story."
           : "Offline mock storyboard: placeholder narration, not researched content.";
-    const r = mapLlmStoryboard({ title: script.title, hook: script.hook, scenes, sources: script.sources, disclaimer }, { visualMode: req.visualMode, fallbackArt: pool[0] });
+    const r = mapLlmStoryboard({ title: script.title, hook: script.hook, scenes, sources: script.sources, disclaimer }, { visualMode: req.visualMode, fallbackArt: pool[0], explainer: req.quality === "explainer" });
     if (!r.value) throw new ProviderError(this.name, `mock storyboard invalid: ${r.errors.join("; ")}`);
     return { storyboard: { ...r.value, model: this.model }, cost: ZERO("storyboard") };
   }
@@ -242,7 +255,7 @@ export class MockLlm implements LlmProvider {
       claims: s.claims,
       content: { ...(s as Record<string, unknown>) } as LlmScene["content"],
     };
-    const m = mapLlmScene(flat, index, { visualMode: req.visualMode }, s.layout === "listicle" ? s.number : undefined);
+    const m = mapLlmScene(flat, index, { visualMode: req.visualMode, explainer: req.quality === "explainer" }, s.layout === "listicle" ? s.number : undefined);
     const v = validateScene(m.scene);
     if (!v.value) throw new ProviderError(this.name, `mock rewrite invalid: ${v.errors.join("; ")}`);
     return { scene: v.value, cost: ZERO("scene rewrite") };

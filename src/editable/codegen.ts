@@ -13,6 +13,8 @@ import type { CaptionStyleName } from "../schemas/options";
 import type { ProceduralArt, ThemeName, TransitionName } from "../schemas/catalog";
 import { FONT_STACKS, THEME_TOKENS } from "../video/themes/themes";
 import type { Timeline } from "../rendering/timeline";
+import { chapterMarks, resolveReveals } from "../rendering/reveals";
+import { slideMediaBox, slideMediaMode } from "../video/scenes/slide-layout";
 import { wordsToCaptions } from "../captions";
 
 export type CodegenInput = {
@@ -46,6 +48,8 @@ const styleObj = (o: Record<string, string | number | undefined>) =>
     .filter(([, v]) => v !== undefined)
     .map(([k, v]) => `${k}: ${typeof v === "number" ? num(v) : str(v as string)}`)
     .join(", ")}}}`;
+/** A string as an expression attribute, safe for quotes and backslashes (plain attributes have no escapes). */
+const strExpr = (s: string) => `{${JSON.stringify(s)}}`;
 const captionsLiteral = (caps: Caption[], indent: string) =>
   `[\n${caps
     .map((c) => `${indent}  {text: ${str(c.text)}, startMs: ${c.startMs}, endMs: ${c.endMs}, timestampMs: ${c.timestampMs ?? "null"}, confidence: null}`)
@@ -107,6 +111,27 @@ const currentAsset = (manifest: AssetManifest, sceneId: string): Asset | undefin
 const STILL_MOVES = ["push-in", "pan-left", "pull-out", "pan-up", "parallax", "pan-right"] as const;
 const isVideoAsset = (a: Asset) => a.kind === "generated_video" || a.kind === "stock_video" || (a.kind === "uploaded" && a.mediaType === "video");
 
+/** The latest still before this scene: plain slides show it as a faint ghost, so a section keeps its look at no extra cost. */
+const earlierStill = (manifest: AssetManifest, sceneId: string) =>
+  [...manifest.scenes]
+    .filter((s) => s.sceneId < sceneId)
+    .sort((a, b) => b.sceneId.localeCompare(a.sceneId))
+    .map((s) => currentAsset(manifest, s.sceneId))
+    .find((a) => a?.kind === "generated_image");
+
+const slideMediaOf = (asset: Asset | undefined) => (!asset ? ("none" as const) : asset.kind === "uploaded" ? ("uploaded" as const) : ("generated" as const));
+
+/** Reveal frames follow the narration; call again whenever the narration changes. */
+const slideItems = (x: SceneCodeInput) => {
+  if (x.scene.layout !== "slide") return [];
+  const { items } = x.scene;
+  const seg = x.manifest.narration.find((n) => n.sceneId === x.scene.id);
+  const at = resolveReveals(items.map((i) => i.cue), seg?.words ?? [], x.timing.narrationOffsetFrames, x.timing.narrationFrames, x.fps);
+  return items.map((i, k) => ({ title: i.title, ...(i.body ? { body: i.body } : {}), ...(i.tag ? { tag: i.tag } : {}), at: at[k] }));
+};
+
+export const chaptersLiteral = (scenes: Scene[], startFrames: number[]) => JSON.stringify(chapterMarks(scenes, startFrames));
+
 /* -------------------------------------------------------------- per-scene */
 
 export type SceneCodeInput = Omit<CodegenInput, "scenes" | "timeline"> & { scene: Scene; index: number; timing: Timeline["scenes"][number]; isLast: boolean };
@@ -124,6 +149,27 @@ export const sceneVisualCode = (x: SceneCodeInput, indent: string) => {
     `${indent}<ArtLayer name=${str(name)} art=${str(art)} primaryColor=${str(pal.primary)} accentColor=${str(pal.accent)} backgroundColor=${str(pal.background)} labels=${str(labels)} seed={${x.index + 1}} labelFont=${str(fonts.body)}${scene.onScreenText ?? scene.title ? " titleSafe" : ""}${x.captionsEnabled && scene.narration.trim() ? " captionSafe" : ""} style=${styleObj({ translate: "0px 0px", scale: 1, ...extraStyle })} />`;
   const darken = ["cinematic_image", "video_clip", "mixed_media"].includes(scene.layout) ? 0.35 : 0.55;
   const lines: string[] = [];
+  if (scene.layout === "slide") {
+    lines.push(`${indent}<Backdrop name=${str(`${id} backdrop`)} colorA=${str(pal.background)} colorB=${str(pal.background)} angle={160} style=${styleObj({})} />`);
+    if (!asset) {
+      const ghost = earlierStill(manifest, id);
+      if (ghost) {
+        lines.push(
+          `${indent}<MediaLayer name=${str(`${id} visual`)} src={staticFile(${str(`${projectId}/${ghost.file}`)})} mediaType="image" motion="parallax" motionStrength={0.03} darken={0} blur={3} box=${str(slideMediaBox("side", true, x.height > x.width))} chrome="none" chromeLabel="" blackPoint={1.25} edgeFade={0.6} style=${styleObj({ translate: "0px 0px", scale: 1, opacity: 0.2 })} />`,
+        );
+      }
+      return lines;
+    }
+    const mode = slideMediaMode(scene.slideKind, slideMediaOf(asset));
+    const box = slideMediaBox(mode, scene.items.length > 0, x.height > x.width);
+    const framed = mode === "frame";
+    const motion = framed ? "static" : scene.visual.motion === "static" ? "push-in" : scene.visual.motion;
+    const src = `staticFile(${str(`${projectId}/${asset.file}`)})`;
+    lines.push(
+      `${indent}<MediaLayer name=${str(`${id} visual`)} src={${src}} mediaType=${str(isVideoAsset(asset) ? "video" : "image")} motion=${str(motion)} motionStrength={${framed ? 0 : 0.04}} darken={${mode === "backdrop" ? 0.85 : 0}} blur={0} box=${str(box)} chrome=${str(framed ? "browser" : "none")} chromeLabel=${strExpr(scene.mediaHint ?? "")} blackPoint={${framed ? 1 : 1.25}} edgeFade={${framed ? 0 : mode === "backdrop" ? 0.5 : 0.6}} style=${styleObj({ translate: "0px 0px", scale: 1 })} />`,
+    );
+    return lines;
+  }
   const useArtOnly = !asset || (scene.layout === "diagram" && asset.kind !== "uploaded");
   const cardLayout = !["cinematic_image", "video_clip", "mixed_media", "diagram", "text_reveal"].includes(scene.layout);
   if (cardLayout) {
@@ -168,6 +214,14 @@ export const sceneLayoutCode = (x: SceneCodeInput, indent: string): string[] => 
   const L = scene;
   const out: (string | null)[] = [];
   switch (L.layout) {
+    case "slide": {
+      const asset = currentAsset(x.manifest, id);
+      const mode = slideMediaMode(L.slideKind, slideMediaOf(asset));
+      out.push(
+        `${indent}<SlideLayer name=${str(`${id} layout`)} kind=${str(L.slideKind)} kicker=${strExpr(L.kicker ?? "")} heading=${strExpr(L.heading)} headingAccent=${strExpr(L.headingAccent ?? "")} itemsJson=${strExpr(JSON.stringify(slideItems(x)))} edgesJson=${strExpr(JSON.stringify(L.edges))} mediaMode=${str(mode)} hasMedia={${Boolean(asset)}} mediaHint=${strExpr(L.mediaHint ?? "")} primaryColor=${str(pal.primary)} accentColor=${str(pal.accent)} textColor=${str(pal.text)} mutedColor=${str(theme.muted)} panelColor=${str("rgba(255,255,255,0.05)")} displayFont=${str(fonts.display)} bodyFont=${str(fonts.body)} ${t0} />`,
+      );
+      break;
+    }
     case "cinematic_image":
     case "video_clip":
     case "mixed_media":
@@ -288,6 +342,8 @@ export const generateEditableComposition = (input: CodegenInput): string => {
     })
     .filter(Boolean);
   const vignette = ["clean-light", "vivid"].includes(theme.name) ? 0.15 : 0.5;
+  const chapters = chaptersLiteral(input.scenes, input.timeline.scenes.map((s) => s.startFrame));
+  const chapterBar = chapters !== "[]" ? `\n      <ChapterBar name="Chapter bar" chaptersJson=${strExpr(chapters)} activeColor=${str(d.visualStyle.palette.primary)} textColor=${str(d.visualStyle.palette.text)} font=${str(FONT_STACKS[d.visualStyle.fontPairing].body)} style=${styleObj({})} />` : "";
   return `/**
  * Editable composition for project "${input.projectId}".
  * Generated once by the video studio, then owned by you: open it in Remotion
@@ -307,6 +363,7 @@ import {
   ArtLayer,
   Backdrop,
   CaptionLayer,
+  ChapterBar,
   Chip,
   ComparisonScene,
   FactCardScene,
@@ -318,6 +375,7 @@ import {
   OutroScene,
   ProductShowcaseScene,
   QuoteScene,
+  SlideLayer,
   TextLayer,
   TimelineScene,
 } from "../../../src/video/scenes";
@@ -329,7 +387,7 @@ export const ${input.componentName} = () => {
       <TransitionSeries name="Scenes">
 ${seqs.join("\n")}
       </TransitionSeries>
-      <FilmLook name="Film look" vignette={${vignette}} grain={${theme.grain}} tint=${str(d.visualStyle.palette.primary)} tintAmount={0} />
+      <FilmLook name="Film look" vignette={${vignette}} grain={${theme.grain}} tint=${str(d.visualStyle.palette.primary)} tintAmount={0} />${chapterBar}
       <Track name="Music">
         ${music ? `<MusicBed name="Music" src={staticFile(${str(`${input.projectId}/${music.file}`)})} volume={${input.musicVolume}} duckTo={${Number((input.musicVolume * 0.4).toFixed(3))}} fadeInSeconds={1} fadeOutSeconds={2} muted={false} duckRanges={${JSON.stringify(duck)}} />` : "{/* no music selected */}"}
       </Track>
