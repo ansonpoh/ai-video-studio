@@ -87,7 +87,7 @@ export class FalVideo implements VideoProvider {
       if (!res.ok) throw new ProviderError(this.name, `downloading generated clip failed: HTTP ${res.status}`, res.status >= 500, res.status);
       const data = Buffer.from(await res.arrayBuffer());
       const usd = this.estimateUsd(req);
-      return { data, model: this.model, cost: { estimatedUsd: usd, actualUsd: usd, description: `${this.model} ${Math.round(req.durationSeconds)}s ${req.resolution} clip (price assumption)` } };
+      return { data, model: this.model, cost: { estimatedUsd: usd, actualUsd: usd, description: `${this.model} ${Math.round(req.durationSeconds)}s ${fieldMapFor(this.model).resolution ? `${req.resolution} ` : ""}clip (price assumption)` } };
     } catch (err) {
       throw this.mapError(err);
     }
