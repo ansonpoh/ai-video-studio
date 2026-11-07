@@ -38,7 +38,6 @@ export const withLengthDefaults = (input: VideoRequestInput): VideoRequestInput 
     quality: "explainer",
     durationSeconds: Math.min(seconds, 900),
     aspectRatio: !input.aspectRatio || input.aspectRatio === "9:16" ? "16:9" : input.aspectRatio,
-    captions: false,
   };
 };
 

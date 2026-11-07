@@ -157,7 +157,7 @@ const SlideInner: React.FC<SlideProps> = (props) => {
     const { columns, nodes } = layoutDiagram(items.length, edges);
     const top = (portrait ? 300 : 230) * s;
     const areaW = width - margin * 2;
-    const areaH = height - top - 130 * s;
+    const areaH = height - top - 190 * s;
     const major = portrait ? areaH : areaW;
     const minor = portrait ? areaW : areaH;
     const slot = major / Math.max(1, columns);
@@ -228,7 +228,7 @@ const SlideInner: React.FC<SlideProps> = (props) => {
             position: "absolute",
             left: margin,
             top: contentTop,
-            bottom: mode === "side" && !portrait ? 100 * s : undefined,
+            bottom: mode === "side" && !portrait ? 160 * s : undefined,
             display: "flex",
             flexDirection: "column",
             justifyContent: mode === "side" && !portrait ? "center" : "flex-start",
@@ -245,7 +245,7 @@ const SlideInner: React.FC<SlideProps> = (props) => {
               left: width * (portrait ? 0.05 : items.length ? 0.42 : 0.1),
               top: height * 0.2,
               width: width * (portrait ? 0.9 : items.length ? 0.52 : 0.8),
-              height: height * (portrait ? 0.34 : 0.66),
+              height: height * (portrait ? 0.34 : 0.62),
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -268,7 +268,7 @@ const SlideInner: React.FC<SlideProps> = (props) => {
     body = (
       <>
         <div style={{ position: "absolute", left: margin, top: 80 * s }}>{headingBlock}</div>
-        <div style={{ position: "absolute", left: margin, top: 230 * s, bottom: 110 * s, display: "flex", alignItems: "center" }}>{cards()}</div>
+        <div style={{ position: "absolute", left: margin, top: 230 * s, bottom: 170 * s, display: "flex", alignItems: "center" }}>{cards()}</div>
       </>
     );
   } else if (kind === "diagram") {
@@ -282,12 +282,12 @@ const SlideInner: React.FC<SlideProps> = (props) => {
     body = (
       <>
         <div style={{ position: "absolute", left: margin, top: 80 * s }}>{headingBlock}</div>
-        <div style={{ position: "absolute", left: margin, top: 230 * s, bottom: 110 * s, display: "flex", alignItems: "center" }}>{list(true)}</div>
+        <div style={{ position: "absolute", left: margin, top: 230 * s, bottom: 170 * s, display: "flex", alignItems: "center" }}>{list(true)}</div>
       </>
     );
   } else {
     body = (
-      <div style={{ position: "absolute", left: margin, top: 0, bottom: 100 * s, display: "flex", flexDirection: "column", justifyContent: "center", gap: 36 * s }}>
+      <div style={{ position: "absolute", left: margin, top: 0, bottom: 160 * s, display: "flex", flexDirection: "column", justifyContent: "center", gap: 36 * s }}>
         {headingBlock}
         {items.length ? list(false) : null}
       </div>

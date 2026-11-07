@@ -174,8 +174,8 @@ describe("withLengthDefaults", () => {
   const prompt = "How a bank stays secure";
 
   it("switches long videos to a landscape explainer", () => {
-    expect(withLengthDefaults({ prompt, durationSeconds: 300 })).toMatchObject({ quality: "explainer", durationSeconds: 300, aspectRatio: "16:9", captions: false });
-    expect(withLengthDefaults({ prompt, durationSeconds: 300, quality: "hybrid", aspectRatio: "9:16", captions: true })).toMatchObject({ quality: "explainer", aspectRatio: "16:9", captions: false });
+    expect(withLengthDefaults({ prompt, durationSeconds: 300 })).toMatchObject({ quality: "explainer", durationSeconds: 300, aspectRatio: "16:9" });
+    expect(withLengthDefaults({ prompt, durationSeconds: 300, quality: "hybrid", aspectRatio: "9:16", captions: true })).toMatchObject({ quality: "explainer", aspectRatio: "16:9", captions: true });
     expect(withLengthDefaults({ prompt, durationSeconds: 300, aspectRatio: "1:1" }).aspectRatio).toBe("1:1");
   });
 

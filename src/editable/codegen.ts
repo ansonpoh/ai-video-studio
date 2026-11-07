@@ -285,11 +285,16 @@ export const sceneAudioCaptionCode = (x: SceneCodeInput, indent: string): string
     lines.push(`${indent}<Audio name=${str(`${x.scene.id} narration`)} src={staticFile(${str(`${x.projectId}/${seg.file}`)})} from={${x.timing.narrationOffsetFrames}} volume={1} />`);
   }
   if (x.captionsEnabled && seg && seg.words.length) {
-    const cs = captionStyleFor(x.captionStyle, x.direction, x.height);
+    // Slides already carry a lot of text, so captions are one quiet line under the content.
+    const slide = x.scene.layout === "slide";
+    const portrait = x.height > x.width;
+    const cs = slide
+      ? { style: { fontFamily: "Inter, sans-serif", fontWeight: 500, fontSize: portrait ? 44 : 34, color: "#ffffff", translate: `0px -${Math.round(x.height * (portrait ? 0.1 : 0.075))}px` }, uppercase: false, words: portrait ? 6 : 11 }
+      : captionStyleFor(x.captionStyle, x.direction, x.height);
     const caps = wordsToCaptions(seg.words, offsetMs);
     const highlight = x.direction.visualStyle.palette.accent;
     lines.push(
-      `${indent}<CaptionLayer name=${str(`${x.scene.id} captions`)} captionStyle=${str(x.captionStyle)} wordsPerGroup={${cs.words}} highlightColor=${str(highlight)} boxColor=${str("rgba(0,0,0,0.55)")} uppercase={${cs.uppercase}} style=${styleObj(cs.style)} captions={${captionsLiteral(caps, indent)}} />`,
+      `${indent}<CaptionLayer name=${str(`${x.scene.id} captions`)} captionStyle=${str(slide ? "minimal" : x.captionStyle)} wordsPerGroup={${cs.words}} highlightColor=${str(highlight)} boxColor=${str("rgba(0,0,0,0.55)")} uppercase={${cs.uppercase}} style=${styleObj(cs.style)} captions={${captionsLiteral(caps, indent)}} />`,
     );
   }
   return lines;

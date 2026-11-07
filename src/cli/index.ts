@@ -80,12 +80,12 @@ program
           prompt: o.prompt,
           durationSeconds: o.duration,
           style: o.style,
-          // Explainers default to landscape without captions, like a presentation.
+          // Explainers default to landscape, like a presentation.
           aspectRatio: o.aspect ?? (o.quality === "explainer" ? "16:9" : undefined),
           quality: o.quality,
           visualMode: o.visualMode,
           captionStyle: typeof o.captions === "string" ? o.captions : undefined,
-          captions: o.captions !== false && (o.quality !== "explainer" || typeof o.captions === "string"),
+          captions: o.captions !== false,
           narration: o.narration !== false,
           voiceId: o.voice,
           music: o.music,

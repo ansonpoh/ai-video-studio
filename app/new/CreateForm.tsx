@@ -13,7 +13,7 @@ const QUALITY_TEXT: Record<string, string> = {
   hybrid: "Recommended. AI stills with camera moves on most scenes, real AI clips for the hook and 2 key moments. You review the stills before paying for clips.",
   balanced: "Medium-quality images, up to 2 AI video clips, sound effects.",
   premium: "High-quality images on every scene, up to 5 AI video clips, sound effects.",
-  explainer: "Narrated slides with panels and diagrams that appear as they're spoken, a few cheap AI stills, and a chapter bar. No clips, music or captions. Up to 15 minutes.",
+  explainer: "Narrated slides with panels and diagrams that appear as they're spoken, a few cheap AI stills, and a chapter bar. No clips or music. Up to 15 minutes.",
 };
 
 const MODE_TEXT: Record<string, string> = {
@@ -72,7 +72,6 @@ export function CreateForm({ options, capabilities, music, presets, prices }: Pr
     setQuality(q);
     if (q === "explainer") {
       setAspect("16:9");
-      setCaptions(false);
       setSfx(false);
       setMusicChoice("none");
     } else {

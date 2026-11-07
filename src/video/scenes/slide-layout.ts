@@ -24,7 +24,7 @@ export const slideMediaBox = (mode: SlideMediaMode, hasItems: boolean, portrait:
   if (mode === "side") return portrait ? "0 0.04 1 0.4" : "0.46 0 0.54 0.94";
   if (mode === "frame") {
     if (portrait) return "0.05 0.2 0.9 0.34";
-    return hasItems ? "0.42 0.2 0.52 0.66" : "0.1 0.2 0.8 0.66";
+    return hasItems ? "0.42 0.2 0.52 0.62" : "0.1 0.2 0.8 0.62";
   }
   return "";
 };

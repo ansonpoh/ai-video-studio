@@ -251,7 +251,7 @@ describe("explainer projects", () => {
   let id = "";
 
   beforeAll(async () => {
-    id = createProject({ prompt: "How a bank CRM stays secure", quality: "explainer", aspectRatio: "16:9", captions: false, durationSeconds: 300, budgetUsd: 5 }, { providers: { llm: "mock" } });
+    id = createProject({ prompt: "How a bank CRM stays secure", quality: "explainer", aspectRatio: "16:9", durationSeconds: 300, budgetUsd: 5 }, { providers: { llm: "mock" } });
     await runPipeline(id, { providers, renderer: fakeRenderer, skipExport: true });
   }, 60_000);
 
@@ -261,6 +261,7 @@ describe("explainer projects", () => {
     expect(store.storyboard(id).scenes.every((s) => s.layout === "slide")).toBe(true);
     expect(src).toContain("<SlideLayer");
     expect(src).toContain("<ChapterBar");
+    expect(src).toContain("<CaptionLayer");
     expect(src).not.toContain("<ArtLayer");
     expect(store.metadata(id).direction?.visualStyle.name).toBe("Dark glass explainer");
     expect(store.assets(id).music).toBeFalsy();

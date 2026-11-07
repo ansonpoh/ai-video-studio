@@ -172,7 +172,8 @@ export const checkRender = async (id: string, file: string, opts: { expectCaptio
       if (el.tag !== "CaptionLayer") continue;
       const tr = src.slice(el.start, el.end).match(/translate:\s*"(-?\d+)px\s+(-?\d+)px"/);
       const lift = tr ? -Number(tr[2]) : 0;
-      if (lift < meta.height * 0.1) unsafe.push(el.name ?? "?");
+      // Platform buttons only cover the bottom of vertical videos.
+      if (lift < meta.height * (meta.height > meta.width ? 0.1 : 0.05)) unsafe.push(el.name ?? "?");
     }
     add("caption safe zone", unsafe.length === 0, unsafe.length ? `captions too low: ${unsafe.join(", ")}` : "captions sit above platform UI", "warn");
   }
